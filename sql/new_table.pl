@@ -114,7 +114,7 @@ $db = DBI->connect("DBI:mysql:$mysql_dbname:$mysql_host:3306", $mysql_user, $mys
 #$db->{PrintError} = 0;
 
 
-for(my $y = 1 ; $y < ($newtables+1); $y++)
+for(my $y = 0 ; $y < ($newtables+1); $y++)
 {
     $curtstamp = time()+(86400*$y);    
     new_table($curtstamp, $mystep, $partstep, $ORIGINAL_TABLE);    
