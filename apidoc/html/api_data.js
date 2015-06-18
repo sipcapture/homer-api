@@ -149,7 +149,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -250,7 +250,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\t  HTTP/1.1 200 OK\n\t  Set-Cookie: tcuass65ejl2lifoopuuurpmq7; path=/\n\t  Content-Type: application/json; charset=UTF-8\n\n\t  {\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n         }",
+          "content": "\t  HTTP/1.1 200 OK\n\t  Set-Cookie: tcuass65ejl2lifoopuuurpmq7; path=/\n\t  Content-Type: application/json; charset=UTF-8\n\n\t  {\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n\t\t\"status\":\"wrong-session\"\n         }",
           "type": "json"
         }
       ]
@@ -762,7 +762,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -1075,7 +1075,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -1227,7 +1227,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -1855,7 +1855,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -2322,7 +2322,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -2789,7 +2789,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -3137,7 +3137,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -3450,7 +3450,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
@@ -3602,7 +3602,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "\tHTTP/1.1 200 OK\n\tSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\n\tContent-Type: application/json; charset=UTF-8\n\n\t{\n\t\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n\t \t\"auth\":\"false\",\n       \t\"status\":\"wrong-session\"\n\t}",
+          "content": "HTTP/1.1 200 OK\nSet-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\nContent-Type: application/json; charset=UTF-8\n\n{\n\t\"sid\":\"tcuass65ejl2lifoopuuurpmq7\"\n \t\"auth\":\"false\",\n\t\"status\":\"wrong-session\"\n}",
           "type": "json"
         }
       ]
