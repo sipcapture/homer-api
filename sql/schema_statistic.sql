@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `alarm_config` (
   `active` int(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1  ;
 
 -- --------------------------------------------------------
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `alarm_data_mem` (
   UNIQUE KEY `type` (`type`,`source_ip`),
   KEY `to_date` (`create_date`),
   KEY `method` (`type`)
-) ENGINE=MEMORY DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=MEMORY DEFAULT CHARSET=latin1  ;
 
 -- --------------------------------------------------------
 
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `stats_ip_mem` (
   `total` int(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `datemethod` (`method`,`source_ip`)
-) ENGINE=MEMORY  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+) ENGINE=MEMORY  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `stats_method_mem` (
   KEY `from_date` (`create_date`),
   KEY `method` (`method`),
   KEY `completed` (`cseq`)
-) ENGINE=MEMORY DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=MEMORY DEFAULT CHARSET=latin1  ;
 
 -- --------------------------------------------------------
 
@@ -210,5 +210,5 @@ CREATE TABLE IF NOT EXISTS `stats_useragent_mem` (
   `total` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `useragent` (`useragent`,`method`)
-) ENGINE=MEMORY  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=MEMORY  DEFAULT CHARSET=latin1  ;
 

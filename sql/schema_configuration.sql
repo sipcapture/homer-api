@@ -1,3 +1,4 @@
+
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 --
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `alias` (
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `host_2` (`ip`),
   KEY `host` (`ip`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=23 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `alias`
@@ -65,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `link_share` (
   `expire` datetime NOT NULL DEFAULT '2032-12-31 00:00:00',
   `active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
 
 -- --------------------------------------------------------
 
@@ -87,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `node` (
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `host_2` (`host`),
   KEY `host` (`host`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `node`
@@ -116,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `setting` (
   UNIQUE KEY `uid_2` (`uid`,`param_name`),
   KEY `param_name` (`param_name`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=44 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 ;
 
 --
 -- Dumping data for table `setting`
@@ -147,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`uid`),
   UNIQUE KEY `login` (`username`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=24 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user`
