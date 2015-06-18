@@ -1,0 +1,474 @@
+<?php
+
+
+Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
+    ->setDebugMode(true) //prints the debug trace, line number and file if a exception has been thrown.
+    
+/**
+*  @api {get} /api/session get current session
+*  @apiName get session
+*  @apiGroup Auth
+*    
+*  @apiParam (cookie) {String} HOMERSESSID cookie session id   
+* 
+*  @apiExample Example usage:
+*   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X GET \
+*   "http://localhost/api/session"
+*    
+*  @apiSuccessTitle (700) Response 
+*  
+*  @apiSuccess (700) {String} sid session UUID. This should be used in cookie request for each next API call
+*  @apiSuccess (700) {Number} status The current status:  200, 403 (HTTP code)
+*  @apiSuccess (700) {String} message The current message: "ok","wrong-session"
+*  @apiSuccess (700) {String[]} data response array 
+*  @apiSuccess (700) {String} data.username username of user
+*  @apiSuccess (700) {String} data.gid gid of User
+*  @apiSuccess (700) {String} data.grp  groups of User
+*   
+*  @apiSuccessExample Success-Response:
+*      HTTP/1.1 200 OK
+*	{
+*	    "sid": "tcuass65ejl2lifoopuuurpmq7",
+*	    "auth": "true",
+*	    "status": 200,
+*	    "data": {
+*	        "username": "admin",
+*	        "gid": "10",
+*	        "grp": "users,admins"
+*	    } 
+* 
+*  @apiErrorExample Error-Response:
+*	  HTTP/1.1 200 OK
+*	  Set-Cookie: tcuass65ejl2lifoopuuurpmq7; path=/
+*	  Content-Type: application/json; charset=UTF-8
+*
+*	  {
+*		"sid":"tcuass65ejl2lifoopuuurpmq7"
+*	 	"auth":"false",
+*        	"status":"wrong-session"
+*          }    		     			
+*   
+**/    
+
+    ->addGetRoute('session', 'getSession') // => /api/session
+
+/**
+*  @api {post} /api/session create a session
+*  @apiName  create session
+*  @apiGroup Auth
+*
+*  @apiParam (cookie) {String} HOMERSESSID cookie session id   
+* 
+*  @apiExample Example usage:
+*   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
+*   -d '{"username":"admin","password":"test123"}' \
+*   http://localhost/api/session
+*      
+*  @apiParam {String} username Login for session creation.
+*  @apiParam {String} password Password for session creation.
+* 
+*  @apiSuccessTitle (700) Response 
+*  
+*  @apiSuccess (700) {String} sid session UUID. This should be used in cookie request for each next API call
+*  @apiSuccess (700) {Number} status The current status:  200, 403 (HTTP code)
+*  @apiSuccess (700) {String} message The current message: "ok","wrong-session"
+*  @apiSuccess (700) {Boolean} auth Is a request authorized ? 
+*  @apiSuccess (700) {String[]} data response array 
+*  @apiSuccess (700) {String} data.uid the user id
+*  @apiSuccess (700) {String} data.username username of User
+*  @apiSuccess (700) {String} data.gid gid of User
+*  @apiSuccess (700) {String} data.grp  groups of User
+*  @apiSuccess (700) {String} data.firstname Firstname of User
+*  @apiSuccess (700) {String} data.lastname Lastname of user
+*  @apiSuccess (700) {String} data.email User's email
+*  @apiSuccess (700) {Date} data.lastvisit Last visit
+* 
+*  @apiSuccessExample Success-Response:
+*	HTTP/1.1 200 OK
+*	{
+*	    "status": 200,
+*	    "sid": "tcuass65ejl2lifoopuuurpmq7",
+*	    "auth": "true",
+*	    "message": "ok",
+*	    "data": {
+*	        "uid": "3",
+*	        "username": "admin",
+*	        "gid": "10",
+*	        "grp": "users,admins",
+*	        "firstname": "Alexandr",
+*	        "lastname": "Dubovikov",
+*	        "email": "admin@sipcapture.org",
+*	        "lastvisit": "2015-06-18 08:25:55"
+*	}   
+* 
+*  @apiErrorExample Error-Response:
+*	HTTP/1.1 200 OK
+*	Set-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/
+*	Content-Type: application/json; charset=UTF-8
+*
+*	{
+*		"sid":"tcuass65ejl2lifoopuuurpmq7"
+*	 	"auth":"false",
+*        	"status":"wrong-session"
+*	}    		     			
+**/
+
+
+
+    ->addPostRoute('session', 'doSession') // => /api/session
+/*
+*  @api {delete} /api/session delete current session
+*  @apiName delete session
+*  @apiGroup Auth
+*    
+*  @apiParam (cookie) {String} HOMERSESSID cookie session id   
+* 
+*  @apiExample Example usage:
+*   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X DELETE \
+*   "http://localhost/api/session"
+*    
+*  @apiSuccessTitle (700) Response 
+*  
+*  @apiSuccess (700) {String} sid session UUID. This should be used in cookie request for each next API call
+*  @apiSuccess (700) {Number} status The current status:  200, 403 (HTTP code)
+*  @apiSuccess (700) {String} message The current message: "session deleted","wrong-session"
+*   
+*  @apiSuccessExample Success-Response:
+*      HTTP/1.1 200 OK
+*	{
+*	    "sid": "",
+*	    "auth": "true",
+*	    "status": 200,
+*	    "message": "session deleted"
+*	}
+* 
+*  @apiErrorExample Error-Response:
+*	  HTTP/1.1 200 OK
+*	  Set-Cookie: tcuass65ejl2lifoopuuurpmq7; path=/
+*	  Content-Type: application/json; charset=UTF-8
+*
+*	  {
+*		"sid":"tcuass65ejl2lifoopuuurpmq7"
+*		"auth":"false",
+*		"status":"wrong-session"
+*          }    		     			
+*   
+**/    
+
+
+    ->addDeleteRoute('session', 'doLogout') // => /admin/logout
+/**
+*  @api {get} /api/logout delete current session
+*  @apiName logout of session
+*  @apiGroup Auth
+*    
+*  @apiParam (cookie) {String} HOMERSESSID cookie session id   
+* 
+*  @apiExample Example usage:
+*   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X GET \
+*   "http://localhost/api/logout"
+*    
+*  @apiSuccessTitle (700) Response 
+*  
+*  @apiSuccess (700) {String} sid session UUID. This should be used in cookie request for each next API call
+*  @apiSuccess (700) {Number} status The current status:  200, 403 (HTTP code)
+*  @apiSuccess (700) {String} message The current message: "session deleted","wrong-session"
+*   
+*  @apiSuccessExample Success-Response:
+*      HTTP/1.1 200 OK
+*	{
+*	    "sid": "",
+*	    "auth": "true",
+*	    "status": 200,
+*	    "message": "session deleted"
+*	}
+* 
+*  @apiErrorExample Error-Response:
+*	  HTTP/1.1 200 OK
+*	  Set-Cookie: tcuass65ejl2lifoopuuurpmq7; path=/
+*	  Content-Type: application/json; charset=UTF-8
+*
+*	  {
+*		"sid":"tcuass65ejl2lifoopuuurpmq7"
+*		"auth":"false",
+*		"status":"wrong-session"
+*          }    		     			
+*   
+**/    
+
+
+    ->addGetRoute('logout', 'doLogout') // => /admin/logout
+    
+    ->addSubController('search', 'RestApi\Search') //adds a new sub entry point 'tools' => admin/tools
+/**
+*  @api {post} /api/search/data do search
+*  @apiName  search data
+*  @apiGroup Search
+*
+*  @apiParam (cookie) {String} HOMERSESSID cookie session id   
+* 
+*  @apiExample Example usage:
+*   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
+*   -d '{"param":{"transaction":{"call":true},"limit":200,"search":{"ruri_user":"108"},"node":[{"id":"1","name":"homer01"}]},"timestamp":{"from":1433521859738,"to":1433529659738}}' \
+*   http://localhost/api/session
+*      
+*  @apiParam {String[]} timestamp array 
+*  @apiParam {Number} timestamp.from search from this time
+*  @apiParam {Number} timestamp.to search to this time
+*  @apiParam {String[]} param array 
+*  @apiParam {Number} param.limit call limit 
+*  @apiParam {String[]} param.transaction  array
+*  @apiParam {Boolean} param.transaction.call search for call transaction
+*  @apiParam {Boolean} param.transaction.registration search for registration transaction
+*  @apiParam {Boolean} param.transaction.rest search for rest transaction
+*  @apiParam {String[]} param.search array
+*  @apiParam {String} param.search.from_user From user
+*  @apiParam {String} param.search.to_user To user
+*  @apiParam {String} param.search.ruri_user Ruri user
+*  @apiParam {String} param.search.callid Callid user
+*  @apiParam {String} param.search.callid_aleg Callid of Aleg  user
+*  @apiParam {String} param.search.contact_user Contact user
+*  @apiParam {String} param.search.pid_user P-Asserted-Identity user
+*  @apiParam {String} param.search.auth_user Auth user
+*  @apiParam {String} param.search.user_agent User-Agent
+*  @apiParam {String} param.search.method method (INVITE, BYE)
+*  @apiParam {String} param.search.cseq Cseq of message
+*  @apiParam {String} param.search.reason Reason of Message (200, 180, 503)
+*  @apiParam {String} param.search.msg Raw message
+*  @apiParam {String} param.search.diversion Diversion
+*  @apiParam {String} param.search.via_1 First via
+*  @apiParam {String} param.search.source_ip Source IP of message
+*  @apiParam {String} param.search.source_port Source port of message
+*  @apiParam {String} param.search.destination_ip Destination IP of message
+*  @apiParam {String} param.search.destination_port Destination port of message
+*  @apiParam {String} param.search.uniq uniq packets
+*  @apiParam {String} param.search.proto protocol of transport
+*  @apiParam {String} param.search.family IP family (4, 6)
+*  @apiParam {String} param.search.orand user OR login in search
+*  @apiParam {String[]} param.search.node array of nodes
+*  @apiParam {String} param.search.node.id id of node
+*  @apiParam {String} param.search.node.name name of node
+*
+* 
+*  @apiSuccessTitle (700) Response 
+*  
+*  @apiSuccess (700) {String} sid session UUID. This should be used in cookie request for each next API call
+*  @apiSuccess (700) {Number} status The current status:  200, 403 (HTTP code)
+*  @apiSuccess (700) {String} message The current message: "ok","wrong-session"
+*  @apiSuccess (700) {Boolean} auth Is a request authorized ? 
+*  @apiSuccess (700) {String[]} data response array 
+*  @apiSuccess (700) {String} data.id record id of message
+*  @apiSuccess (700) {String} data.date datetime of record
+*  @apiSuccess (700) {String} data.milli_ts timestamp of record in milliseconds
+*  @apiSuccess (700) {String} data.micro_ts timestamp of record in microseconds
+*  @apiSuccess (700) {String} data.from_user From user
+*  @apiSuccess (700) {String} data.from_domain From domain
+*  @apiSuccess (700) {String} data.from_tag From tag
+*  @apiSuccess (700) {String} data.to_user To user
+*  @apiSuccess (700) {String} data.to_domain To domain
+*  @apiSuccess (700) {String} data.to_tag To tag
+*  @apiSuccess (700) {String} data.ruri_user Ruri user
+*  @apiSuccess (700) {String} data.ruri_domain Ruri domain
+*  @apiSuccess (700) {String} data.callid Callid user
+*  @apiSuccess (700) {String} data.callid_aleg Callid of Aleg  user
+*  @apiSuccess (700) {String} data.contact_user Contact user
+*  @apiSuccess (700) {String} data.correlation_id Correlation ID of message
+*  @apiSuccess (700) {String} data.pid_user P-Asserted-Identity user
+*  @apiSuccess (700) {String} data.auth_user Auth user
+*  @apiSuccess (700) {String} data.user_agent User-Agent
+*  @apiSuccess (700) {String} data.method method (INVITE, BYE)
+*  @apiSuccess (700) {String} data.cseq Cseq of message
+*  @apiSuccess (700) {String} data.reply_reason reply reason of Message (OK, Ringing..)
+*  @apiSuccess (700) {String} data.msg Raw message
+*  @apiSuccess (700) {String} data.diversion Diversion
+*  @apiSuccess (700) {String} data.via_1 First via
+*  @apiSuccess (700) {String} data.via_1_branch First via branch
+*  @apiSuccess (700) {String} data.source_ip Source IP of message
+*  @apiSuccess (700) {String} data.source_port Source port of message
+*  @apiSuccess (700) {String} data.destination_ip Destination IP of message
+*  @apiSuccess (700) {String} data.destination_port Destination port of message
+*  @apiSuccess (700) {String} data.contact_ip IP of contact
+*  @apiSuccess (700) {String} data.contact_port port of contact
+*  @apiSuccess (700) {String} data.originator_ip Originator IP of message
+*  @apiSuccess (700) {String} data.originator_port Originator port of message
+*  @apiSuccess (700) {String} data.rtp_stat Rtp statistic of call
+*  @apiSuccess (700) {String} data.type encapsulation type 
+*  @apiSuccess (700) {String} data.node store node of message 
+*  @apiSuccess (700) {String} data.dbnode db node type of message (single)
+*  @apiSuccess (700) {String} data.trans transaction type of message (call, registration)
+*  @apiSuccess (700) {String} data.proto protocol of transport
+*  @apiSuccess (700) {String} data.family IP family 
+*
+* 
+*  @apiSuccessExample Success-Response:
+*	HTTP/1.1 200 OK
+*	{
+*	    "status": 200,
+*	    "sid": "qbha61781lqpfpnodvkqbfeai4",
+*	    "auth": "true",
+*	    "message": "ok",
+*	    "data": [
+*        	{
+*			"id": "14588",
+*			"date": "2015-06-05 18:39:02",
+*			"milli_ts": "1433529542283",
+*			"micro_ts": "1433529542283432",
+*			"method": "401",
+*			"reply_reason": "Unauthorized",
+*			"ruri": "",
+*			"ruri_user": "",
+*	            	"ruri_domain": "",
+*			"from_user": "lab",
+*	            	"from_domain": "",
+*			"from_tag": "1022317138",
+*	            	"to_user": "lab",
+*			"to_domain": "",
+*	            	"to_tag": "1d24a28a0bded6c40d31e6db8aab9ac6.5494",
+*			"pid_user": "",
+*	            	"contact_user": "",
+*			"auth_user": "",
+*	            	"callid": "426690302",
+*	            	"callid_aleg": "",
+*	            	"via_1": "SIP\/2.0\/UDP 192.168.1.23:5060;received=87.210.62.235;rport=5060;branch=z9hG4bK148935884",
+*			"via_1_branch": "z9hG4bK148935884",
+*	            	"cseq": "1521 REGISTER",
+*	            	"diversion": "",
+*	            	"reason": "",
+*	            	"content_type": "",
+*	            	"auth": "",
+*	            	"user_agent": "",
+*	            	"source_ip": "188.226.157.55",
+*	            	"source_port": "5060",
+*	            	"destination_ip": "87.210.62.235",
+*	            	"destination_port": "5060",
+*	            	"contact_ip": "",
+*	            	"contact_port": "0",
+*	            	"originator_ip": "",
+*	            	"originator_port": "0",
+*	            	"correlation_id": "",
+*	            	"proto": "1",
+*	            	"family": "2",
+*			"rtp_stat": "",
+*	            	"type": "2",
+*			"node": "homer01:2001",
+*	           	"trans": "call",
+*			"dbnode": "single"
+*	        }, 
+*		...				
+*	    ],
+*	    "count": 200
+*      }
+*
+*  @apiErrorExample Error-Response:
+*	HTTP/1.1 200 OK
+*	Set-Cookie: HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/
+*	Content-Type: application/json; charset=UTF-8
+*
+*	{
+*		"sid":"tcuass65ejl2lifoopuuurpmq7"
+*	 	"auth":"false",
+*        	"status":"wrong-session"
+*	}    		     			
+**/
+
+
+      ->addPostRoute('data', 'doSearchData') // => /api/session
+      ->addPostRoute('method', 'doSearchMethod') // => /api/session
+      ->addPostRoute('message', 'doSearchMessage') // => /api/session
+      ->addPostRoute('transaction', 'doSearchTransaction') // => /api/session
+      ->addPostRoute('sharelink', 'doShareLink') // => /api/session
+      ->addPostRoute('share/transaction', 'doSearchShareTransaction') // => /api/session
+      ->addPostRoute('share/export/pcap', 'doPcapExportById') // => /api/session
+      ->addPostRoute('share/export/text', 'doTextExportById') // => /api/session
+      ->addPostRoute('export/pcap', 'doPcapExport') // => /api/session
+      ->addPostRoute('export/text', 'doTextExport') // => /api/session
+      ->addPostRoute('export/data/pcap', 'doPcapExportData') // => /api/session
+      ->addPostRoute('export/data/text', 'doTextExportData') // => /api/session      
+      ->addGetRoute('data', 'getSearchData') // => /api/session
+    ->done()
+
+    /* statistic */    
+    ->addSubController('statistic', 'RestApi\Statistic') //adds a new sub entry point 'tools' => admin/tools
+      ->addGetRoute('method', 'getStatisticMethod') // => /api/session
+      ->addPostRoute('method', 'doStatisticMethod') // => /api/session
+      ->addPostRoute('data', 'doStatisticData') // => /api/session
+      ->addGetRoute('data', 'getStatisticData') // => /api/session
+      ->addPostRoute('ip', 'doStatisticIP') // => /api/session
+      ->addGetRoute('ip', 'getStatisticIP') // => /api/session
+      ->addPostRoute('useragent', 'doStatisticUserAgent') // => /api/session
+      ->addGetRoute('useragent', 'getStatisticUserAgent') // => /api/session
+    ->done()
+
+    /* alarm */    
+    ->addSubController('alarm', 'RestApi\Alarm') //adds a new sub entry point 'tools' => admin/tools
+      ->addGetRoute('config/get', 'getAlarmConfig') // => /api/session
+      ->addPostRoute('config/new', 'doNewAlarmConfig') // => /api/session
+      ->addPostRoute('config/edit', 'doEditAlarmConfig') // => /api/session
+      ->addDeleteRoute('config/delete/([0-9]+)', 'deleteAlarmConfig')      
+      ->addGetRoute('list/get', 'getAlarmList') // => /api/session      
+      ->addPostRoute('list/edit', 'doEditAlarmList') // => /api/session      
+      ->addGetRoute('method', 'getAlarmMethod') // => /api/session
+      ->addPostRoute('method', 'doAlarmMethod') // => /api/session
+      ->addPostRoute('ip', 'doAlarmIP') // => /api/session
+      ->addGetRoute('ip', 'getAlarmIP') // => /api/session
+      ->addPostRoute('useragent', 'doAlarmUserAgent') // => /api/session
+      ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/session
+    ->done()
+
+    /* report */    
+    ->addSubController('report', 'RestApi\Report') //adds a new sub entry point 'tools' => admin/tools
+      ->addPostRoute('rtcp', 'doRTCPReport') // => /api/session      
+      ->addPostRoute('log', 'doLogReport') // => /api/session
+      ->addPostRoute('quality/([A-Za-z]+)', 'doQualityReport') // => /api/session
+    ->done()
+
+    /* admin */    
+    ->addSubController('admin', 'RestApi\Admin') //adds a new sub entry point 'tools' => admin/tools
+      ->addGetRoute('user/get', 'getUser') // => /api/session
+      ->addGetRoute('user/get/([0-9A-Za-z_])', 'getUserById') // => /api/session
+      ->addPostRoute('user/new', 'doNewUser') // => /api/session
+      ->addPostRoute('user/edit', 'doEditUser') // => /api/session
+      ->addDeleteRoute('user/delete/([0-9]+)', 'deleteUser')      
+
+      /* alias */          
+      ->addGetRoute('alias/get', 'getAlias') // => /api/session
+      ->addGetRoute('user/get/([0-9A-Za-z_])', 'getAliasById') // => /api/session
+      ->addPostRoute('alias/new', 'doNewAlias') // => /api/session
+      ->addPostRoute('alias/edit', 'doEditAlias') // => /api/session
+      ->addDeleteRoute('user/delete/([0-9]+)', 'deleteAlias')          
+      /* nodes */
+      ->addGetRoute('node/get', 'getNode') // => /api/session
+      ->addGetRoute('node/get/([0-9A-Za-z_])', 'getNodeById') // => /api/session
+      ->addPostRoute('node/new', 'doNewNode') // => /api/session
+      ->addPostRoute('node/edit', 'doEditNode') // => /api/session
+      ->addDeleteRoute('node/delete/([0-9]+)', 'deleteNode')                
+      /* alarms */
+      ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/session
+    ->done()
+
+         
+    ->addSubController('profile', 'RestApi\Profile') //adds a new sub entry point 'tools' => admin/tools
+      ->addPostRoute('store/([0-9A-Za-z_-]+)', 'postIdProfile')
+      ->addPostRoute('store', 'postProfile')
+      ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdProfile')      
+      ->addGetRoute('store', 'getProfile')
+      ->addDeleteRoute('store/([0-9A-Z_-]+)', 'deleteIdProfile')      
+      ->addDeleteRoute('store', 'deleteProfile')
+    ->done()
+    
+    ->addSubController('dashboard', 'RestApi\Dashboard') //adds a new sub entry point 'tools' => admin/tools
+      ->addPostRoute('store/([0-9A-Z_-]+)', 'postIdDashboard')
+      ->addPostRoute('store', 'postDashboard')
+      ->addPostRoute('upload', 'uploadDashboard')
+      ->addGetRoute('store/1)', 'newDashboard')      
+      ->addPostRoute('menu/([0-9A-Z_-]+)', 'postMenuDashboard')
+      ->addGetRoute('node', 'getNode')
+      ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdDashboard')      
+      ->addGetRoute('store', 'getDashboard')
+      ->addDeleteRoute('store/([0-9A-Z_-]+)', 'deleteIdDashboard')      
+      ->addDeleteRoute('store', 'deleteDashboard')
+    ->done()
+    
+->run();
+
+?>
