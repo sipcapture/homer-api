@@ -45,7 +45,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	  {
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *          }    		     			
 *   
 **/    
@@ -109,7 +109,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -367,7 +367,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -516,7 +516,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -666,7 +666,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
       
@@ -796,7 +796,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -850,7 +850,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -901,7 +901,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -976,7 +976,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -1049,7 +1049,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
@@ -1194,7 +1194,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	{
 *		"sid":"tcuass65ejl2lifoopuuurpmq7"
 *	 	"auth":"false",
-*        	"status":"wrong-session"
+*		"status":"wrong-session"
 *	}    		     			
 **/
 
