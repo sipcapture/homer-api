@@ -602,7 +602,7 @@ class Search {
         $limit_orig = getVar('limit', 100, $param, 'int');
         
         $record_id = getVar('id', 0, $param['search'], 'int');
-        $callids = getVar('callid', [], $param['search'], 'array');        
+        $callids = getVar('callid', array(), $param['search'], 'array');        
         
         $callwhere = array();        
 
