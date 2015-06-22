@@ -698,7 +698,11 @@ class Search {
                 if(!$min_ts) $min_ts = $row['micro_ts'];                
         }
 
-        if(!$max_ts) $max_ts = end($data)['micro_ts'];
+	if(!$max_ts) {
+		$max_ts_tmp = end($data);
+		$max_ts = $max_ts_tmp['micro_ts'];
+	}
+        //if(!$max_ts) $max_ts = end($data)['micro_ts'];
 
         /* calculate total duration if it set */
 
@@ -774,9 +778,12 @@ class Search {
                     $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
                     if(!$min_ts) $min_ts = $row['micro_ts'];                
             }
-
-            if(!$max_ts) $max_ts = end($data)['micro_ts'];
             
+            if(!$max_ts) {
+		$max_ts_tmp = end($data);
+		$max_ts = $max_ts_tmp['micro_ts'];
+	    }
+
             /* calculate total duration if it set */
 
             $totdur = gmdate("H:i:s", intval(($max_ts - $min_ts) / 1000000));
