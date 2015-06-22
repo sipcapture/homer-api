@@ -24,7 +24,7 @@ use DBI;
 
 $version = "0.4.0";
 $mysql_table = $ARGV[1] // "sip_capture";
-$mysql_dbname = $ARGV[0] // "homer_db";
+$mysql_dbname = $ARGV[0] // "homer_data";
 $mysql_user = "mysql_login";
 $mysql_password = "mysql_password";
 $mysql_host = "localhost";
