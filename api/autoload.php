@@ -41,11 +41,12 @@ function getVar($name, $default, $request, $type) {
         switch(strtolower($type))
         {
                 case "int":
-                    $val = intval($val);
+                    //$val = intval($val);
+                    $val = $val + 0;
                     break;
 
                 case "long":
-                    $val = intval($val);
+                    $val = $val + 0;
                     break;                    
 
                 case "float":
