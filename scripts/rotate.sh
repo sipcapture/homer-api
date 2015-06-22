@@ -10,11 +10,11 @@ $new_table
 
 #rtcp_capture: part step: 1 day and 10 days keep data.
 # ARGV[0] = DB, ARGV[1] = Table, ARGV[2] = STEP, ARGV[3] = MAX DAYS
-$programm homer_db rtcp_capture 0 10
+$programm homer_data rtcp_capture 0 10
 #logs_capture: part step: 1 day and 10 days keep data.
-$programm homer_db logs_capture 0 10
+$programm homer_data logs_capture 0 10
 #logs_capture: part step: 1 day and 10 days keep data.
-$programm homer_db report_capture  0 10
+$programm homer_data report_capture  0 10
 #stats: part step: 1 day and 20 days keep data
 $programm homer_statistic stats_ip 0 20
 #stats: part step: 1 day and 20 days keep data
