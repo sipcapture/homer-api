@@ -1193,9 +1193,10 @@ class Server
             return array($method, null, $pMethod, $pUri);
         } else {
             //maybe we have a regex uri
+
             foreach ($this->routes as $routeUri => $routeMethods) {
 
-                if (preg_match('|^'.$routeUri.'$|', $pUri, $matches)) {
+                if (preg_match('|^'.$routeUri.'$|', $pUri, $matches)) {                
 
                     if (!isset($routeMethods[$pMethod])) {
                         if (isset($routeMethods['_all_']))
@@ -1211,7 +1212,6 @@ class Server
 
                     return array($routeMethods[$pMethod], $arguments, $pMethod, $routeUri);
                 }
-
             }
         }
 

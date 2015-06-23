@@ -40,6 +40,7 @@ class Internal extends Authentication {
 	private $user_table = "user";
 	private $user_level = "userlevel"; 
 	private $db;
+	private $_instance = null;
 
 	function __construct($utable = NULL)
 	{

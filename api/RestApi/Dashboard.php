@@ -28,6 +28,10 @@
 namespace RestAPI;
 
 class Dashboard {
+    
+    private $authmodule = true;
+    private $_instance = array();
+
     /**
     * Clears the cache of the app.
     *

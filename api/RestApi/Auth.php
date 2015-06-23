@@ -29,6 +29,8 @@ namespace RestApi;
 
 class Auth {
     
+
+    private $_instance = null;
     
     function __construct()
     {

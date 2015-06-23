@@ -77,6 +77,8 @@ class Client
      * @var string
      */
     public $method;
+    
+    public $parameters;
 
 
     public static $statusCodes = array(
@@ -133,6 +135,8 @@ class Client
         $this->ui_ip = $_SERVER['REMOTE_ADDR'];
         $this->query_string = $_SERVER['QUERY_STRING'];
         $this->ui_user_agent = $_SERVER['HTTP_USER_AGENT'];
+        
+        $parameters = array();
 
         if (isset($_SERVER['PATH_INFO'])) $this->setUrl($_SERVER['PATH_INFO']);            
         else if (isset($_SERVER['REQUEST_URI']))

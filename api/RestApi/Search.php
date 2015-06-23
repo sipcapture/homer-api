@@ -859,6 +859,8 @@ class Search {
 		    $calldata['destination_ip'] = $data->destination_ip;
 		}
 
+		if(!array_key_exists('callid', $info)) $info['callid'] = array();
+
 		//array_push($info['callid'], $data->callid);
 		if(!in_array($data->callid, $info['callid'])) 
 		{
@@ -951,12 +953,6 @@ class Search {
 		else {
 		      $uac[$src_id] = array("image" => "sipgateway", "agent" => $data->user_agent);
 		}
-
-
-		/*TIME*/		
-		list($date, $time) = split(' ', $data->create_date);
-		list($year, $month, $day) = split('[/.-]', $date);
-		list($hour, $minute, $second) = split('[/:]', $time);
 
 		//$timestamp = floor($data->micro_ts / 1000000);
 		//$milliseconds = round( $data->micro_ts  - ($timestamp * 1000000) );

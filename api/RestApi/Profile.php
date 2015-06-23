@@ -253,7 +253,7 @@ class Profile {
     
     public function getContainer($name)
     {
-        if (!$this->_instance || $this->_instance[$name] === null) {
+        if (!$this->_instance || !array_key_exists($name, $this->_instance) || $this->_instance[$name] === null) {
             if($name == "auth") $containerClass = sprintf("Authentication\\".AUTHENTICATION);
             else if($name == "db") $containerClass = sprintf("Database\\".DATABASE_CONNECTOR);
             $this->_instance[$name] = new $containerClass();

@@ -69,7 +69,9 @@ class Report {
         
         $data = array();
         
-        $lnodes = $param['node'];
+        $lnodes = array();
+        
+        if(array_key_exists('node', $param)) $lnodes = $param['node'];
                         
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
@@ -82,7 +84,7 @@ class Report {
                 
         /* search fields */        
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
-        $search['type'] = getVar('uniq', -1, $param['type'], 'int');
+        $search['type'] = getVar('type', -1, $param['search'], 'int');
         $search['proto'] = getVar('proto', -1, $param['search'], 'int');
         $search['family'] = getVar('family', -1, $param['search'], 'int');
         $and_or = getVar('orand', NULL, $param['search'], 'string');
@@ -125,7 +127,7 @@ class Report {
                 $table = "rtcp_capture";                            
                 $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                 if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-                $noderows = $db->loadObjectArray($query.$order);
+                $noderows = $db->loadObjectArray($query);
                 $data = array_merge($data,$noderows);                
                 $limit -= count($noderows);
             }
@@ -165,7 +167,9 @@ class Report {
         
         $data = array();
         
-        $lnodes = $param['node'];
+        $lnodes = array();
+        if(array_key_exists('node', $param)) $lnodes = $param['node'];
+                          
                         
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
@@ -175,9 +179,9 @@ class Report {
         $time['from_ts']-=60;
         $time['to_ts']+=60;
         
-        /* search fields */        
+        /* search fields */                
+        $search['type'] = getVar('uniq', -1, $param['search'], 'int');                
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
-        $search['type'] = getVar('uniq', -1, $param['type'], 'int');
         $search['proto'] = getVar('proto', -1, $param['search'], 'int');
         $search['family'] = getVar('family', -1, $param['search'], 'int');
         $and_or = getVar('orand', NULL, $param['search'], 'string');
@@ -219,7 +223,7 @@ class Report {
                 $table = "logs_capture";                            
                 $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                 if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-                $noderows = $db->loadObjectArray($query.$order);
+                $noderows = $db->loadObjectArray($query);
                 $data = array_merge($data,$noderows);                
                 $limit -= count($noderows);
             }
@@ -259,8 +263,10 @@ class Report {
         
         $data = array();
         
-        $lnodes = $param['node'];
-                        
+        $lnodes = array();
+        if(array_key_exists('node', $param)) $lnodes = $param['node'];
+                          
+                                
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
         $time['from_ts'] = floor($time['from']/1000);
@@ -271,7 +277,7 @@ class Report {
         
         /* search fields */        
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
-        $search['type'] = getVar('uniq', -1, $param['type'], 'int');
+        $search['type'] = getVar('type', -1, $param['search'], 'int');
         $search['proto'] = getVar('proto', -1, $param['search'], 'int');
         $search['family'] = getVar('family', -1, $param['search'], 'int');        
         $and_or = getVar('orand', NULL, $param['search'], 'string');        
@@ -314,7 +320,7 @@ class Report {
                 $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                             
                 if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-                $noderows = $db->loadObjectArray($query.$order);
+                $noderows = $db->loadObjectArray($query);
 
                 $data = array_merge($data,$noderows);                
                 $limit -= count($noderows);
