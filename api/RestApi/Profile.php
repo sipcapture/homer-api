@@ -203,7 +203,7 @@ class Profile {
              $db->dbconnect();
 
              $query = "DELETE FROM setting WHERE uid='?'";
-             $query  = $db->makeQuery($query, $uid, $id);
+             $query  = $db->makeQuery($query, $uid);
              $db->executeQuery($query);        
         } 
          
