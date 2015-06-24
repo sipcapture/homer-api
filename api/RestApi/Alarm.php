@@ -241,7 +241,7 @@ class Alarm {
         $data = $db->loadObjectArray($query);
 
         /* sorting */
-        usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+        //usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
                            
         $answer = array();          
                 
