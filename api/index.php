@@ -48,17 +48,10 @@ define('WEBROOT', preg_replace('/api(.*)$/', '', $_SERVER["REQUEST_URI"]));
 Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 
     ->setDebugMode(true) //prints the debug trace, line number and file if a exception has been thrown.
-    ->addGetRoute('login', 'doLogin') // => /admin/login
     ->addGetRoute('session', 'getSession') // => /api/session
     ->addPostRoute('session', 'doSession') // => /api/session
     ->addDeleteRoute('session', 'doLogout') // => /admin/logout
     ->addGetRoute('logout', 'doLogout') // => /admin/logout
-    ->addGetRoute('page', 'getPages')
-    ->addPutRoute('page', 'addPage')
-    ->addGetRoute('page/([0-9]+)', 'getPage')
-    ->addDeleteRoute('page/([0-9]+)', 'deletePage')
-    ->addPostRoute('page/([0-9]+)', 'updatePage')
-    ->addGetRoute('foo/bar/too', 'doFooBar')       
     
     ->addSubController('search', 'RestApi\Search') //adds a new sub entry point 'tools' => admin/tools
       ->addPostRoute('data', 'doSearchData') // => /api/session
@@ -149,7 +142,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('store/([0-9A-Z_-]+)', 'postIdDashboard')
       ->addPostRoute('store', 'postDashboard')
       ->addPostRoute('upload', 'uploadDashboard')
-      ->addGetRoute('store/1)', 'newDashboard')      
+      ->addGetRoute('store/1', 'newDashboard')      
       ->addPostRoute('menu/([0-9A-Z_-]+)', 'postMenuDashboard')
       ->addGetRoute('node', 'getNode')
       ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdDashboard')      
