@@ -135,7 +135,7 @@ class Alarm {
         $update['stopdate'] = getVar('stopdate', '', $param, 'date');        
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }
@@ -181,7 +181,7 @@ class Alarm {
         $id = getVar('id', 0, $param, 'int');            
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }
@@ -320,7 +320,7 @@ class Alarm {
             $search[$key]['auth'] = getVar('auth', -1, $filter, 'int');
             $search[$key]['totag'] = getVar('method', -1, $filter, 'int');        
             
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
@@ -413,7 +413,7 @@ class Alarm {
         foreach($param['filter'] as $key=>$filter) {
         
             $search[$key]['type'] = getVar('type', NULL, $filter, 'string');            
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
@@ -507,7 +507,7 @@ class Alarm {
         
             $search[$key]['method'] = getVar('method', NULL, $filter, 'string');            
             $search[$key]['source_ip'] = getVar('source_ip', NULL, $filter, 'string');            
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
@@ -601,7 +601,7 @@ class Alarm {
         foreach($param['filter'] as $key=>$filter) {        
             $search[$key]['method'] = getVar('method', NULL, $filter, 'string');            
             $search[$key]['useragent'] = getVar('useragent', NULL, $filter, 'string');            
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         

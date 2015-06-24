@@ -141,7 +141,7 @@ class Admin {
         $password = getVar('password', '', $param, 'string');        
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten = "`password` = PASSWORD('".$password."'),";        
                 $exten .= implode(", ", $callwhere);                
@@ -188,7 +188,7 @@ class Admin {
         $uid = getVar('uid', 0, $param, 'int');            
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 if(strlen($password) > 0) $exten = "`password` = PASSWORD('".$password."'),";        
                 $exten .= implode(", ", $callwhere);                
@@ -293,7 +293,7 @@ class Admin {
         $update['gid'] = getVar('gid', 10, $param, 'int');              
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }
@@ -335,7 +335,7 @@ class Admin {
         $id = getVar('id', 0, $param, 'int');            
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }
@@ -443,7 +443,7 @@ class Admin {
         $update['name'] = getVar('name', '', $param, 'string');        
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }
@@ -488,7 +488,7 @@ class Admin {
         $id = getVar('id', 0, $param, 'int');            
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db);
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }

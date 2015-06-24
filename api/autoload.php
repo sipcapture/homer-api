@@ -84,22 +84,17 @@ function getVar($name, $default, $request, $type) {
         return $val;
 }
 
-function generateWhere ($search, $and_or, $db, $skip_keys = array()) {
+function generateWhere ($search, $and_or, $db, $b2b, $skip_keys = array()) {
            $s = 0;
-
            $mydb = $db;
-
            $callwhere = array();
-           $b2b = 0;
 
            // Prepare WHERE PARAMS
            foreach($search as $key=>$value) {
-                   if(in_array($key, $skip_keys)) continue;
+                   if(in_array($key, $skip_keys)) continue;                   
 
                    // SKIP EMPTY VALUES
                    if($value == NULL || $value == "" || $value == -1) continue;
-
-                   if($key == "callid" && $b2b ) $callwhere[] =" (";
 
                    $eqlike = preg_match("/%/", $value) ? " like " : " = ";
 
@@ -111,16 +106,25 @@ function generateWhere ($search, $and_or, $db, $skip_keys = array()) {
                    /* Array search */
                    if(preg_match("/;/", $value)) {
                       $dda = array();
-                      foreach(preg_split("/;/", $value) as $k=>$v) $dda[] = "`".$key."`".$eqlike.$mydb->quote($v);
-                      $callwhere[] = "( ". ($eqlike == " = ") ? implode(" OR ",$dda) : implode(" AND ",$dda)." )";
+                      foreach(preg_split("/;/", $value) as $k=>$v) {                           
+                           $dda[] = "`".$key."`".$eqlike.$mydb->quote($v);
+                           if($key == "callid" && $b2b && BLEGCID == "b2b" ) $dda[] = "`".$key."`".$eqlike.$mydb->quote($v.BLEGTAIL);
+                           else if($key == "callid" && $b2b && BLEGCID == "xcid" ) $dda[] = "`callid_aleg`".$eqlike.$mydb->quote($v);
+                      }
+                      $callwhere[] = "( ". ($eqlike == " = ") ? implode(" OR ",$dda) : implode(" AND ",$dda)." )";                                                      
                    }
                    else {
                        $mkey = "`".$key."`";                                              
-                       //if($s == 1) $callwhere[] = $and_or;                       
-                       $callwhere[] = $mkey.$eqlike.$mydb->quote($value);
+                       if($key == "callid" && $b2b && BLEGCID == "b2b" ) {
+                           $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR ". $mkey.$eqlike.$mydb->quote($value.BLEGTAIL).")";
+                       }                                              
+                       else if($key == "callid" && $b2b && BLEGCID == "xcid" ) {
+                           $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR callid_aleg ".$eqlike.$mydb->quote($value).")";
+                       }                       
+                       else {                       
+                           $callwhere[] = $mkey.$eqlike.$mydb->quote($value);
+                       }                                              
                    }
-                   
-                   if($key == "callid" && $b2b) $callwhere[] = " OR callid_aleg ".$eqlike.$mvalue;
 
                    $s = 1;
            }

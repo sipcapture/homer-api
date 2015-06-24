@@ -266,10 +266,13 @@ class Search {
         $search['family'] = getVar('family', NULL, $param['search'], 'string');
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
+        $b2b = getVar('b2b', false, $param['search'], 'bool');
         $limit_orig = getVar('limit', 100, $param, 'int');
-                
+      
+        /* callid correlation */     
+        
         $callwhere = array();                
-        $callwhere = generateWhere($search, $and_or, $db);
+        $callwhere = generateWhere($search, $and_or, $db, $b2b);
         
         $fields = FIELDS_CAPTURE;
         if($full) $fields.=", msg ";
@@ -417,10 +420,10 @@ class Search {
                 
         $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
         $and_or = $utils['logic_or'] ? " OR " : " AND ";
-                                    
+                                                  
         $limit = 1;
         $search['id'] = $record_id;                         
-        $callwhere = generateWhere($search, $and_or, $db);
+        $callwhere = generateWhere($search, $and_or, $db, 0);
         
         
         $nodes = array();
@@ -484,6 +487,8 @@ class Search {
         $db->dbconnect_node($node);
         
         $data = array();
+        $search = array();
+        $callwhere = array();        
         
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
@@ -497,20 +502,17 @@ class Search {
         $limit = getVar('limit', 100, $param, 'int');
 
         $record_id = getVar('id', 0, $param['search'], 'int');
-        $callid = getVar('callid', "", $param['search'], 'string');        
-        
-        $callwhere = array();        
-
+        $search['callid'] = getVar('callid', "", $param['search'], 'string');        
+        $b2b = getVar('b2b', false, $param['search'], 'bool');
+         
         $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
         $and_or = $utils['logic_or'] ? " OR " : " AND ";
                                     
-        $search['callid'] = $callid;                 
-        $callwhere = generateWhere($search, $and_or, $db);
+        $callwhere = generateWhere($search, $and_or, $db, $b2b);
         
         //if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";        
         
-        $ts = $time['from_ts']; 
-        
+        $ts = $time['from_ts'];         
 
         for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
                          
@@ -603,16 +605,17 @@ class Search {
         
         $record_id = getVar('id', 0, $param['search'], 'int');
         $callids = getVar('callid', array(), $param['search'], 'array');        
+        $b2b = getVar('b2b', false, $param['search'], 'bool');
         
         $callwhere = array();        
 
         $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
         $and_or = $utils['logic_or'] ? " OR " : " AND ";
 
-        $search = array();                                    
-        $callwhere = generateWhere($search, $and_or, $db);
-        
-        $callwhere[] = "`callid` IN ('".implode("','", $callids)."')";                 
+        $search = array();        
+        /* make array */                           
+        $search['callid'] = implode(";", $callids);
+        $callwhere = generateWhere($search, $and_or, $db, $b2b);
         
         $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");

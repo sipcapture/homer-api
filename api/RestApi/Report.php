@@ -66,9 +66,8 @@ class Report {
     
         /* get our DB */
         $db = $this->getContainer('db');
-        
-        $data = array();
-        
+                
+        $data = array();        
         $lnodes = array();
         
         if(array_key_exists('node', $param)) $lnodes = $param['node'];
@@ -83,20 +82,19 @@ class Report {
         $time['to_ts']+=60;
                 
         /* search fields */        
-        $search['node'] = getVar('node', NULL, $param['search'], 'string');
-        $search['type'] = getVar('type', -1, $param['search'], 'int');
-        $search['proto'] = getVar('proto', -1, $param['search'], 'int');
-        $search['family'] = getVar('family', -1, $param['search'], 'int');
-        $and_or = getVar('orand', NULL, $param['search'], 'string');
-        
+        $node = getVar('node', NULL, $param['search'], 'string');
+        $type = getVar('type', -1, $param['search'], 'int');
+        $proto = getVar('proto', -1, $param['search'], 'int');
+        $family = getVar('family', -1, $param['search'], 'int');
+        $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');        
-        $answer = array();                  
-
-        $callids = getVar('callid', [], $param['search'], 'array');         
+        $answer = array();                          
+        $callids = getVar('callid', [], $param['search'], 'array');                         
+        $search['correlation_id'] = implode(",", $callids);                
         $callwhere = array();
-        $callwhere = generateWhere($search, $and_or, $db);
-        $callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
-               
+        
+        //$callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
+         
         $answer = array();  
         
         if(empty($callids))
@@ -121,6 +119,7 @@ class Report {
             
 	    $db->dbconnect_node($node);                            
             $limit = $limit_orig;
+            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
             for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
                          
@@ -166,11 +165,13 @@ class Report {
         $db = $this->getContainer('db');
         
         $data = array();
-        
+        $search = array();        
         $lnodes = array();
+        $answer = array();  
+        $callwhere = array();
+        
         if(array_key_exists('node', $param)) $lnodes = $param['node'];
-                          
-                        
+                                                  
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
         $time['from_ts'] = floor($time['from']/1000);
@@ -180,21 +181,15 @@ class Report {
         $time['to_ts']+=60;
         
         /* search fields */                
-        $search['type'] = getVar('uniq', -1, $param['search'], 'int');                
-        $search['node'] = getVar('node', NULL, $param['search'], 'string');
-        $search['proto'] = getVar('proto', -1, $param['search'], 'int');
-        $search['family'] = getVar('family', -1, $param['search'], 'int');
-        $and_or = getVar('orand', NULL, $param['search'], 'string');
-        
+        $type = getVar('uniq', -1, $param['search'], 'int');                
+        $node = getVar('node', NULL, $param['search'], 'string');
+        $proto = getVar('proto', -1, $param['search'], 'int');
+        $family = getVar('family', -1, $param['search'], 'int');
+        $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');
-
         $callids = getVar('callid', [], $param['search'], 'array');         
-        $callwhere = array();
-        $callwhere = generateWhere($search, $and_or, $db);
-        $callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
-               
-        $answer = array();  
-        
+        $search['correlation_id'] = implode(",", $callids);
+                                 
         if(empty($callids))
         {                
                 $answer['sid'] = session_id();
@@ -217,6 +212,7 @@ class Report {
             
 	    $db->dbconnect_node($node);                            
             $limit = $limit_orig;
+            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
             for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
                          
@@ -262,11 +258,12 @@ class Report {
         $db = $this->getContainer('db');
         
         $data = array();
-        
+        $search = array();        
         $lnodes = array();
+        $callwhere = array();        
+        
         if(array_key_exists('node', $param)) $lnodes = $param['node'];
-                          
-                                
+                                                          
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
         $time['from_ts'] = floor($time['from']/1000);
@@ -276,18 +273,15 @@ class Report {
         $time['to_ts']+=60;
         
         /* search fields */        
-        $search['node'] = getVar('node', NULL, $param['search'], 'string');
-        $search['type'] = getVar('type', -1, $param['search'], 'int');
-        $search['proto'] = getVar('proto', -1, $param['search'], 'int');
-        $search['family'] = getVar('family', -1, $param['search'], 'int');        
+        $node = getVar('node', NULL, $param['search'], 'string');
+        $type = getVar('type', -1, $param['search'], 'int');
+        $proto = getVar('proto', -1, $param['search'], 'int');
+        $family = getVar('family', -1, $param['search'], 'int');        
         $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');
                 
         $callids = getVar('callid', [], $param['search'], 'array');         
-        $callwhere = array();
-        $callwhere = generateWhere($search, $and_or, $db);
-        $callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
-               
+        $search['correlation_id'] = implode(",", $callids);
         $answer = array();  
         
         if(empty($callids))
@@ -313,6 +307,7 @@ class Report {
             
 	    $db->dbconnect_node($node);                            
             $limit = $limit_orig;
+            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
             for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
                          

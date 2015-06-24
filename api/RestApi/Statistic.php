@@ -85,7 +85,7 @@ class Statistic {
             $search[$key]['auth'] = getVar('auth', -1, $filter, 'int');
             $search[$key]['totag'] = getVar('method', -1, $filter, 'int');        
             
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
@@ -175,7 +175,7 @@ class Statistic {
         foreach($param['filter'] as $key=>$filter) {
         
             $search[$key]['type'] = getVar('type', NULL, $filter, 'string');            
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
@@ -269,7 +269,7 @@ class Statistic {
         
             $search[$key]['method'] = getVar('method', NULL, $filter, 'string');            
             $search[$key]['source_ip'] = getVar('source_ip', NULL, $filter, 'string');            
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
@@ -363,7 +363,7 @@ class Statistic {
         foreach($param['filter'] as $key=>$filter) {        
             $search[$key]['method'] = getVar('method', NULL, $filter, 'string');            
             $search[$key]['useragent'] = getVar('useragent', NULL, $filter, 'string');            
-            $callwhere = generateWhere($search[$key], 1, $db);                                          
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
