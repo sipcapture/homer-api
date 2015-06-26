@@ -210,7 +210,7 @@ class PDOConnector extends DefaultConnector
         
         function getLastId()
         {
-		return mysqli_insert_id($this->connection);
+		return $this->connection->lastInsertId();
         }
 
         function quote($val) 

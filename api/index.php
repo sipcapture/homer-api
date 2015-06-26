@@ -117,7 +117,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
       ->addGetRoute('user/get/([0-9A-Za-z_])', 'getAliasById') // => /api/session
       ->addPostRoute('alias/new', 'doNewAlias') // => /api/session
       ->addPostRoute('alias/edit', 'doEditAlias') // => /api/session
-      ->addDeleteRoute('user/delete/([0-9]+)', 'deleteAlias')          
+      ->addDeleteRoute('alias/delete/([0-9]+)', 'deleteAlias')          
       /* nodes */
       ->addGetRoute('node/get', 'getNode') // => /api/session
       ->addGetRoute('node/get/([0-9A-Za-z_])', 'getNodeById') // => /api/session
