@@ -131,7 +131,7 @@ class Admin {
         $arrwhere = "";
         
         $update['active'] = getVar('active', true, $param, 'bool');
-        $update['deparment'] = getVar('department', '', $param, 'string');
+        $update['department'] = getVar('department', '', $param, 'string');
         $update['email'] = getVar('email', '', $param, 'string');
         $update['firstname'] = getVar('firstname', '', $param, 'string');        
         $update['lastname'] = getVar('lastname', '', $param, 'string');        
