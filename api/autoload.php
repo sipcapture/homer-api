@@ -94,7 +94,7 @@ function generateWhere ($search, $and_or, $db, $b2b, $skip_keys = array()) {
                    if(in_array($key, $skip_keys)) continue;                   
 
                    // SKIP EMPTY VALUES
-                   if($value == NULL || $value == "" || $value == -1) continue;
+                   if($value == NULL || $value == "" || ($value+0) == -1) continue;
 
                    $eqlike = preg_match("/%/", $value) ? " like " : " = ";
 
