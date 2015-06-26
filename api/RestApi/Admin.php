@@ -138,7 +138,8 @@ class Admin {
         $update['grp'] = getVar('grp', 'users', $param, 'string');        
         $update['username'] = getVar('username', '', $param, 'string');              
         $update['gid'] = getVar('gid', 10, $param, 'int');              
-        $password = getVar('password', '', $param, 'string');        
+        $update['lastvisit'] = getVar('lastvisit', date_format(date_create(), 'Y-m-d H:i:s'), $param, 'string');
+        $password = getVar('password', '', $param, 'string');
           
         $exten = "";
         $callwhere = generateWhere($update, 1, $db, 0);
