@@ -1,21 +1,13 @@
-# homer-api
+[![Logo](http://sipcapture.org/data/images/sipcapture_header.png)](http://sipcapture.org)
 
-### HOMER 5 API
+## HOMER 5 API
 
-PUBLIC BETA1
+### PUBLIC BETA 1
 
-DOCUMENTATION is here:
+DOCUMENTATION is available here:
 
 https://github.com/sipcapture/homer/tree/homer5
 https://github.com/sipcapture/homer/blob/homer5/INSTALL.md
 
 For Help contact: support@sipcapture.org
-
-
-------------
-
-* examples/web: configs for apache and nginx
-* examples/dashboard: examples of dashboards
-* sql: sql schema and new_table.pl (create and remove capture tables)
-
 
