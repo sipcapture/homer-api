@@ -13,11 +13,11 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 CREATE TABLE IF NOT EXISTS `alias` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `gid` int(5) NOT NULL,
+  `gid` int(5) NOT NULL DEFAULT 0,
   `ip` varchar(80) NOT NULL DEFAULT '',
   `port` int(10) NOT NULL DEFAULT '0',
   `alias` varchar(100) NOT NULL DEFAULT '',
-  `status` tinyint(1) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 0,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
@@ -41,7 +41,7 @@ INSERT INTO `alias` (`id`, `gid`, `ip`, `port`, `alias`, `status`, `created`) VA
 --
 
 CREATE TABLE IF NOT EXISTS `group` (
-  `gid` int(10) NOT NULL,
+  `gid` int(10) NOT NULL DEFAULT 0,
   `name` varchar(100) NOT NULL DEFAULT '',
   UNIQUE KEY `gid` (`gid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -60,7 +60,7 @@ INSERT INTO `group` (`gid`, `name`) VALUES (10, 'Administrator');
 
 CREATE TABLE IF NOT EXISTS `link_share` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `uid` int(10) NOT NULL,
+  `uid` int(10) NOT NULL DEFAULT 0,
   `uuid` varchar(120) NOT NULL DEFAULT '',
   `data` text NOT NULL,
   `expire` datetime NOT NULL DEFAULT '2032-12-31 00:00:00',
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `node` (
   `dbpassword` varchar(100) NOT NULL DEFAULT '',
   `dbtables` varchar(100) NOT NULL DEFAULT 'sip_capture',
   `name` varchar(100) NOT NULL DEFAULT '',
-  `status` tinyint(1) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `host_2` (`host`),
