@@ -14,9 +14,9 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 CREATE TABLE IF NOT EXISTS `alias` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `gid` int(5) NOT NULL,
-  `ip` varchar(80) NOT NULL,
+  `ip` varchar(80) NOT NULL DEFAULT(''),
   `port` int(10) NOT NULL DEFAULT '0',
-  `alias` varchar(100) NOT NULL,
+  `alias` varchar(100) NOT NULL DEFAULT(''),
   `status` tinyint(1) NOT NULL,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -42,7 +42,7 @@ INSERT INTO `alias` (`id`, `gid`, `ip`, `port`, `alias`, `status`, `created`) VA
 
 CREATE TABLE IF NOT EXISTS `group` (
   `gid` int(10) NOT NULL,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL DEFAULT(''),
   UNIQUE KEY `gid` (`gid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -61,7 +61,7 @@ INSERT INTO `group` (`gid`, `name`) VALUES (10, 'Administrator');
 CREATE TABLE IF NOT EXISTS `link_share` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `uid` int(10) NOT NULL,
-  `uuid` varchar(120) NOT NULL,
+  `uuid` varchar(120) NOT NULL DEFAULT(''),
   `data` text NOT NULL,
   `expire` datetime NOT NULL DEFAULT '2032-12-31 00:00:00',
   `active` tinyint(1) NOT NULL DEFAULT '1',
@@ -76,13 +76,13 @@ CREATE TABLE IF NOT EXISTS `link_share` (
 
 CREATE TABLE IF NOT EXISTS `node` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `host` varchar(80) NOT NULL,
-  `dbname` varchar(100) NOT NULL,
-  `dbport` varchar(100) NOT NULL,
-  `dbusername` varchar(100) NOT NULL,
-  `dbpassword` varchar(100) NOT NULL,
+  `host` varchar(80) NOT NULL DEFAULT(''),
+  `dbname` varchar(100) NOT NULL DEFAULT(''),
+  `dbport` varchar(100) NOT NULL DEFAULT(''),
+  `dbusername` varchar(100) NOT NULL DEFAULT(''),
+  `dbpassword` varchar(100) NOT NULL DEFAULT(''),
   `dbtables` varchar(100) NOT NULL DEFAULT 'sip_capture',
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL DEFAULT(''),
   `status` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
@@ -107,7 +107,7 @@ INSERT INTO `node` (`id`, `host`, `dbname`, `dbport`, `dbusername`, `dbpassword`
 CREATE TABLE IF NOT EXISTS `setting` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `uid` int(10) NOT NULL DEFAULT '0',
-  `param_name` varchar(120) NOT NULL,
+  `param_name` varchar(120) NOT NULL DEFAULT(''),
   `param_value` text NOT NULL,
   `valid_param_from` datetime NOT NULL DEFAULT '2012-01-01 00:00:00',
   `valid_param_to` datetime NOT NULL DEFAULT '2032-12-01 00:00:00',
@@ -135,13 +135,13 @@ INSERT INTO `setting` (`id`, `uid`, `param_name`, `param_value`, `valid_param_fr
 CREATE TABLE IF NOT EXISTS `user` (
   `uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `gid` int(10) NOT NULL DEFAULT '10',
-  `grp` varchar(200) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(100) NOT NULL,
-  `firstname` varchar(250) NOT NULL,
-  `lastname` varchar(250) NOT NULL,
-  `email` varchar(250) NOT NULL,
-  `department` varchar(100) NOT NULL,
+  `grp` varchar(200) NOT NULL DEFAULT(''),
+  `username` varchar(50) NOT NULL DEFAULT(''),
+  `password` varchar(100) NOT NULL DEFAULT(''),
+  `firstname` varchar(250) NOT NULL DEFAULT(''),
+  `lastname` varchar(250) NOT NULL DEFAULT(''),
+  `email` varchar(250) NOT NULL DEFAULT(''),
+  `department` varchar(100) NOT NULL DEFAULT(''),
   `regdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lastvisit` datetime NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
@@ -165,10 +165,10 @@ INSERT INTO `user` (`uid`, `gid`, `grp`, `username`, `password`, `firstname`, `l
 --
 
 CREATE TABLE IF NOT EXISTS `user_menu` (
-  `id` varchar(125) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `alias` varchar(200) NOT NULL,
-  `icon` varchar(100) NOT NULL,
+  `id` varchar(125) NOT NULL DEFAULT(''),
+  `name` varchar(100) NOT NULL DEFAULT(''),
+  `alias` varchar(200) NOT NULL DEFAULT(''),
+  `icon` varchar(100) NOT NULL DEFAULT(''),
   `weight` int(10) NOT NULL DEFAULT '10',
   `active` int(1) NOT NULL DEFAULT '1',
   UNIQUE KEY `id` (`id`)
