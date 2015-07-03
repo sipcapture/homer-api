@@ -47,7 +47,7 @@ define('WEBROOT', preg_replace('/api(.*)$/', '', $_SERVER["REQUEST_URI"]));
 
 Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 
-    ->setDebugMode(true) //prints the debug trace, line number and file if a exception has been thrown.
+    ->setDebugMode(false) //prints the debug trace, line number and file if a exception has been thrown.
     ->addGetRoute('session', 'getSession') // => /api/session
     ->addPostRoute('session', 'doSession') // => /api/session
     ->addDeleteRoute('session', 'doLogout') // => /admin/logout
