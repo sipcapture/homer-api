@@ -32,67 +32,57 @@ defined( '_HOMEREXEC' ) or die( 'Restricted access' );
 
 use \PDO;
 
-class PDOConnector extends DefaultConnector
-{
-
-	private $hostname;	//Database server LOCATION
-	private $port;		//Database PORT default MYSQL
-	private $dbname;	//Database NAME
-	private $username;	//Database USERNAME
-	private $password;	//Database PASSWORD
+class PDOConnector extends DefaultConnector {
+	private $hostname;		//Database server LOCATION
+	private $port;			//Database PORT default MYSQL
+	private $dbname;		//Database NAME
+	private $username;		//Database USERNAME
+	private $password;		//Database PASSWORD
 
 	//encryption
-	private $encrypt = true;		//set to true to use md5 encryption for the password
-	
-	
+	private $encrypt = true;	//set to true to use md5 encryption for the password
+
 	/* CONNECT */
-	protected $connection;	  //Our connection
-        protected $resultCount;   //number of rows affected by a query. 
+	protected $connection;		//Our connection
+	protected $resultCount;		//number of rows affected by a query. 
 
-        function __construct($connect = 0, $host = DB_HOSTNAME, $port = DB_PORT, $db = DB_CONFIGURATION, $username = DB_USERNAME, $password = DB_PASSWORD) 
-	{
+        function __construct($connect = 0, $host = DB_HOSTNAME, $port = DB_PORT, $db = DB_CONFIGURATION, $username = DB_USERNAME, $password = DB_PASSWORD) {
+	    $this->hostname = $host;
+	    $this->port = $port;
+	    $this->dbname = $db;
+	    $this->username = $username;
+	    $this->password = $password;
+	    if($connect == 1) {
+		$this->dbconnect();
+	    }
+	}
 
-		$this->hostname = $host;
-		$this->port = $port;
-		$this->dbname = $db;
-		$this->username = $username;
-		$this->password = $password;
-		if($connect == 1) {
-		      $this->dbconnect();
-		}
-    	}
+	function select_db($db) {
+	    $this->dbname = $db;
+	    return true;
+	}
 
-    	function select_db($db) {
-    	
-    	      $this->dbname = $db;    	          	      
-    	      return true;
-    	}
-
-	function dbconnect()
-	{
-		
-		try {		      
-		      $dbstring = DATABASE_DRIVER.":host=".$this->hostname. (($this->port) ? ";port=".$this->port : "" ) . ";dbname=".$this->dbname;
-		      $this->connection = new PDO($dbstring, $this->username, $this->password);
-		      $this->executeQuery('SET time_zone = "+00:00";');
-		} catch (PDOException $e){
-		      die($e->getMessage());
-		}
-		
-		return;
+	function dbconnect() {
+	    try {
+		$dbstring = DATABASE_DRIVER.":host=".$this->hostname. (($this->port) ? ";port=".$this->port : "" ) . ";dbname=".$this->dbname;
+		$this->connection = new PDO($dbstring, $this->username, $this->password);
+		$this->executeQuery('SET time_zone = "+00:00";');
+	    } catch (PDOException $e){
+		die($e->getMessage());
+	    }
+	    return;
 	}
 
 	//connect to database
-	function dbconnect_node($node){
-	
+	function dbconnect_node($node) {
 		$host = isset ($node['host']) ? $node['host'] : $this->hostname;
 		$dbname = isset ($node['dbname']) ? $node['dbname'] : NULL;
 		$dbusername = isset ($node['dbusername']) ? $node['dbusername'] : $this->username;
 		$dbpassword = isset ($node['dbpassword']) ? $node['dbpassword'] : $this->password;
 		$dbport = isset ($node['dbport']) ? $node['dbport'] : NULL;
-		
+
 		if(!$host) $host = $this->hostname;
-	
+
 		try {
 			$dbstring = DATABASE_DRIVER.":host=".$host.(($dbport) ? ";port=".$dbport : "" ).";dbname=".$dbname;
 			$this->connection = new PDO($dbstring, $dbusername, $dbpassword);
@@ -108,127 +98,134 @@ class PDOConnector extends DefaultConnector
 				die($e->getMessage());
 			}
 		}
-	
+
 		return true;
 	}
-		
+
 	//prevent injection
 	function qry($query) {
-	      $this->dbconnect();
-              $args  = func_get_args();
-              $query = array_shift($args);
-              $query = str_replace("?", "%s", $query);        
-              
-              if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
-              if (property_exists($this->connection, 'quote')) $args  = array_map($this->connection->quote, $args);              
-              array_unshift($args,$query);
-              
-              $query = call_user_func_array('sprintf',$args);              
-              
-              $statement = $this->connection->prepare($query);
-              $statement->execute(); 	                 
-              $this->resultCount = $statement->rowCount();    
-              $result = $statement->fetch();              
-              
-              if($result) return $result;
-	      else
-              {
-	              $error = "Error";
-	              return $result;
-              }
-        }
-        
-        //prevent injection
+	    $this->dbconnect();
+	    $args  = func_get_args();
+	    $query = array_shift($args);
+	    $query = str_replace("?", "%s", $query);
+
+	    if (DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
+	    if (property_exists($this->connection, 'quote')) $args  = array_map($this->connection->quote, $args);
+	    array_unshift($args,$query);
+
+	    $query = call_user_func_array('sprintf', $args);
+
+	    $statement = $this->connection->prepare($query);
+	    $statement->execute();
+	    $this->resultCount = $statement->rowCount();
+	    $result = $statement->fetch();
+
+	    if ($result){ 
+		return $result;
+	    } else {
+		$error = "Error";
+		return $result;
+	    }
+	}
+
+	//prevent injection
 	function makeQuery($query) {
-	      $this->dbconnect();
-              $args  = func_get_args();
-              $query = array_shift($args);        
-              $query = str_replace("?", "%s", $query);        
-              if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);        
-              if (property_exists($this->connection, 'quote')) $args  = array_map($this->connection->quote, $args);
-              
-              array_unshift($args,$query);        
-              $query = call_user_func_array('sprintf',$args);
-              return $query;
-        }
-  	
-	function executeQuery($query) {			
+	    $this->dbconnect();
+	    $args  = func_get_args();
+	    $query = array_shift($args);
+	    $query = str_replace("?", "%s", $query);
+	    if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
+	    if (property_exists($this->connection, 'quote')) $args  = array_map($this->connection->quote, $args);
+
+	    array_unshift($args,$query);
+	    $query = call_user_func_array('sprintf',$args);
+	    return $query;
+	}
+
+	function executeQuery($query) {
 		//$result = mysql_query($query);
 		if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
 		$statement = $this->connection->prepare($query);
-		$result = $statement->execute();
-		$this->resultCount = $statement->rowCount();
-
-		if(!$result) return false;
-		else return true;
+		if($statement->execute()) {
+		    $this->resultCount = $statement->rowCount();
+		    if(!$result) return false;
+		    else return true;
+		} else {
+		    error_log("Fail to execute query: [".$query."]");
+		    error_log(print_r($statement->errorInfo(), true));
+		    return false;
+		}
 	}
 
 	function loadObjectList($query) {
-
-            if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
-            $statement = $this->connection->prepare($query);
-            $statement->execute();		                	  
-            $this->resultCount = $statement->rowCount();      
-	    $result = $statement->fetchAll(PDO::FETCH_CLASS);
-	    return $result;	        
+	    if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
+	    $statement = $this->connection->prepare($query);
+            if($statement->execute()) {
+		$this->resultCount = $statement->rowCount();
+		$result = $statement->fetchAll(PDO::FETCH_CLASS);
+		return $result;
+            } else {
+		error_log("Fail to execute query: [".$query."]");
+		error_log(print_r($statement->errorInfo(), true));
+		$result = array();
+            }
 	}
-	
+
 	function loadObjectArray($query) 
 	{
-	
-            if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
-            $statement = $this->connection->prepare($query);
-            $statement->execute();		                	  
-            $this->resultCount = $statement->rowCount();      
-            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-    	    return $result;
+	    if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
+	    $statement = $this->connection->prepare($query);
+	    if($statement->execute()) {
+		$this->resultCount = $statement->rowCount();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+		error_log("Fail to execute query: [".$query."]");
+		error_log(print_r($statement->errorInfo(), true));
+		$result = array();
+            }
+	    return $result;
 	}
-   
+
 	function toPgSql($query) {
-		$query = str_replace("`", '"', $query);
-		return preg_replace('/[Ll][Ii][Mm][Ii][Tt]\s+([0-9]+)\s*,\s*([0-9]+)/', ' LIMIT ${2} OFFSET ${1}', $query);
+	    $query = str_replace("`", '"', $query);
+	    return preg_replace('/[Ll][Ii][Mm][Ii][Tt]\s+([0-9]+)\s*,\s*([0-9]+)/', ' LIMIT ${2} OFFSET ${1}', $query);
 	}
 
-	function loadResult($query)
-	{
-              if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
-              
-              $statement = $this->connection->prepare($query);
-              $statement->execute();     
-              
-              $this->resultCount = $statement->rowCount();                       
-              $result = $statement->fetch(PDO::FETCH_NUM);
-              
-              
-              return $result[0];        	                                             	
-        }		
-   
-        function getResultCount()
-        {
-		return $this->resultCount;
-        }
-        
-        function getLastId()
-        {
-		return $this->connection->lastInsertId();
-        }
+	function loadResult($query) {
+	    if (DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
 
-        function quote($val) 
-        {
-            return $this->connection->quote($val);
-        }
-                                    
-        function custom_sql_escape($inp) 
-        {
-        
-              if(is_array($inp)) return array_map(__METHOD__, $inp);
- 
-              if(!empty($inp) && is_string($inp)) {
+	    $statement = $this->connection->prepare($query);
+	    if($statement->execute()) {
+		$this->resultCount = $statement->rowCount();
+		$result = $statement->fetch(PDO::FETCH_NUM);
+		return $result[0];
+	    } else {
+		error_log("Fail to execute query: [".$query."]");
+		error_log(print_r($statement->errorInfo(), true));
+	    }
+	}
+
+	function getResultCount() {
+	    return $this->resultCount;
+	}
+
+	function getLastId() {
+	    return $this->connection->lastInsertId();
+	}
+
+	function quote($val) {
+	    return $this->connection->quote($val);
+	}
+
+	function custom_sql_escape($inp) {
+	    if (is_array($inp)) return array_map(__METHOD__, $inp);
+
+	    if (!empty($inp) && is_string($inp)) {
                       return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp);
-              }
- 
-              return $inp;
-        }  
+	    }
+
+	    return $inp;
+	}
 }
 
 ?>
