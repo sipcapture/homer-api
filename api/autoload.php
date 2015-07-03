@@ -107,14 +107,14 @@ function generateWhere ($search, $and_or, $db, $b2b, $skip_keys = array()) {
                    if(preg_match("/;/", $value)) {
                       $dda = array();
                       foreach(preg_split("/;/", $value) as $k=>$v) {                           
-                           $dda[] = "`".$key."`".$eqlike.$mydb->quote($v);
-                           if($key == "callid" && $b2b && BLEGCID == "b2b" ) $dda[] = "`".$key."`".$eqlike.$mydb->quote($v.BLEGTAIL);
-                           else if($key == "callid" && $b2b && BLEGCID == "xcid" ) $dda[] = "`callid_aleg`".$eqlike.$mydb->quote($v);
+                           $dda[] = "".$key."".$eqlike.$mydb->quote($v);
+                           if($key == "callid" && $b2b && BLEGCID == "b2b" ) $dda[] = "".$key."".$eqlike.$mydb->quote($v.BLEGTAIL);
+                           else if($key == "callid" && $b2b && BLEGCID == "xcid" ) $dda[] = "callid_aleg".$eqlike.$mydb->quote($v);
                       }
                       $callwhere[] = "( ". ($eqlike == " = ") ? implode(" OR ",$dda) : implode(" AND ",$dda)." )";                                                      
                    }
                    else {
-                       $mkey = "`".$key."`";                                              
+                       $mkey = "".$key."";                                              
                        if($key == "callid" && $b2b && BLEGCID == "b2b" ) {
                            $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR ". $mkey.$eqlike.$mydb->quote($value.BLEGTAIL).")";
                        }                                              
