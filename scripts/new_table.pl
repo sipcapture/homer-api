@@ -125,7 +125,7 @@ for(my $y = 0 ; $y < 2; $y++)
 {
     $curtstamp = time()-(86400*($maxparts+$y));    
     $ltable = $DROP;
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($curtstamp);
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($curtstamp);
     my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
     my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
     $ltable=~s/\[TIMESTAMP\]/$table_timestamp/ig;
@@ -149,7 +149,7 @@ sub new_table()
     $newparts=int(86400/$mystep);
         
     my @partsadd;
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($cstamp);
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($cstamp);
     my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
 
     my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
@@ -160,7 +160,7 @@ sub new_table()
     for(my $i=0; $i<$newparts; $i++) {
         my $oldstamp = $kstamp;
         $kstamp+=$mystep;   
-        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($oldstamp);
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($oldstamp);
 
         my $newpartname = sprintf("p%04d%02d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
         $newpartname.= sprintf("%02d", $min) if($partstep > 1);
