@@ -89,7 +89,7 @@ class Report {
         $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');        
         $answer = array();                          
-        $callids = getVar('callid', [], $param['search'], 'array');                         
+        $callids = getVar('callid', array(), $param['search'], 'array');                         
         $search['correlation_id'] = implode(",", $callids);                
         $callwhere = array();
         
@@ -187,7 +187,7 @@ class Report {
         $family = getVar('family', -1, $param['search'], 'int');
         $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');
-        $callids = getVar('callid', [], $param['search'], 'array');         
+        $callids = getVar('callid', array(), $param['search'], 'array');         
         $search['correlation_id'] = implode(",", $callids);
                                  
         if(empty($callids))
@@ -280,7 +280,7 @@ class Report {
         $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');
                 
-        $callids = getVar('callid', [], $param['search'], 'array');         
+        $callids = getVar('callid', array(), $param['search'], 'array');         
         $search['correlation_id'] = implode(",", $callids);
         $answer = array();  
         
