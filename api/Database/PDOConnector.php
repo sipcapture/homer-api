@@ -148,8 +148,7 @@ class PDOConnector extends DefaultConnector {
 		$statement = $this->connection->prepare($query);
 		if($statement->execute()) {
 		    $this->resultCount = $statement->rowCount();
-		    if(!$result) return false;
-		    else return true;
+		    return true;
 		} else {
 		    error_log("Fail to execute query: [".$query."]");
 		    error_log(print_r($statement->errorInfo(), true));
