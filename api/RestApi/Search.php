@@ -163,7 +163,7 @@ class Search {
 			    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			    $query  = "SELECT t.".FIELDS_CAPTURE.", '".$query_type."' as trans, '".$node['name']."' as dbnode";
 			    $query .= " FROM ".$table." as t ";
-			    $query .= " LEFT JOIN homer_configuration.alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port LEFT JOIN homer_configuration.alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcd.port";
+			    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcd.port";
 			    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			    $noderows = $db->loadObjectArray($query.$order);
@@ -273,7 +273,7 @@ class Search {
 			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			$query  = "SELECT t.".$fields.", '".$query_type."' as trans, '".$node['name']."' as dbnode, hcs.alias as source_alias, hcd.alias as destination_alias";
 			$query .= " FROM ".$table." as t";
-			$query .= " LEFT JOIN homer_configuration.alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port LEFT JOIN homer_configuration.alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcd.port";
+			$query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcd.port";
 			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			$noderows = $db->loadObjectArray($query.$order);
@@ -396,8 +396,8 @@ class Search {
 		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 		    $query  = "SELECT t.*, '".$query_type."' as trans ";
 		    $query .= "FROM ".$table." as t";
-		    $query .= " LEFT JOIN homer_configuration.alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
-		    $query .= " LEFT JOIN homer_configuration.alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
+		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
+		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
 		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		    $noderows = $db->loadObjectArray($query.$order);
@@ -458,8 +458,8 @@ class Search {
 		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 		    $query  = "SELECT t.*, '".$query_type."' as trans";
 		    $query .= " FROM ".$table." as t";
-		    $query .= " LEFT JOIN homer_configuration.alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
-		    $query .= " LEFT JOIN homer_configuration.alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
+		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
+		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
 		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		    $noderows = $db->loadObjectArray($query.$order);
@@ -550,8 +550,8 @@ class Search {
 			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode, hcs.alias as source_alias, hcd.alias as destination_alias";
 			$query .= " FROM ".$table." as t";
-			$query .= " LEFT JOIN homer_configuration.alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
-			$query .= " LEFT JOIN homer_configuration.alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
+			$query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
+			$query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
 			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			$noderows = $db->loadObjectArray($query.$order);
