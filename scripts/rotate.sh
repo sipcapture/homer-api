@@ -2,8 +2,9 @@
 
 #this is script rotation for rtcp, logs and stats tables
 
-new_table="/usr/local/bin/new_table.pl"
-programm="/usr/local/bin/partrotate_unixtimestamp.pl"
+bin_dir=`dirname $0`
+new_table="$bin_dir/homer_mysql_new_table.pl"
+programm="$bin_dir/homer_mysql_partrotate_unixtimestamp.pl"
 
 #Make new table rotate. Homer5 Style.
 $new_table
