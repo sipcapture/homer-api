@@ -2,6 +2,9 @@
 
 #this is script rotation for rtcp, logs and stats tables
 
+# Set correct bin path if we are running as a cron job
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
 bin_dir=`dirname $0`
 new_table="$bin_dir/homer_mysql_new_table.pl"
 programm="$bin_dir/homer_mysql_partrotate_unixtimestamp.pl"
