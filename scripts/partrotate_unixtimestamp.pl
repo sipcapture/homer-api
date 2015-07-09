@@ -25,8 +25,8 @@ use DBI;
 $version = "0.4.0";
 $mysql_table = $ARGV[1] // "sip_capture";
 $mysql_dbname = $ARGV[0] // "homer_data";
-$mysql_user = "mysql_login";
-$mysql_password = "mysql_password";
+$mysql_user = "homer_user";
+$mysql_password = "homer_password";
 $mysql_host = "localhost";
 $maxparts = $ARGV[3] // 6; #6 days How long keep the data in the DB
 $newparts = 2; #new partitions for 2 days. Anyway, start this script daily!
