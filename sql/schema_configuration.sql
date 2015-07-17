@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `alias` (
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  UNIQUE KEY `host_2` (`ip`),
+  UNIQUE KEY `host_2` (`ip`,`port`),
   KEY `host` (`ip`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
