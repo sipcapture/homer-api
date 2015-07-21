@@ -1,0 +1,72 @@
+# Definitions
+%define debug_package %{nil}
+%if %{_vendor} == suse
+%define webroot %{_prefix}/srv/%name/htdocs
+%else # CentOS/Fedora
+%define webroot %{_localstatedir}/www/%name
+%define webuser apache
+%define webgroup apache
+%endif
+%if 0%{?rhel} < 6 && 0%{?fedora} == 0
+%define php php53
+# part of json support is now in php-common
+Requires: %{php}-json
+%else
+%define php php
+%endif
+
+Name:		@PACKAGE_NAME@
+Version:	@PACKAGE_VERSION@
+Release:	@PACKAGE_REVISION@
+Summary:	HTTP based API for HOMER
+
+Group:		Telecommunications
+License:	GPLv3
+URL:		@PACKAGE_URL@
+Source0:	%name-%version.tar.gz
+
+Requires:	ntp
+Requires:	%{php} >= 5
+Requires:	php-mysql
+Requires:	mysql-community-client >= 5.6
+
+%description
+HTTP based API for HOMER is a robust, carrier-grade, scalable SIP Capture system and Monitoring Application with HEP/HEP2, IP Proto4 (IPIP) encapsulation & port mirroring/monitoring support right out of the box, ready to process & store insane amounts of signaling with instant search, end-to-end analysis and drill-down capabilities for ITSPs, VoIP Providers and Trunk Suppliers using SIP signaling
+
+%files
+%defattr(0660,%{webuser},%{webgroup})
+%dir %attr(2770,%{webuser},%{webgroup}) %{webroot}
+%dir %{webroot}/api
+%{webroot}/api/*
+%{webroot}/api/.htaccess
+
+%prep
+%setup -b0 -q
+
+%build
+%configure --enable-rpmbuilb
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+# UI and API directories and files
+%{__mkdir} -p %{buildroot}%{webroot}
+%{__mkdir} -p %{buildroot}%{webroot}/api
+%{__cp} -r api/Authentication %{buildroot}%{webroot}/api
+%{__cp} -r api/Database %{buildroot}%{webroot}/api
+%{__cp} -r api/RestApi %{buildroot}%{webroot}/api
+%{__cp} -r api/RestService %{buildroot}%{webroot}/api
+%{__cp} -r api/Statistic %{buildroot}%{webroot}/api
+%{__cp} -r api/*.php %{buildroot}%{webroot}/api
+%{__cp} -r api/.htaccess %{buildroot}%{webroot}/api
+
+%post
+
+%preun
+
+%postun
+
+%clean
+rm -rf $RPM_BUILD_ROOT
