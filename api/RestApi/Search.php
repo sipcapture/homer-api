@@ -1093,7 +1093,7 @@ class Search {
         $query  = $db->makeQuery($query, $uid, $uuid, $json );
         $db->executeQuery($query);
 
-        $reply[0] = "http://homer5.sipcapture.org:88/share/#".$uuid;
+        $reply[0] = PUBLIC_SHARE_HOST."#".$uuid;
 
         $answer['status'] = 200;
         $answer['sid'] = session_id();
