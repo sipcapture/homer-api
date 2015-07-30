@@ -101,6 +101,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
     ->addSubController('report', 'RestApi\Report') //adds a new sub entry point 'tools' => admin/tools
       ->addPostRoute('rtcp', 'doRTCPReport') // => /api/session      
       ->addPostRoute('log', 'doLogReport') // => /api/session
+      ->addPostRoute('share/log', 'doLogReportById') // => /api/report/share/log
       ->addPostRoute('quality/([A-Za-z]+)', 'doQualityReport') // => /api/session
     ->done()
 
