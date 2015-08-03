@@ -126,12 +126,14 @@ class Search {
         $db = $this->getContainer('db');
 
         $data = array();
+        $lnodes = array();
 
         /* hack */
         $timestamp = $raw_get_data['timestamp'];
         $param = $raw_get_data['param'];
 
-        $lnodes = $param['node'];
+        if(!isset($param['node'])) $lnodes = $param['node'];
+        
         $trans['call'] = getVar('call', false, $param["transaction"], 'bool');
         $trans['registration'] = getVar('registration', false, $param["transaction"], 'bool');
         $trans['rest'] = getVar('rest', false, $param["transaction"], 'bool');
@@ -206,12 +208,13 @@ class Search {
         $db->dbconnect();
 
         $data = array();
+        $lnodes = array();
 
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
 
-        $lnodes = $param['node'];
+        if(!isset($param['node'])) $lnodes = $param['node'];
 
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
