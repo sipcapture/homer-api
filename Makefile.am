@@ -1,5 +1,5 @@
 include config/utility.am
 include config/project.am
 
-EXTRA_DIST = \
+@PACKAGE@_EXTRA_DIST = \
 	api
