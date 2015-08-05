@@ -9,13 +9,13 @@ server {
 	server_name homer5.yourhost.org;
 
 	location / {
-		try_files $uri $uri/ /index.html;
+	    try_files $uri $uri/ /index.html;
 	}
 
 	location /api {
-        	 include fastcgi_params;
-        	 fastcgi_intercept_errors on;
-	         fastcgi_pass unix:/var/run/php5-fpm.sock;
-        	 fastcgi_param  SCRIPT_FILENAME $document_root/api/index.php;
+	    include fastcgi_params;
+	    fastcgi_intercept_errors on;
+	    fastcgi_pass unix:/var/run/php5-fpm.sock;
+	    fastcgi_param  SCRIPT_FILENAME $document_root/api/index.php;
         }
 }
