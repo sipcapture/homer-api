@@ -7,13 +7,6 @@
 %define webuser apache
 %define webgroup apache
 %endif
-%if 0%{?rhel} < 6 && 0%{?fedora} == 0
-%define php php53
-# part of json support is now in php-common
-Requires: %{php}-json
-%else
-%define php php
-%endif
 
 Name:		@PACKAGE_NAME@
 Version:	@PACKAGE_VERSION@
@@ -27,7 +20,7 @@ Source0:	%name-%version.tar.gz
 
 Requires:	kamailio >= 4.3
 Requires:	ntp
-Requires:	%{php} >= 5
+Requires:	php >= 5
 Requires:	php-mysql
 Requires:	mysql-community-server >= 5.5
 Requires:	mysql-community-client >= 5.5
@@ -56,7 +49,6 @@ HOMER API nginx configuration
 %dir %attr(2770,%{webuser},%{webgroup}) %{webroot}
 %dir %{webroot}/api
 %{webroot}/api/*
-%{webroot}/api/.htaccess
 %{_datadir}/sipcapture/sql/*
 
 %files httpd
