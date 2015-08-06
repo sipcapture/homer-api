@@ -1,31 +1,31 @@
 <VirtualHost *:80>
-        ServerAdmin support@yourhost.org
-        ServerName  homer5.yourhost.org   
+	ServerAdmin support@yourhost.org
+	ServerName  homer5.yourhost.org
 
-        # Indexes + Directory Root.
-        DirectoryIndex index.php index.html index.htm
-        DocumentRoot /var/vhosts/homer5.yourhost.org/htdocs/
+	# Indexes + Directory Root.
+	DirectoryIndex index.php index.html index.htm
+	DocumentRoot /var/vhosts/homer5.yourhost.org/htdocs/
 
-        <Directory />
-                Options FollowSymLinks
-                AllowOverride None
-        </Directory>
-        <Directory /var/vhosts/homer5.yourhost.org/htdocs/>
-                Options Indexes FollowSymLinks MultiViews  
-                AllowOverride all
-                Order allow,deny 
-                allow from all   
-        </Directory>
+	<Directory />
+	    Options FollowSymLinks
+	    AllowOverride None
+	</Directory>
+	<Directory /var/vhosts/homer5.yourhost.org/htdocs/>
+	    Options Indexes FollowSymLinks MultiViews
+	    AllowOverride all
+	    Order allow,deny
+	    allow from all
+	</Directory>
 
-        # CGI Directory
-        ScriptAlias /cgi-bin/ /var/vhosts/homer5.yourhost.org/cgi-bin/
-        <Location "/var/vhosts/homer5.yourhost.org/cgi-bin">
-                Options +ExecCGI -MultiViews
-                Order allow,deny
-                Allow from all  
-        </Location>
+	# CGI Directory
+	ScriptAlias /cgi-bin/ /var/vhosts/homer5.yourhost.org/cgi-bin/
+	<Location "/var/vhosts/homer5.yourhost.org/cgi-bin">
+	    Options +ExecCGI -MultiViews
+	    Order allow,deny
+	    Allow from all
+	</Location>
 
-        # Logfiles
-        ErrorLog  /var/vhosts/homer5.yourhost.org/logs/error.log
-        CustomLog /var/vhosts/homer5.yourhost.org/logs/access.log combined
+	# Logfiles
+	ErrorLog  /var/vhosts/homer5.yourhost.org/logs/homer5-error.log
+	CustomLog /var/vhosts/homer5.yourhost.org/logs/homer5-access.log combined
 </VirtualHost>

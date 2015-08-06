@@ -25,13 +25,31 @@ License:	GPLv3
 URL:		@PACKAGE_URL@
 Source0:	%name-%version.tar.gz
 
+Requires:	kamailio >= 4.3
 Requires:	ntp
 Requires:	%{php} >= 5
 Requires:	php-mysql
-Requires:	mysql-community-client >= 5.6
+Requires:	mysql-community-server >= 5.5
+Requires:	mysql-community-client >= 5.5
 
 %description
 HTTP based API for HOMER is a robust, carrier-grade, scalable SIP Capture system and Monitoring Application with HEP/HEP2, IP Proto4 (IPIP) encapsulation & port mirroring/monitoring support right out of the box, ready to process & store insane amounts of signaling with instant search, end-to-end analysis and drill-down capabilities for ITSPs, VoIP Providers and Trunk Suppliers using SIP signaling
+
+%package httpd
+Requires:	%name = %version
+Requires:	httpd
+Summary:	httpd config for HTTP based API for HOMER
+
+%description httpd
+HOMER API httpd configuration
+
+%package nginx
+Requires:	%name = %version
+Requires:	nginx
+Summary:	nginx config for HTTP based API for HOMER
+
+%description nginx
+HOMER API nginx configuration
 
 %files
 %defattr(0660,%{webuser},%{webgroup})
@@ -39,6 +57,14 @@ HTTP based API for HOMER is a robust, carrier-grade, scalable SIP Capture system
 %dir %{webroot}/api
 %{webroot}/api/*
 %{webroot}/api/.htaccess
+%{_datadir}/sipcapture/sql/*
+
+%files httpd
+%{webroot}/api/.htaccess
+%{_sysconfdir}/httpd/conf.d/sipcapture.conf
+
+%files nginx
+%{_sysconfdir}/nginx/conf.d/sipcapture.conf
 
 %prep
 %setup -b0 -q
@@ -50,6 +76,14 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+
+# Configuration templates
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/nginx/conf.d
+%{__mkdir} -p %{buildroot}%{_datadir}/sipcapture/sql/
+%{__cp} examples/web/homer5.apache %{buildroot}%{_sysconfdir}/httpd/conf.d/sipcapture.conf
+%{__cp} examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/conf.d/sipcapture.conf
+%{__cp} sql/* %{buildroot}%{_datadir}/sipcapture/sql/
 
 # UI and API directories and files
 %{__mkdir} -p %{buildroot}%{webroot}
