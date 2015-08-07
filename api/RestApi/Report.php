@@ -90,7 +90,7 @@ class Report {
         $limit_orig = getVar('limit', 100, $param, 'int');        
         $answer = array();                          
         $callids = getVar('callid', array(), $param['search'], 'array');                         
-        $search['correlation_id'] = implode(",", $callids);                
+        $search['correlation_id'] = implode(";", $callids);                
         $callwhere = array();
         
         //$callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
@@ -188,7 +188,7 @@ class Report {
         $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');
         $callids = getVar('callid', array(), $param['search'], 'array');         
-        $search['correlation_id'] = implode(",", $callids);
+        $search['correlation_id'] = implode(";", $callids);
                                  
         if(empty($callids))
         {                
@@ -281,7 +281,7 @@ class Report {
         $limit_orig = getVar('limit', 100, $param, 'int');
                 
         $callids = getVar('callid', array(), $param['search'], 'array');         
-        $search['correlation_id'] = implode(",", $callids);
+        $search['correlation_id'] = implode(";", $callids);
         $answer = array();  
         
         if(empty($callids))
