@@ -1,16 +1,17 @@
+# Loading mod_rewrite if not done jet
+<IfModule !mod_rewrite.c>
+LoadModule rewrite_module modules/mod_rewrite.so
+</IfModule>
+# Define virtual host for HOMER5 on standard http tcp port 80
 <VirtualHost *:80>
 	ServerAdmin support@yourhost.org
 	ServerName  homer5.yourhost.org
 
 	# Indexes + Directory Root.
 	DirectoryIndex index.php index.html index.htm
-	DocumentRoot /var/vhosts/homer5.yourhost.org/htdocs/
+	DocumentRoot /var/www/sipcapture/htdocs
 
-	<Directory />
-	    Options FollowSymLinks
-	    AllowOverride None
-	</Directory>
-	<Directory /var/vhosts/homer5.yourhost.org/htdocs/>
+	<Directory /var/www/sipcapture/htdocs/>
 	    Options Indexes FollowSymLinks MultiViews
 	    AllowOverride all
 	    Order allow,deny
@@ -18,14 +19,14 @@
 	</Directory>
 
 	# CGI Directory
-	ScriptAlias /cgi-bin/ /var/vhosts/homer5.yourhost.org/cgi-bin/
-	<Location "/var/vhosts/homer5.yourhost.org/cgi-bin">
+	ScriptAlias /cgi-bin/ /var/www/sipcapture/cgi-bin/
+	<Location "/var/www/sipcapture/cgi-bin">
 	    Options +ExecCGI -MultiViews
 	    Order allow,deny
 	    Allow from all
 	</Location>
 
 	# Logfiles
-	ErrorLog  /var/vhosts/homer5.yourhost.org/logs/homer5-error.log
-	CustomLog /var/vhosts/homer5.yourhost.org/logs/homer5-access.log combined
+	ErrorLog  /var/log/httpd/sipcapture-error.log
+	CustomLog /var/log/httpd/sipcapture-access.log combined
 </VirtualHost>
