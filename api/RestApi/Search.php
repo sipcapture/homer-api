@@ -745,11 +745,11 @@ class Search {
 		$calldata['ruri_user'] = $data->ruri_user;
 		if(!empty($data->source_alias)) { $calldata['source_alias'] = $data->source_alias;}
 		if(!empty($data->destination_alias)) { $calldata['destination_alias'] = $data->destination_alias;}
+		$calldata['source_ip'] = $data->source_ip;
+		$calldata['destination_ip'] = $data->destination_ip;
 
 		if($message_include) {
 		    $calldata['msg'] = $data->msg;
-		    $calldata['source_ip'] = $data->source_ip;
-		    $calldata['destination_ip'] = $data->destination_ip;
 		}
 
 		if(!array_key_exists('callid', $info)) $info['callid'] = array();
