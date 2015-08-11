@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `node` (
 
 INSERT INTO `node` (`id`, `host`, `dbname`, `dbport`, `dbusername`, `dbpassword`, `dbtables`, `name`, `status`) VALUES
 (1, '127.0.0.1', 'homer_data', '3306', 'homer_user', 'mysql_password', 'sip_capture', 'homer01', 1),
-(21, '109.69.65.77', 'homer_data', '3306', 'homer_user', 'mysql_password', 'sip_capture', 'external', 1);
+(21, '10.1.0.7', 'homer_data', '3306', 'homer_user', 'mysql_password', 'sip_capture', 'external', 1);
 
 -- --------------------------------------------------------
 
