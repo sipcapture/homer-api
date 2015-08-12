@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `sip_capture_[TRANSACTION]_[TIMESTAMP]` (
 PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
 END
 
-$DROP="DROP TABLE IF EXISTS `sip_capture_[TRANSACTION]_[TIMESTAMP];`";
+$DROP="DROP TABLE IF EXISTS `sip_capture_[TRANSACTION]_[TIMESTAMP]`;";
 
 $db = DBI->connect("DBI:mysql:$mysql_dbname:$mysql_host:3306", $mysql_user, $mysql_password);
 #$db->{PrintError} = 0;
