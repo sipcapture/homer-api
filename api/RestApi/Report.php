@@ -70,7 +70,9 @@ class Report {
         $data = array();        
         $lnodes = array();
         
-        if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        //if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
                         
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
@@ -170,7 +172,8 @@ class Report {
         $answer = array();  
         $callwhere = array();
         
-        if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        //if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        if(isset($param['location'])) $lnodes = $param['location']['node'];                
                                                   
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
@@ -262,7 +265,9 @@ class Report {
         $lnodes = array();
         $callwhere = array();        
         
-        if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        //if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
                                                           
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        

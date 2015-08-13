@@ -132,7 +132,7 @@ class Search {
         $timestamp = $raw_get_data['timestamp'];
         $param = $raw_get_data['param'];
 
-        if(!isset($param['node'])) $lnodes = $param['node'];
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
         
         $trans['call'] = getVar('call', false, $param["transaction"], 'bool');
         $trans['registration'] = getVar('registration', false, $param["transaction"], 'bool');
@@ -214,8 +214,8 @@ class Search {
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
 
-        if(!isset($param['node'])) $lnodes = $param['node'];
-
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
         $time['from_ts'] = floor($time['from']/1000);
@@ -263,7 +263,7 @@ class Search {
         else {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
-
+        
         foreach($nodes as $node) {
 	    $db->dbconnect_node($node);
 	    $limit = $limit_orig;
@@ -505,7 +505,10 @@ class Search {
 
         $trans = array();
         $data = array();
-
+        $lnodes = array();
+        
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
@@ -538,7 +541,7 @@ class Search {
         else {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
-
+        
         foreach($nodes as $node)
         {
             $db->dbconnect_node($node);
