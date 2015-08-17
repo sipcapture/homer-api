@@ -833,6 +833,27 @@ class Search {
 
 		// SIP ENDPOINTS
 
+	        else if(preg_match('/SPA525/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "spa525", "agent" => $data->user_agent);
+        	}
+	        else if(preg_match('/SPA/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "spa504", "agent" => $data->user_agent);
+        	}
+        	else if(preg_match('/PolycomVVX/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "polycomvvx", "agent" => $data->user_agent);
+        	}
+        	else if(preg_match('/Polycom/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "polycom", "agent" => $data->user_agent);
+        	}
+        	else if(preg_match('/Yealink/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "yealink", "agent" => $data->user_agent);
+        	}
+        	else if(preg_match('/Cisco/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "ciscogw", "agent" => $data->user_agent);
+        	}
+        	else if(preg_match('/3CX/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "3cx", "agent" => $data->user_agent);
+		}
 		else if(preg_match('/x-lite|Bria|counter-path/i', $data->user_agent)) {
 		     $uac[$src_id] = array("image" => "counterpath", "agent" => $data->user_agent);
 		}
