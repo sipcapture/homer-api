@@ -70,6 +70,6 @@ define('DASHBOARD_STORE','db');
 define('DASHBOARD_PARAM', ROOT.'/store/dashboard');
 
 /* PUBLIC HOST FOR SHARE */
-define('PUBLIC_SHARE_HOST',"http://homer5.sipcapture.org:88/share/");
+define('PUBLIC_SHARE_HOST',"http:///your.public.host/share/");
 
 ?>
