@@ -45,7 +45,7 @@ use RestService\Server;
 
 define('WEBROOT', preg_replace('/api(.*)$/', '', $_SERVER["REQUEST_URI"]));
 
-Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
+Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
 
     ->setDebugMode(false) //prints the debug trace, line number and file if a exception has been thrown.
     ->addGetRoute('session', 'getSession') // => /api/session
