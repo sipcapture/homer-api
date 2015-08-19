@@ -1,11 +1,11 @@
 <?php
 
 
-Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
+Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
     ->setDebugMode(true) //prints the debug trace, line number and file if a exception has been thrown.
     
 /**
-*  @api {get} /api/session get current session
+*  @api {get} /api/v1/session get current session
 *  @apiName get session
 *  @apiGroup Auth
 *    
@@ -13,7 +13,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 * 
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X GET \
-*   "http://localhost/api/session"
+*   "http://localhost/api/v1/session"
 *    
 *  @apiSuccessTitle (700) Response 
 *  
@@ -50,10 +50,10 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *   
 **/    
 
-    ->addGetRoute('session', 'getSession') // => /api/session
+    ->addGetRoute('session', 'getSession') // => /api/v1/session
 
 /**
-*  @api {post} /api/session create a session
+*  @api {post} /api/v1/session create a session
 *  @apiName  create session
 *  @apiGroup Auth
 *
@@ -62,7 +62,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"username":"admin","password":"test123"}' \
-*   http://localhost/api/session
+*   http://localhost/api/v1/session
 *      
 *  @apiParam {String} username Login for session creation.
 *  @apiParam {String} password Password for session creation.
@@ -115,9 +115,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 
 
 
-    ->addPostRoute('session', 'doSession') // => /api/session
+    ->addPostRoute('session', 'doSession') // => /api/v1/session
 /*
-*  @api {delete} /api/session delete current session
+*  @api {delete} /api/v1/session delete current session
 *  @apiName delete session
 *  @apiGroup Auth
 *    
@@ -125,7 +125,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 * 
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X DELETE \
-*   "http://localhost/api/session"
+*   "http://localhost/api/v1/session"
 *    
 *  @apiSuccessTitle (700) Response 
 *  
@@ -158,7 +158,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 
     ->addDeleteRoute('session', 'doLogout') // => /admin/logout
 /**
-*  @api {get} /api/logout delete current session
+*  @api {get} /api/v1/logout delete current session
 *  @apiName logout of session
 *  @apiGroup Auth
 *    
@@ -166,7 +166,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 * 
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X GET \
-*   "http://localhost/api/logout"
+*   "http://localhost/api/v1/logout"
 *    
 *  @apiSuccessTitle (700) Response 
 *  
@@ -201,7 +201,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
     
     ->addSubController('search', 'RestApi\Search') //adds a new sub entry point 'tools' => admin/tools
 /**
-*  @api {post} /api/search/data do search
+*  @api {post} /api/v1/search/data do search
 *  @apiName  search data
 *  @apiGroup Search
 *
@@ -210,7 +210,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"param":{"transaction":{"call":true},"limit":200,"search":{"ruri_user":"108"},"node":[{"id":"1","name":"homer01"}]},"timestamp":{"from":1433521859738,"to":1433529659738}}' \
-*   http://localhost/api/search/data
+*   http://localhost/api/v1/search/data
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -372,9 +372,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 **/
 
 
-      ->addPostRoute('data', 'doSearchData') // => /api/session
+      ->addPostRoute('data', 'doSearchData') // => /api/v1/session
 /**
-*  @api {post} /api/search/method method by id
+*  @api {post} /api/v1/search/method method by id
 *  @apiName  search method
 *  @apiGroup Search
 *
@@ -383,7 +383,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"timestamp":{"from":1433529542283,"to":1433529542283},"param":{"search":{"id":14588,"callid":"426690302"},"location":{"node":"single"},"transaction":{"call":true,"registration":false,"rest":false}}}' \
-*   http://localhost/api/search/method
+*   http://localhost/api/v1/search/method
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -521,9 +521,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 **/
 
 
-      ->addPostRoute('method', 'doSearchMethod') // => /api/session
+      ->addPostRoute('method', 'doSearchMethod') // => /api/v1/session
 /**
-*  @api {post} /api/search/message message by callid
+*  @api {post} /api/v1/search/message message by callid
 *  @apiName  search message(s)
 *  @apiGroup Search
 *
@@ -532,7 +532,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"timestamp":{"from":1433529542283,"to":1433529542283},"param":{"search":{"id":14588,"callid":"426690302"},"location":{"node":"single"},"transaction":{"call":true,"registration":false,"rest":false}}}' \
-*   http://localhost/api/search/message
+*   http://localhost/api/v1/search/message
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -670,9 +670,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	}    		     			
 **/
       
-      ->addPostRoute('message', 'doSearchMessage') // => /api/session
+      ->addPostRoute('message', 'doSearchMessage') // => /api/v1/session
 /**
-*  @api {post} /api/search/transaction search trasaction
+*  @api {post} /api/v1/search/transaction search trasaction
 *  @apiName  search transaction(s)
 *  @apiGroup Search
 *
@@ -681,7 +681,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"timestamp":{"from":1433529545834,"to":1433529659738},"param":{"search":{"id":14600,"callid":["188735396@127.0.1.1"]},"location":{"node":[]},"transaction":{"call":true,"registration":false,"rest":false}}}' \
-*   http://localhost/api/search/transaction
+*   http://localhost/api/v1/search/transaction
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -800,13 +800,13 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	}    		     			
 **/
 
-      ->addPostRoute('transaction', 'doSearchTransaction') // => /api/session
-      ->addPostRoute('sharelink', 'doShareLink') // => /api/session
-      ->addPostRoute('share/transaction', 'doSearchShareTransaction') // => /api/session
-      ->addPostRoute('share/export/pcap', 'doPcapExportById') // => /api/session
-      ->addPostRoute('share/export/text', 'doTextExportById') // => /api/session
+      ->addPostRoute('transaction', 'doSearchTransaction') // => /api/v1/session
+      ->addPostRoute('sharelink', 'doShareLink') // => /api/v1/session
+      ->addPostRoute('share/transaction', 'doSearchShareTransaction') // => /api/v1/session
+      ->addPostRoute('share/export/pcap', 'doPcapExportById') // => /api/v1/session
+      ->addPostRoute('share/export/text', 'doTextExportById') // => /api/v1/session
 /**
-*  @api {post} /api/search/export/pcap pcap export
+*  @api {post} /api/v1/search/export/pcap pcap export
 *  @apiName  pcap of transaction
 *  @apiGroup Search
 *
@@ -815,7 +815,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"timestamp":{"from":1433529545834,"to":1433529659738},"param":{"search":{"id":14600,"callid":["188735396@127.0.1.1"]},"location":{"node":[]},"transaction":{"call":true,"registration":false,"rest":false}}}' \
-*   http://localhost/api/search/export/pcap
+*   http://localhost/api/v1/search/export/pcap
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -855,9 +855,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 **/
 
 
-      ->addPostRoute('export/pcap', 'doPcapExport') // => /api/session
+      ->addPostRoute('export/pcap', 'doPcapExport') // => /api/v1/session
 /**
-*  @api {post} /api/search/export/text text export
+*  @api {post} /api/v1/search/export/text text export
 *  @apiName  text of transaction
 *  @apiGroup Search
 *
@@ -866,7 +866,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"timestamp":{"from":1433529545834,"to":1433529659738},"param":{"search":{"id":14600,"callid":["188735396@127.0.1.1"]},"location":{"node":[]},"transaction":{"call":true,"registration":false,"rest":false}}}' \
-*   http://localhost/api/search/export/text
+*   http://localhost/api/v1/search/export/text
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -907,9 +907,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 
 
 
-      ->addPostRoute('export/text', 'doTextExport') // => /api/session
+      ->addPostRoute('export/text', 'doTextExport') // => /api/v1/session
 /**
-*  @api {post} /api/search/export/data/pcap pcap export of messages
+*  @api {post} /api/v1/search/export/data/pcap pcap export of messages
 *  @apiName  pcap export of messages
 *  @apiGroup Search
 *
@@ -918,7 +918,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"param":{"transaction":{"call":true},"limit":200,"search":{"ruri_user":"108"},"node":[{"id":"1","name":"homer01"}]},"timestamp":{"from":1433521859738,"to":1433529659738}}' \
-*   http://localhost/api/search/export/data/pcap
+*   http://localhost/api/v1/search/export/data/pcap
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -980,9 +980,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	}    		     			
 **/
 
-      ->addPostRoute('export/data/pcap', 'doPcapExportData') // => /api/session
+      ->addPostRoute('export/data/pcap', 'doPcapExportData') // => /api/v1/session
 /**
-*  @api {post} /api/search/export/data/text text export of messages
+*  @api {post} /api/v1/search/export/data/text text export of messages
 *  @apiName  text export of messages
 *  @apiGroup Search
 *
@@ -991,7 +991,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X POST -H "Content-Type: application/json" \
 *   -d '{"param":{"transaction":{"call":true},"limit":200,"search":{"ruri_user":"108"},"node":[{"id":"1","name":"homer01"}]},"timestamp":{"from":1433521859738,"to":1433529659738}}' \
-*   http://localhost/api/search/export/data/text
+*   http://localhost/api/v1/search/export/data/text
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -1053,9 +1053,9 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	}    		     			
 **/
 
-      ->addPostRoute('export/data/text', 'doTextExportData') // => /api/session      
+      ->addPostRoute('export/data/text', 'doTextExportData') // => /api/v1/session      
 /**
-*  @api {get} /api/search/data get search
+*  @api {get} /api/v1/search/data get search
 *  @apiName  get search data
 *  @apiGroup Search
 *
@@ -1064,7 +1064,7 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *  @apiExample Example usage:
 *   curl -v --cookie "HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/" -X GET -H "Content-Type: application/json" \
 *   -d '{"param":{"transaction":{"call":true},"limit":200,"node":[{"id":"1","name":"homer01"}]},"timestamp":{"from":1433521859738,"to":1433529659738}}' \
-*   http://localhost/api/search/data
+*   http://localhost/api/v1/search/data
 *      
 *  @apiParam {String[]} timestamp array 
 *  @apiParam {Number} timestamp.from search from this time
@@ -1198,66 +1198,66 @@ Server::create(WEBROOT.'api', 'RestApi\Auth') //base entry points `/admin`
 *	}    		     			
 **/
 
-      ->addGetRoute('data', 'getSearchData') // => /api/session
+      ->addGetRoute('data', 'getSearchData') // => /api/v1/session
     ->done()
 
     /* statistic */    
     ->addSubController('statistic', 'RestApi\Statistic') //adds a new sub entry point 'tools' => admin/tools
-      ->addGetRoute('method', 'getStatisticMethod') // => /api/session
-      ->addPostRoute('method', 'doStatisticMethod') // => /api/session
-      ->addPostRoute('data', 'doStatisticData') // => /api/session
-      ->addGetRoute('data', 'getStatisticData') // => /api/session
-      ->addPostRoute('ip', 'doStatisticIP') // => /api/session
-      ->addGetRoute('ip', 'getStatisticIP') // => /api/session
-      ->addPostRoute('useragent', 'doStatisticUserAgent') // => /api/session
-      ->addGetRoute('useragent', 'getStatisticUserAgent') // => /api/session
+      ->addGetRoute('method', 'getStatisticMethod') // => /api/v1/session
+      ->addPostRoute('method', 'doStatisticMethod') // => /api/v1/session
+      ->addPostRoute('data', 'doStatisticData') // => /api/v1/session
+      ->addGetRoute('data', 'getStatisticData') // => /api/v1/session
+      ->addPostRoute('ip', 'doStatisticIP') // => /api/v1/session
+      ->addGetRoute('ip', 'getStatisticIP') // => /api/v1/session
+      ->addPostRoute('useragent', 'doStatisticUserAgent') // => /api/v1/session
+      ->addGetRoute('useragent', 'getStatisticUserAgent') // => /api/v1/session
     ->done()
 
     /* alarm */    
     ->addSubController('alarm', 'RestApi\Alarm') //adds a new sub entry point 'tools' => admin/tools
-      ->addGetRoute('config/get', 'getAlarmConfig') // => /api/session
-      ->addPostRoute('config/new', 'doNewAlarmConfig') // => /api/session
-      ->addPostRoute('config/edit', 'doEditAlarmConfig') // => /api/session
+      ->addGetRoute('config/get', 'getAlarmConfig') // => /api/v1/session
+      ->addPostRoute('config/new', 'doNewAlarmConfig') // => /api/v1/session
+      ->addPostRoute('config/edit', 'doEditAlarmConfig') // => /api/v1/session
       ->addDeleteRoute('config/delete/([0-9]+)', 'deleteAlarmConfig')      
-      ->addGetRoute('list/get', 'getAlarmList') // => /api/session      
-      ->addPostRoute('list/edit', 'doEditAlarmList') // => /api/session      
-      ->addGetRoute('method', 'getAlarmMethod') // => /api/session
-      ->addPostRoute('method', 'doAlarmMethod') // => /api/session
-      ->addPostRoute('ip', 'doAlarmIP') // => /api/session
-      ->addGetRoute('ip', 'getAlarmIP') // => /api/session
-      ->addPostRoute('useragent', 'doAlarmUserAgent') // => /api/session
-      ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/session
+      ->addGetRoute('list/get', 'getAlarmList') // => /api/v1/session      
+      ->addPostRoute('list/edit', 'doEditAlarmList') // => /api/v1/session      
+      ->addGetRoute('method', 'getAlarmMethod') // => /api/v1/session
+      ->addPostRoute('method', 'doAlarmMethod') // => /api/v1/session
+      ->addPostRoute('ip', 'doAlarmIP') // => /api/v1/session
+      ->addGetRoute('ip', 'getAlarmIP') // => /api/v1/session
+      ->addPostRoute('useragent', 'doAlarmUserAgent') // => /api/v1/session
+      ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/v1/session
     ->done()
 
     /* report */    
     ->addSubController('report', 'RestApi\Report') //adds a new sub entry point 'tools' => admin/tools
-      ->addPostRoute('rtcp', 'doRTCPReport') // => /api/session      
-      ->addPostRoute('log', 'doLogReport') // => /api/session
-      ->addPostRoute('quality/([A-Za-z]+)', 'doQualityReport') // => /api/session
+      ->addPostRoute('rtcp', 'doRTCPReport') // => /api/v1/session      
+      ->addPostRoute('log', 'doLogReport') // => /api/v1/session
+      ->addPostRoute('quality/([A-Za-z]+)', 'doQualityReport') // => /api/v1/session
     ->done()
 
     /* admin */    
     ->addSubController('admin', 'RestApi\Admin') //adds a new sub entry point 'tools' => admin/tools
-      ->addGetRoute('user/get', 'getUser') // => /api/session
-      ->addGetRoute('user/get/([0-9A-Za-z_])', 'getUserById') // => /api/session
-      ->addPostRoute('user/new', 'doNewUser') // => /api/session
-      ->addPostRoute('user/edit', 'doEditUser') // => /api/session
+      ->addGetRoute('user/get', 'getUser') // => /api/v1/session
+      ->addGetRoute('user/get/([0-9A-Za-z_])', 'getUserById') // => /api/v1/session
+      ->addPostRoute('user/new', 'doNewUser') // => /api/v1/session
+      ->addPostRoute('user/edit', 'doEditUser') // => /api/v1/session
       ->addDeleteRoute('user/delete/([0-9]+)', 'deleteUser')      
 
       /* alias */          
-      ->addGetRoute('alias/get', 'getAlias') // => /api/session
-      ->addGetRoute('user/get/([0-9A-Za-z_])', 'getAliasById') // => /api/session
-      ->addPostRoute('alias/new', 'doNewAlias') // => /api/session
-      ->addPostRoute('alias/edit', 'doEditAlias') // => /api/session
+      ->addGetRoute('alias/get', 'getAlias') // => /api/v1/session
+      ->addGetRoute('user/get/([0-9A-Za-z_])', 'getAliasById') // => /api/v1/session
+      ->addPostRoute('alias/new', 'doNewAlias') // => /api/v1/session
+      ->addPostRoute('alias/edit', 'doEditAlias') // => /api/v1/session
       ->addDeleteRoute('user/delete/([0-9]+)', 'deleteAlias')          
       /* nodes */
-      ->addGetRoute('node/get', 'getNode') // => /api/session
-      ->addGetRoute('node/get/([0-9A-Za-z_])', 'getNodeById') // => /api/session
-      ->addPostRoute('node/new', 'doNewNode') // => /api/session
-      ->addPostRoute('node/edit', 'doEditNode') // => /api/session
+      ->addGetRoute('node/get', 'getNode') // => /api/v1/session
+      ->addGetRoute('node/get/([0-9A-Za-z_])', 'getNodeById') // => /api/v1/session
+      ->addPostRoute('node/new', 'doNewNode') // => /api/v1/session
+      ->addPostRoute('node/edit', 'doEditNode') // => /api/v1/session
       ->addDeleteRoute('node/delete/([0-9]+)', 'deleteNode')                
       /* alarms */
-      ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/session
+      ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/v1/session
     ->done()
 
          

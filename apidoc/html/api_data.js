@@ -1,7 +1,7 @@
 define({ "api": [
   {
     "type": "post",
-    "url": "/api/session",
+    "url": "/api/v1/session",
     "title": "create a session",
     "name": "create_session",
     "group": "Auth",
@@ -37,7 +37,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"username\":\"admin\",\"password\":\"test123\"}' \\\nhttp://localhost/api/session",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"username\":\"admin\",\"password\":\"test123\"}' \\\nhttp://localhost/api/v1/session",
         "type": "json"
       }
     ],
@@ -160,7 +160,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/api/session",
+    "url": "/api/v1/session",
     "title": "get current session",
     "name": "get_session",
     "group": "Auth",
@@ -180,7 +180,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X GET \\\n\"http://localhost/api/session\"",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X GET \\\n\"http://localhost/api/v1/session\"",
         "type": "json"
       }
     ],
@@ -261,7 +261,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/api/logout",
+    "url": "/api/v1/logout",
     "title": "delete current session",
     "name": "logout_of_session",
     "group": "Auth",
@@ -281,7 +281,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X GET \\\n\"http://localhost/api/logout\"",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X GET \\\n\"http://localhost/api/v1/logout\"",
         "type": "json"
       }
     ],
@@ -334,7 +334,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/api/search/data",
+    "url": "/api/v1/search/data",
     "title": "get search",
     "name": "get_search_data",
     "group": "Search",
@@ -419,7 +419,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X GET -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/search/data",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X GET -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/v1/search/data",
         "type": "json"
       }
     ],
@@ -773,7 +773,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/export/data/pcap",
+    "url": "/api/v1/search/export/data/pcap",
     "title": "pcap export of messages",
     "name": "pcap_export_of_messages",
     "group": "Search",
@@ -1047,7 +1047,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"search\":{\"ruri_user\":\"108\"},\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/search/export/data/pcap",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"search\":{\"ruri_user\":\"108\"},\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/v1/search/export/data/pcap",
         "type": "json"
       }
     ],
@@ -1086,7 +1086,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/export/pcap",
+    "url": "/api/v1/search/export/pcap",
     "title": "pcap export",
     "name": "pcap_of_transaction",
     "group": "Search",
@@ -1199,7 +1199,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529545834,\"to\":1433529659738},\"param\":{\"search\":{\"id\":14600,\"callid\":[\"188735396@127.0.1.1\"]},\"location\":{\"node\":[]},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/search/export/pcap",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529545834,\"to\":1433529659738},\"param\":{\"search\":{\"id\":14600,\"callid\":[\"188735396@127.0.1.1\"]},\"location\":{\"node\":[]},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/v1/search/export/pcap",
         "type": "json"
       }
     ],
@@ -1238,7 +1238,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/data",
+    "url": "/api/v1/search/data",
     "title": "do search",
     "name": "search_data",
     "group": "Search",
@@ -1512,7 +1512,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"search\":{\"ruri_user\":\"108\"},\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/search/data",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"search\":{\"ruri_user\":\"108\"},\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/v1/search/data",
         "type": "json"
       }
     ],
@@ -1866,7 +1866,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/message",
+    "url": "/api/v1/search/message",
     "title": "message by callid",
     "name": "search_message_s_",
     "group": "Search",
@@ -1979,7 +1979,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529542283,\"to\":1433529542283},\"param\":{\"search\":{\"id\":14588,\"callid\":\"426690302\"},\"location\":{\"node\":\"single\"},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/search/message",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529542283,\"to\":1433529542283},\"param\":{\"search\":{\"id\":14588,\"callid\":\"426690302\"},\"location\":{\"node\":\"single\"},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/v1/search/message",
         "type": "json"
       }
     ],
@@ -2333,7 +2333,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/method",
+    "url": "/api/v1/search/method",
     "title": "method by id",
     "name": "search_method",
     "group": "Search",
@@ -2446,7 +2446,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529542283,\"to\":1433529542283},\"param\":{\"search\":{\"id\":14588,\"callid\":\"426690302\"},\"location\":{\"node\":\"single\"},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/search/method",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529542283,\"to\":1433529542283},\"param\":{\"search\":{\"id\":14588,\"callid\":\"426690302\"},\"location\":{\"node\":\"single\"},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/v1/search/method",
         "type": "json"
       }
     ],
@@ -2800,7 +2800,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/transaction",
+    "url": "/api/v1/search/transaction",
     "title": "search trasaction",
     "name": "search_transaction_s_",
     "group": "Search",
@@ -2913,7 +2913,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529545834,\"to\":1433529659738},\"param\":{\"search\":{\"id\":14600,\"callid\":[\"188735396@127.0.1.1\"]},\"location\":{\"node\":[]},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/search/transaction",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529545834,\"to\":1433529659738},\"param\":{\"search\":{\"id\":14600,\"callid\":[\"188735396@127.0.1.1\"]},\"location\":{\"node\":[]},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/v1/search/transaction",
         "type": "json"
       }
     ],
@@ -3148,7 +3148,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/export/data/text",
+    "url": "/api/v1/search/export/data/text",
     "title": "text export of messages",
     "name": "text_export_of_messages",
     "group": "Search",
@@ -3422,7 +3422,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"search\":{\"ruri_user\":\"108\"},\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/search/export/data/text",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"param\":{\"transaction\":{\"call\":true},\"limit\":200,\"search\":{\"ruri_user\":\"108\"},\"node\":[{\"id\":\"1\",\"name\":\"homer01\"}]},\"timestamp\":{\"from\":1433521859738,\"to\":1433529659738}}' \\\nhttp://localhost/api/v1/search/export/data/text",
         "type": "json"
       }
     ],
@@ -3461,7 +3461,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/search/export/text",
+    "url": "/api/v1/search/export/text",
     "title": "text export",
     "name": "text_of_transaction",
     "group": "Search",
@@ -3574,7 +3574,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529545834,\"to\":1433529659738},\"param\":{\"search\":{\"id\":14600,\"callid\":[\"188735396@127.0.1.1\"]},\"location\":{\"node\":[]},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/search/export/text",
+        "content": "curl -v --cookie \"HOMERSESSID=tcuass65ejl2lifoopuuurpmq7; path=/\" -X POST -H \"Content-Type: application/json\" \\\n-d '{\"timestamp\":{\"from\":1433529545834,\"to\":1433529659738},\"param\":{\"search\":{\"id\":14600,\"callid\":[\"188735396@127.0.1.1\"]},\"location\":{\"node\":[]},\"transaction\":{\"call\":true,\"registration\":false,\"rest\":false}}}' \\\nhttp://localhost/api/v1/search/export/text",
         "type": "json"
       }
     ],
