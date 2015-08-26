@@ -290,7 +290,14 @@ class Search {
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
-
+        
+        /* fix alias. ugly but effective */        
+        for($i=0; $i < count($data); $i++) {        
+        
+                if(empty($data[$i]['source_alias'])) $data[$i]['source_alias'] = $data[$i]['source_ip'];
+                if(empty($data[$i]['destination_alias'])) $data[$i]['destination_alias'] = $data[$i]['destination_ip'];
+        }
+        
         return $data;
     }
 
