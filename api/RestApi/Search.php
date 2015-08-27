@@ -223,8 +223,11 @@ class Search {
 
         /* search fields */
         $search['from_user'] = getVar('from_user', NULL, $param['search'], 'string');
+        $search['from_domain'] = getVar('from_domain', NULL, $param['search'], 'string');
         $search['to_user'] = getVar('to_user', NULL, $param['search'], 'string');
+        $search['to_domain'] = getVar('to_domain', NULL, $param['search'], 'string');
         $search['ruri_user'] = getVar('ruri_user', NULL, $param['search'], 'string');
+        $search['ruri_domain'] = getVar('ruri_domain', NULL, $param['search'], 'string');
         $search['callid'] = getVar('callid', NULL, $param['search'], 'string');
         $search['callid_aleg'] = getVar('callid_aleg', NULL, $param['search'], 'string');
         $search['contact_user'] = getVar('contact_user', NULL, $param['search'], 'string');
