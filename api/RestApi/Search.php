@@ -143,6 +143,7 @@ class Search {
         $time['from_ts'] = intval($time['from']/1000);
         $time['to_ts'] = intval($time['to']/1000);
         $limit_orig = getVar('limit', 100, $param, 'int');
+        if($limit_orig <= 0) $limit_orig = 100;
 
         $callwhere = array();
         if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
@@ -253,7 +254,8 @@ class Search {
         $b2b = getVar('b2b', false, $param['search'], 'bool');
         #$limit_orig = getVar('limit', 100, $param, 'int');
         $limit_orig = getVar('limit', 100, $param['search'], 'int');
-
+	if($limit_orig <= 0) $limit_orig = 100;
+	
         /* callid correlation */
 
         $callwhere = array();
@@ -449,6 +451,7 @@ class Search {
         $time['to_ts'] = round($time['to']/1000);
 
         $limit = getVar('limit', 100, $param['search'], 'int');
+        if($limit <= 0) $limit = 100;
 
         $record_id = getVar('id', 0, $param['search'], 'int');
         $search['callid'] = getVar('callid', "", $param['search'], 'string');
@@ -532,6 +535,7 @@ class Search {
         $time['to_ts'] = round($time['to']/1000);
 
         $limit_orig = getVar('limit', 100, $param['search'], 'int');
+        if($limit_orig <= 0) $limit_orig = 100;
 
         $record_id = getVar('id', 0, $param['search'], 'int');
         $callids = getVar('callid', array(), $param['search'], 'array');
