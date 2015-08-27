@@ -424,6 +424,18 @@ class Report {
         }
     }
     
+    public function getNode($name){
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+        $table = "node";
+        $query = "SELECT * FROM ".$table." WHERE name='?' AND status = 1 LIMIT 1";
+	$query  = $db->makeQuery($query, $name);
+        $data = $db->loadObjectArray($query);
+	if(empty($data)) return array();
+	return $data[0];
+    }
+    
     public function getContainer($name)
     {
         if (!$this->_instance || !isset($this->_instance[$name]) || $this->_instance[$name] === null) {
