@@ -92,9 +92,12 @@ class Report {
         $limit_orig = getVar('limit', 100, $param, 'int');        
         $answer = array();                          
         $callids = getVar('callid', array(), $param['search'], 'array');                         
-        $search['correlation_id'] = implode(";", $callids);                
         $callwhere = array();
+
+        $cn = count($callids);
+        for($i=0; $i < $cn; $i++) $callids[] = substr($callids[$i], 0, -1);
         
+        $search['correlation_id'] = implode(";", $callids);                
         //$callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
          
         $answer = array();  
