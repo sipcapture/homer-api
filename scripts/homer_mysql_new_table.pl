@@ -23,18 +23,20 @@
 use DBI;
 use POSIX;
 
-$version = "0.5.1";
+$version = "0.5.2";
 $mysql_dbname = "homer_data";
 $mysql_user = "homer_user";
 $mysql_password = "homer_password";
 $mysql_host = "localhost";
-$maxparts = $ARGV[1] // 6; #6 days How long keep the data in the DB
+$maxpart = $ARGV[1] // "7,6,5"; #7 days for call, 6  days for registrations, 5 days for rest,  How long keep the data in the DB
 $newtables = 2; #new tables for 2 days. Anyway, start this script daily!
 @stepsvalues = (86400, 3600, 1800, 900); 
 $partstep = $ARGV[0] // 0; # 0 - Day, 1 - Hour, 2 - 30 Minutes, 3 - 15 Minutes 
 $engine = "InnoDB"; #MyISAM or InnoDB
 $compress = "ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8"; #Enable this if you want use barracuda format or set var to empty.
 @transactions = ("call","registration","rest");
+
+@maxparts = split(",",$maxpart);
 
 #Check it
 $partstep=0 if(!defined $stepsvalues[$partstep]);
@@ -124,19 +126,22 @@ for(my $y = 0 ; $y < ($newtables+1); $y++)
 }
 
 #And remove
-for(my $y = 0 ; $y < 2; $y++)
+for(my $i = 0; $i < ($#transactions+1); $i++)
 {
-    $curtstamp = time()-(86400*($maxparts+$y));    
-    $ltable = $DROP;
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($curtstamp);
-    my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
-    my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
-    $ltable=~s/\[TIMESTAMP\]/$table_timestamp/ig;
-    foreach $key (@transactions)
-    {
-            $query = $ltable;
-            $query=~s/\[TRANSACTION\]/$key/ig;
-            $db->do($query);
+	$key = $transactions[$i];
+	$ltable = $DROP;
+        $ltable =~s/\[TRANSACTION\]/$key/ig;	
+
+	for(my $y = 0 ; $y < 2; $y++)
+	{
+	    $curtstamp = time()-(86400*($maxparts[$i]+$y));    
+	    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($curtstamp);
+	    my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
+	    my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
+
+	    $query = $ltable;
+	    $query=~s/\[TIMESTAMP\]/$table_timestamp/ig;
+	    $db->do($query);
     }
 }
 
