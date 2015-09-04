@@ -2,7 +2,7 @@
 
 ## HOMER 5 API
 
-### PUBLIC BETA 2
+### PUBLIC BETA 3
 
 DOCUMENTATION is available here:
 
