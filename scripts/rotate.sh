@@ -26,3 +26,18 @@ $programm homer_statistic alarm_data 0 20
 $programm homer_statistic stats_method 0 20
 $programm homer_statistic stats_useragent 0 20
 $programm homer_statistic stats_useragent 0 20
+
+# Dealing with calls, registrations and a rest of captured data
+# delete tables older then 30 days
+TS=`/usr/bin/date +%s`;
+let TS=TS-2592000;
+for table in `/usr/bin/mysql -D homer_data -B -e "show tables" | /usr/bin/grep sip_capture`;
+do
+	table_date=`/usr/bin/echo $table | /usr/bin/awk -F'_' '{print $4}'`;
+	table_ts=`/usr/bin/date --date=$table_date +%s`;
+	if [ $table_ts -lt $TS ];
+	then
+		/usr/bin/logger "sipcapture: Deleting table $table";
+		/usr/bin/mysql -D homer_data -e "drop table $table";
+	fi;
+done;
