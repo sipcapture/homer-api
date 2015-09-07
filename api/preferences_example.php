@@ -79,7 +79,8 @@ define('LDAP_HOST',"localhost");
 define('LDAP_PORT',NULL);
 define('LDAP_BASEDN',"dc=example,dc=com");
 define('LDAP_REALM',"My Realm");
-define('LDAP_USERNAME_ATTRIBUTE',"uid");
+define('LDAP_USERNAME_ATTRIBUTE_OPEN',"uid=");
+define('LDAP_USERNAME_ATTRIBUTE_CLOSE',"");
 define('LDAP_USERLEVEL',3); 
 */
 
