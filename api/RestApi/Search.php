@@ -847,6 +847,43 @@ class Search {
 		}
 
 		// SIP ENDPOINTS
+		/*
+ 		  else if(preg_match('/Yealink SIP-T20P/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealinkt20', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Yealink SIP-T21P/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealinkt22', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Yealink SIP-T22P/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealinkt23', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Yealink SIP-T23P /i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealinkt26', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Yealink SIP-T26P/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealinkt28', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Yealink SIP-T28P/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealinkt52', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Grandstream GXP2130/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'grandstream2130', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Grandstream GXP2160/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'grandstream2160', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Grandstream HT702/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'grandstream702', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/snom300/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'snom300', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/snom320/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'snom320', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/snom710/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'snom710', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/snom720/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'snom720', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Aastra/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'aastra', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/AUDC/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'audiocodes', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/IP Office/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'Avaya', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Cisco/SPA/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'cisco', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/DLINK/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'dlink', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Fanvil C62/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'fanvil', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/FLYINGVOICE/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'grandstream', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Grandstream /i', $data->user_agent)) { $uac[$src_id] = array('image' => 'grandstream', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Linksys/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'linksys', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Polycom/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'polycom', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/snom/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'snom', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/THOMSON/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'thomson', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/MGW/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'voicentermgw', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/VoicenterSoftPhone/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'voicentersp', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Voip Phone/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'voipphone', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/X-Lite/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'xlite', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/eyeBeam/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'xlite', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Yealink/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealink', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/IP Phone SIP-T65P/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'yealink', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/didgw/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'didgw', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/proxy/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'proxy', 'agent' => $data->user_agent);  }
+                  else if(preg_match('/Voicenter/i', $data->user_agent)) { $uac[$src_id] = array('image' => 'voicenterold', 'agent' => $data->user_agent);  }
+		*/
 
 		else if(preg_match('/x-lite|Bria|counter-path/i', $data->user_agent)) {
 		     $uac[$src_id] = array("image" => "counterpath", "agent" => $data->user_agent);
