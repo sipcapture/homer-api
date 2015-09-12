@@ -432,6 +432,86 @@ class Report {
         }
     }
     
+      /*share */
+    public function doRTCPReportById($param){
+
+        $data = array();
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $uuid = getVar('transaction_id', "", $param, 'string');
+
+        $query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
+        $query  = $db->makeQuery($query, $uuid );
+        $json = $db->loadObjectArray($query);
+
+        if(!empty($json)) {
+
+            $djson = json_decode($json[0]['data'], true);
+
+            $timestamp = $djson['timestamp'];
+            $param = $djson['param'];
+
+            $data =  $this->doRTCPReport($timestamp, $param);
+
+        }
+
+        if(empty($data)) {
+
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+                return $answer;
+        } else {
+                return $data;
+        }
+    }
+
+  /*share */
+    public function doQualityReportById($param){
+
+        $data = array();
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $uuid = getVar('transaction_id', "", $param, 'string');
+
+        $query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
+        $query  = $db->makeQuery($query, $uuid );
+        $json = $db->loadObjectArray($query);
+
+        if(!empty($json)) {
+
+            $djson = json_decode($json[0]['data'], true);
+
+            $timestamp = $djson['timestamp'];
+            $param = $djson['param'];
+            $id =  "short";
+
+            $data =  $this->doQualityReport($id, $timestamp, $param);
+
+        }
+
+        if(empty($data)) {
+
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+                return $answer;
+        } else {
+                return $data;
+        }
+    }
+
+    
     public function getNode($name){
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
