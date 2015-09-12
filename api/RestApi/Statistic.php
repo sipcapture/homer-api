@@ -83,7 +83,7 @@ class Statistic {
             $search[$key]['method'] = getVar('method', NULL, $filter, 'string');
             $search[$key]['cseq'] = getVar('cseq', NULL, $filter, 'string');
             $search[$key]['auth'] = getVar('auth', -1, $filter, 'int');
-            $search[$key]['totag'] = getVar('method', -1, $filter, 'int');        
+            $search[$key]['totag'] = getVar('totag', -1, $filter, 'int');        
             
             $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
