@@ -97,13 +97,16 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/session
     ->done()
 
-    /* report */    
+     /* report */
     ->addSubController('report', 'RestApi\Report') //adds a new sub entry point 'tools' => admin/tools
-      ->addPostRoute('rtcp', 'doRTCPReport') // => /api/session      
+      ->addPostRoute('rtcp', 'doRTCPReport') // => /api/session
       ->addPostRoute('log', 'doLogReport') // => /api/session
       ->addPostRoute('share/log', 'doLogReportById') // => /api/report/share/log
+      ->addPostRoute('share/rtcp', 'doRTCPReportById') // => /api/report/share/log
+      ->addPostRoute('share/quality/short', 'doQualityReportById') // => /api/report/share/log
       ->addPostRoute('quality/([A-Za-z]+)', 'doQualityReport') // => /api/session
     ->done()
+
 
     /* admin */    
     ->addSubController('admin', 'RestApi\Admin') //adds a new sub entry point 'tools' => admin/tools
