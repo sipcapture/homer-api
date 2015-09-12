@@ -137,6 +137,11 @@ class Report {
             }
         }
 
+	 /* RTCP report fix */
+        for($i=0; $i < count($data); $i++) {
+            if(!is_array($data[$i]["msg"])) $data[$i]["msg"] = json_decode($data[$i]["msg"]);
+        }
+
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 
