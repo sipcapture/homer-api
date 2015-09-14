@@ -35,13 +35,13 @@ MYSQL_PASSWORD="sipcapturestrongpassword"
 MYSQL_DB="homer_data"
 
 let TS=TS-2592000;
-for table in `/usr/bin/mysql -u $MYSQL_USER -p $MYSQL_PASSWORD -D $MYSQL_DB -B -e "show tables" | /usr/bin/grep sip_capture`;
+for table in `/usr/bin/mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -D${MYSQL_DB} -B -e "show tables" | /usr/bin/grep sip_capture`;
 do
 	table_date=`/usr/bin/echo $table | /usr/bin/awk -F'_' '{print $4}'`;
 	table_ts=`/usr/bin/date --date=$table_date +%s`;
 	if [ $table_ts -lt $TS ];
 	then
 		/usr/bin/logger "sipcapture: Deleting table $table";
-		/usr/bin/mysql -u $MYSQL_USER -p $MYSQL_PASSWORD -D $MYSQL_DB -e "drop table $table";
+		/usr/bin/mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -D${MYSQL_DB} -e "drop table $table";
 	fi;
 done;
