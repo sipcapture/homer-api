@@ -444,7 +444,7 @@ class Admin {
         $update['name'] = getVar('name', '', $param, 'string');        
           
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db, 0, array('dbpassword'));
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }
@@ -487,9 +487,9 @@ class Admin {
         $update['dbtables'] = getVar('dbtables', '', $param, 'string');        
         $update['name'] = getVar('name', '', $param, 'string');            
         $id = getVar('id', 0, $param, 'int');            
-          
+
         $exten = "";
-        $callwhere = generateWhere($update, 1, $db, 0, array('dbpassword'));
+        $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
                 $exten .= implode(", ", $callwhere);                
         }
