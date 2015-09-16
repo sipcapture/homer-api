@@ -137,6 +137,13 @@ class Search {
         $trans['call'] = getVar('call', false, $param["transaction"], 'bool');
         $trans['registration'] = getVar('registration', false, $param["transaction"], 'bool');
         $trans['rest'] = getVar('rest', false, $param["transaction"], 'bool');
+        
+        /* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
 
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
@@ -145,6 +152,13 @@ class Search {
         $limit_orig = getVar('limit', 100, $param, 'int');
         if($limit_orig <= 0) $limit_orig = 100;
 
+	/* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
+	
         $callwhere = array();
         if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 
@@ -214,6 +228,13 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
+
+	/* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
 
         if(isset($param['location'])) $lnodes = $param['location']['node'];
                 
@@ -379,6 +400,13 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
+        
+        /* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
 
 	$location = $param['location'];
 
@@ -444,6 +472,13 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
+        
+        /* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
 
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
@@ -526,6 +561,13 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
+        
+        /* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
 
         $location = $param['location'];
 
