@@ -35,8 +35,6 @@ class Search {
 
     private $authmodule = true;
 
-    private $alias_cache = null;
-
     function __construct()
     {
 	$this->query_types = array("call", "registration", "rest");
