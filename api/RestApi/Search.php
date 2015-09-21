@@ -192,7 +192,7 @@ class Search {
 	    }
 	}
 
-        /* apply aliasses */
+        /* apply aliases */
         $this->applyAliases($data);
 
         /* sorting */
@@ -317,7 +317,7 @@ class Search {
             }
         }
 
-        /* apply aliasses */
+        /* apply aliases */
         $this->applyAliases($data);
 
         /* sorting */
@@ -448,7 +448,7 @@ class Search {
 	    }
         }
 
-        /* apply aliasses */
+        /* apply aliases */
         $this->applyAliases($data);
 
         return $data;
@@ -520,7 +520,7 @@ class Search {
 	    }
 	}
 
-        /* apply aliasses */
+        /* apply aliases */
         $this->applyAliases($data);
 
         /* sorting */
@@ -625,7 +625,7 @@ class Search {
             }
         }
 
-        /* apply aliasses */
+        /* apply aliases */
         $this->applyAliases($data);
 
         /* sorting */
