@@ -35,6 +35,8 @@ class Search {
 
     private $authmodule = true;
 
+    private $alias_cache = null;
+
     function __construct()
     {
 	$this->query_types = array("call", "registration", "rest");
@@ -180,7 +182,6 @@ class Search {
 			    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			    $query  = "SELECT t.".FIELDS_CAPTURE.", '".$query_type."' as trans, '".$node['name']."' as dbnode";
 			    $query .= " FROM ".$table." as t ";
-			    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcd.port";
 			    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			    $noderows = $db->loadObjectArray($query.$order);
@@ -190,6 +191,9 @@ class Search {
 		}
 	    }
 	}
+
+        /* apply aliasses */
+        $this->applyAliasses($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -301,9 +305,8 @@ class Search {
 			if($limit < 1) break;
 			$order = " order by t.id DESC LIMIT ".$limit;
 			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
-			$query  = "SELECT t.".$fields.", '".$query_type."' as trans, '".$node['name']."' as dbnode, hcs.alias as source_alias, hcd.alias as destination_alias";
+			$query  = "SELECT t.".$fields.", '".$query_type."' as trans, '".$node['name']."' as dbnode";
 			$query .= " FROM ".$table." as t";
-			$query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcd.port";
 			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			$noderows = $db->loadObjectArray($query.$order);
@@ -314,15 +317,11 @@ class Search {
             }
         }
 
+        /* apply aliasses */
+        $this->applyAliasses($data);
+
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
-        
-        /* fix alias. ugly but effective */        
-        for($i=0; $i < count($data); $i++) {        
-        
-                if(empty($data[$i]['source_alias'])) $data[$i]['source_alias'] = $data[$i]['source_ip'];
-                if(empty($data[$i]['destination_alias'])) $data[$i]['destination_alias'] = $data[$i]['destination_ip'];
-        }
         
         return $data;
     }
@@ -440,8 +439,6 @@ class Search {
 		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 		    $query  = "SELECT t.*, '".$query_type."' as trans ";
 		    $query .= "FROM ".$table." as t";
-		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
-		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
 		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		    $noderows = $db->loadObjectArray($query.$order);
@@ -450,6 +447,10 @@ class Search {
 		}
 	    }
         }
+
+        /* apply aliasses */
+        $this->applyAliasses($data);
+
         return $data;
     }
 
@@ -510,8 +511,6 @@ class Search {
 		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 		    $query  = "SELECT t.*, '".$query_type."' as trans";
 		    $query .= " FROM ".$table." as t";
-		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
-		    $query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
 		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		    $noderows = $db->loadObjectArray($query.$order);
@@ -520,6 +519,9 @@ class Search {
 		}
 	    }
 	}
+
+        /* apply aliasses */
+        $this->applyAliasses($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -611,10 +613,8 @@ class Search {
 			if($limit < 1) break;
 			$order = " order by id DESC LIMIT ".$limit;
 			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
-			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode, hcs.alias as source_alias, hcd.alias as destination_alias";
+			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode";
 			$query .= " FROM ".$table." as t";
-			$query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcs ON t.source_ip=hcs.ip AND t.source_port=hcs.port";
-			$query .= " LEFT JOIN ".DB_CONFIGURATION.".alias as hcd ON t.destination_ip=hcd.ip AND t.destination_port=hcs.port";
 			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			$noderows = $db->loadObjectArray($query.$order);
@@ -624,6 +624,9 @@ class Search {
 		}
             }
         }
+
+        /* apply aliasses */
+        $this->applyAliasses($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -1252,6 +1255,29 @@ class Search {
 	return $sum;
 
     }
+
+    private function applyAliasses(&$data) {
+
+        // Load alias cache if it isn't present in memory
+        if (!isset($this->alias_cache)) {
+            $db = $this->getContainer('db');
+            $db->select_db(DB_CONFIGURATION);
+            $db->dbconnect();
+            $query = "SELECT ip, port, alias FROM alias";
+            $aliases = $db->loadObjectArray($query);
+            foreach($aliases as $alias) {
+                $this->alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];
+            }
+        }
+
+        // Apply alias when an alias is configured
+        for($i=0; $i < count($data); $i++) {
+            $data[$i]['source_alias'] = ( isset($this->alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']]) ? $this->alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']] : $data[$i]['source_ip'] );
+            $data[$i]['destination_alias'] = ( isset($this->alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']]) ? $this->alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']] : $data[$i]['destination_ip'] );
+        }
+
+    }
+
 }
 
 ?>
