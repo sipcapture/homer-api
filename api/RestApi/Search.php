@@ -1258,22 +1258,20 @@ class Search {
 
     private function applyAliasses(&$data) {
 
-        // Load alias cache if it isn't present in memory
-        if (!isset($this->alias_cache)) {
-            $db = $this->getContainer('db');
-            $db->select_db(DB_CONFIGURATION);
-            $db->dbconnect();
-            $query = "SELECT ip, port, alias FROM alias";
-            $aliases = $db->loadObjectArray($query);
-            foreach($aliases as $alias) {
-                $this->alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];
-            }
+        // Load alias cache
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+        $query = "SELECT ip, port, alias FROM alias";
+        $aliases = $db->loadObjectArray($query);
+        foreach($aliases as $alias) {
+            $alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];
         }
 
         // Apply alias when an alias is configured
         for($i=0; $i < count($data); $i++) {
-            $data[$i]['source_alias'] = ( isset($this->alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']]) ? $this->alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']] : $data[$i]['source_ip'] );
-            $data[$i]['destination_alias'] = ( isset($this->alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']]) ? $this->alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']] : $data[$i]['destination_ip'] );
+            $data[$i]['source_alias'] = ( isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']]) ? $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']] : $data[$i]['source_ip'] );
+            $data[$i]['destination_alias'] = ( isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']]) ? $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']] : $data[$i]['destination_ip'] );
         }
 
     }
