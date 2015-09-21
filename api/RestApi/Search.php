@@ -193,7 +193,7 @@ class Search {
 	}
 
         /* apply aliasses */
-        $this->applyAliasses($data);
+        $this->applyAliases($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -318,7 +318,7 @@ class Search {
         }
 
         /* apply aliasses */
-        $this->applyAliasses($data);
+        $this->applyAliases($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -449,7 +449,7 @@ class Search {
         }
 
         /* apply aliasses */
-        $this->applyAliasses($data);
+        $this->applyAliases($data);
 
         return $data;
     }
@@ -521,7 +521,7 @@ class Search {
 	}
 
         /* apply aliasses */
-        $this->applyAliasses($data);
+        $this->applyAliases($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -626,7 +626,7 @@ class Search {
         }
 
         /* apply aliasses */
-        $this->applyAliasses($data);
+        $this->applyAliases($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -1256,7 +1256,7 @@ class Search {
 
     }
 
-    private function applyAliasses(&$data) {
+    private function applyAliases(&$data) {
 
         // Load alias cache
         $db = $this->getContainer('db');
