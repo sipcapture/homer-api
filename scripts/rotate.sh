@@ -9,8 +9,8 @@ bin_dir=`dirname $0`
 new_table="$bin_dir/homer_mysql_new_table.pl"
 programm="$bin_dir/homer_mysql_partrotate_unixtimestamp.pl"
 
-#Make new table rotate. Homer5 Style.
-$new_table
+#Make new table rotate. Homer5 Style. 10 days for calls, 7 days for registrations, 5 days for rest
+$new_table 0 10,7,5
 
 #rtcp_capture: part step: 1 day and 10 days keep data.
 # ARGV[0] = DB, ARGV[1] = Table, ARGV[2] = STEP, ARGV[3] = MAX DAYS
@@ -29,19 +29,19 @@ $programm homer_statistic stats_useragent 0 20
 
 # Dealing with calls, registrations and a rest of captured data
 # delete tables older then 30 days
-TS=`/usr/bin/date +%s`;
+TS=`date +%s`;
 MYSQL_USER="sipcapture"
 MYSQL_PASSWORD="sipcapturestrongpassword"
 MYSQL_DB="homer_data"
 
-let TS=TS-2592000;
-for table in `/usr/bin/mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -D${MYSQL_DB} -B -e "show tables" | /usr/bin/grep sip_capture`;
+TS=`expr $TS - 2592000`
+for table in `mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -D${MYSQL_DB} -B -e "show tables" | grep sip_capture`;
 do
-	table_date=`/usr/bin/echo $table | /usr/bin/awk -F'_' '{print $4}'`;
-	table_ts=`/usr/bin/date --date=$table_date +%s`;
-	if [ $table_ts -lt $TS ];
-	then
-		/usr/bin/logger "sipcapture: Deleting table $table";
-		/usr/bin/mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -D${MYSQL_DB} -e "drop table $table";
-	fi;
+        table_date=`echo $table | awk -F'_' '{print $4}'`;
+        table_ts=`date --date=$table_date +%s`;
+        if [ $table_ts -lt $TS ];
+        then
+                logger "sipcapture: Deleting table $table";
+                mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -D${MYSQL_DB} -e "drop table ${table}";
+        fi;
 done;
