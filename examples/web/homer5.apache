@@ -1,4 +1,4 @@
-# Loading mod_rewrite if not done jet
+# Loading mod_rewrite if not done yet
 <IfModule !mod_rewrite.c>
 LoadModule rewrite_module modules/mod_rewrite.so
 </IfModule>
