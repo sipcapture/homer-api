@@ -483,7 +483,10 @@ class Search {
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
         $time['from_ts'] = floor($time['from']/1000);
         $time['to_ts'] = round($time['to']/1000);
-
+        
+	//workaround if user clicked on bye message.
+	$time['from_ts'] -=600;
+	
         $limit = getVar('limit', 100, $param['search'], 'int');
         if($limit <= 0) $limit = 100;
 
