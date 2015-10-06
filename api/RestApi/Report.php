@@ -80,7 +80,7 @@ class Report {
         $time['to_ts'] = round($time['to']/1000);
         
         /* lets make a range */
-        $time['from_ts']-=60;
+        $time['from_ts']-=600;
         $time['to_ts']+=60;
                 
         /* search fields */        
@@ -188,7 +188,7 @@ class Report {
         $time['from_ts'] = floor($time['from']/1000);
         $time['to_ts'] = round($time['to']/1000);
         
-        $time['from_ts']-=60;
+        $time['from_ts']-=600;
         $time['to_ts']+=60;
         
         /* search fields */                
@@ -282,7 +282,7 @@ class Report {
         $time['from_ts'] = floor($time['from']/1000);
         $time['to_ts'] = round($time['to']/1000);
 
-        $time['from_ts']-=60;
+        $time['from_ts']-=600;
         $time['to_ts']+=60;
         
         /* search fields */        
