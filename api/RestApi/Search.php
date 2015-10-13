@@ -180,7 +180,7 @@ class Search {
 			    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			    $query  = "SELECT t.".FIELDS_CAPTURE.", '".$query_type."' as trans, '".$node['name']."' as dbnode";
 			    $query .= " FROM ".$table." as t ";
-			    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+			    $query .= " WHERE (FROM_UNIXTIME(t.micro_ts DIV 1000000) BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			    $noderows = $db->loadObjectArray($query.$order);
 			    $data = array_merge($data,$noderows);
@@ -305,7 +305,7 @@ class Search {
 			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			$query  = "SELECT t.".$fields.", '".$query_type."' as trans, '".$node['name']."' as dbnode";
 			$query .= " FROM ".$table." as t";
-			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+			$query .= " WHERE (FROM_UNIXTIME(t.micro_ts DIV 1000000) BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			$noderows = $db->loadObjectArray($query.$order);
 			$data = array_merge($data,$noderows);
@@ -437,7 +437,7 @@ class Search {
 		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 		    $query  = "SELECT t.*, '".$query_type."' as trans ";
 		    $query .= "FROM ".$table." as t";
-		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+		    $query .= " WHERE (FROM_UNIXTIME(t.micro_ts DIV 1000000) BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		    $noderows = $db->loadObjectArray($query.$order);
 		    $data = array_merge($data,$noderows);
@@ -509,7 +509,7 @@ class Search {
 		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 		    $query  = "SELECT t.*, '".$query_type."' as trans";
 		    $query .= " FROM ".$table." as t";
-		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+		    $query .= " WHERE (FROM_UNIXTIME(t.micro_ts DIV 1000000) BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		    $noderows = $db->loadObjectArray($query.$order);
 		    $data = array_merge($data,$noderows);
@@ -616,7 +616,7 @@ class Search {
 			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode";
 			$query .= " FROM ".$table." as t";
-			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+			$query .= " WHERE (FROM_UNIXTIME(t.micro_ts DIV 1000000) BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			$noderows = $db->loadObjectArray($query.$order);
 			$data = array_merge($data,$noderows);
