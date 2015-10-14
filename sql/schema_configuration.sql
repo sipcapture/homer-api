@@ -16,12 +16,13 @@ CREATE TABLE IF NOT EXISTS `alias` (
   `gid` int(5) NOT NULL DEFAULT 0,
   `ip` varchar(80) NOT NULL DEFAULT '',
   `port` int(10) NOT NULL DEFAULT '0',
+  `capture_id` varchar(100) NOT NULL DEFAULT '',
   `alias` varchar(100) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT 0,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  UNIQUE KEY `host_2` (`ip`,`port`),
+  UNIQUE KEY `host_2` (`ip`,`port`,`capture_id`),
   KEY `host` (`ip`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
@@ -29,10 +30,10 @@ CREATE TABLE IF NOT EXISTS `alias` (
 -- Dumping data for table `alias`
 --
 
-INSERT INTO `alias` (`id`, `gid`, `ip`, `port`, `alias`, `status`, `created`) VALUES
-(1, 10, '192.168.0.30', 0, 'proxy01', 1, '2014-06-12 20:36:50'),
-(2, 10, '192.168.0.4', 0, 'acme-234', 1, '2014-06-12 20:37:01'),
-(22, 10, '127.0.0.1:5060', 0, 'sip.local.net', 1, '2014-06-12 20:37:01');
+INSERT INTO `alias` (`id`, `gid`, `ip`, `port`, `capture_id`, `alias`, `status`, `created`) VALUES
+(1, 10, '192.168.0.30', 0, 'homer01', 'proxy01', 1, '2014-06-12 20:36:50'),
+(2, 10, '192.168.0.4', 0, 'homer01', 'acme-234', 1, '2014-06-12 20:37:01'),
+(22, 10, '127.0.0.1:5060', 0, 'homer01', 'sip.local.net', 1, '2014-06-12 20:37:01');
 
 -- --------------------------------------------------------
 
@@ -182,4 +183,3 @@ INSERT INTO `user_menu` (`id`, `name`, `alias`, `icon`, `weight`, `active`) VALU
 ('_1426001444630', 'SIP Search', 'search', 'fa-search', 10, 1),
 ('_1427728371642', 'Home', 'home', 'fa-home', 1, 1),
 ('_1431721484444', 'Alarms', 'alarms', 'fa-warning', 20, 1);
-
