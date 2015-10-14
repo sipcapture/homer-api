@@ -242,7 +242,7 @@ class Admin {
         $data = array();
         
         $table = "alias";            
-        $query = "SELECT id,gid,ip,port,alias,status,created FROM ".$table." order by id DESC;";
+        $query = "SELECT id,gid,ip,port,capture_id,alias,status,created FROM ".$table." order by id DESC;";
         $query  = $db->makeQuery($query);                
         $data = $db->loadObjectArray($query);
 
