@@ -290,6 +290,7 @@ class Admin {
         $update['status'] = getVar('status', true, $param, 'bool');
         $update['ip'] = getVar('ip', '', $param, 'string');
         $update['port'] = getVar('port', 0, $param, 'int');
+        $update['capture_id'] = getVar('capture_id', '', $param, 'string');
         $update['alias'] = getVar('alias', '', $param, 'string');        
         $update['gid'] = getVar('gid', 10, $param, 'int');              
           
@@ -331,6 +332,7 @@ class Admin {
         $update['status'] = getVar('status', true, $param, 'bool');
         $update['ip'] = getVar('ip', '', $param, 'string');
         $update['port'] = getVar('port', 0, $param, 'int');
+        $update['capture_id'] = getVar('capture_id', '', $param, 'string');
         $update['alias'] = getVar('alias', '', $param, 'string');        
         $update['gid'] = getVar('gid', 10, $param, 'int');                  
         $id = getVar('id', 0, $param, 'int');            
