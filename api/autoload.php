@@ -96,7 +96,12 @@ function generateWhere ($search, $and_or, $db, $b2b, $skip_keys = array()) {
                    // SKIP EMPTY VALUES
                    if($value == NULL || $value == "" || ($value+0) == -1) continue;
 
-                   $eqlike = preg_match("/%/", $value) ? " like " : " = ";
+                   if(preg_match("/^\^/", $value)) {
+                       $eqlike = " REGEXP ";
+                   }
+                   else {
+                       $eqlike = preg_match("/%/", $value) ? " like " : " = ";
+                   }
 
                    if(preg_match("/^!/", $value)) {
                        $value =  preg_replace("/^!/", "", $value);
