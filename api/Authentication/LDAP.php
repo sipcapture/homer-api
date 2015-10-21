@@ -67,12 +67,11 @@ class LDAP extends Authentication {
                      @ldap_start_tls($ds);
 	        }
 		
-		if (defined('LDAP_BIND_USER') && defined('LDAP_ADMIN_USER')) {
+		if (defined('LDAP_BIND_USER') && defined('LDAP_BIND_PASSWORD')) {
 	              if (!@ldap_bind( $ds, LDAP_BIND_USER, LDAP_BIND_PASSWORD)) {
 	                    return array();
 	               }
 	        }
-
                 $r=@ldap_search( $ds, LDAP_BASEDN, LDAP_USERNAME_ATTRIBUTE_OPEN .$param['username'].LDAP_USERNAME_ATTRIBUTE_CLOSE);
                 if ($r) {
                      $result = @ldap_get_entries( $ds, $r);
@@ -90,7 +89,11 @@ class LDAP extends Authentication {
 				    // Default each user has normal User Privs
                                     $_SESSION['loggedin'] = $param['username'];
                                     $_SESSION['userlevel'] = LDAP_USERLEVEL;
-			
+				    $_SESSION['uid']        = 1;
+                		    $_SESSION['username']   = $param['username'];
+               			    $_SESSION['gid']        = 10;
+		                    $_SESSION['grp']        = "users";
+	
 				    $user['uid']     =  1;
 				    $user['username'] = $param['username'];
 				    $user['gid']      = 10;
@@ -107,7 +110,8 @@ class LDAP extends Authentication {
 							
 					if ($value == $param['username']) {
 					  $_SESSION['userlevel'] = 1; # LDAP_ADMINLEVEL;
-					  $user['grp'] = "users,admins";   
+					  $user['grp'] = "users,admins"; 
+					  $_SESSION['grp']        = "users";  
 					}
 				    }
                                     return $user;

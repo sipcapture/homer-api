@@ -24,6 +24,7 @@ define('DATABASE_DRIVER',"mysql");
 
 /* AUTH: CLASS NAME. i.e. Internal  */
 define('AUTHENTICATION',"Internal");
+// define('AUTHENTICATION',"LDAP");
 // define('AUTHENTICATION_TEXT',"Please login with your credentials");
 
 /* ALARM MAIL */
@@ -82,6 +83,11 @@ define('LDAP_REALM',"My Realm");
 define('LDAP_USERNAME_ATTRIBUTE_OPEN',"uid=");
 define('LDAP_USERNAME_ATTRIBUTE_CLOSE',"");
 define('LDAP_USERLEVEL',3); 
+define('LDAP_BIND_USER','uid=query,cn=admins,cn=com');
+define('LDAP_BIND_PASSWORD','xxxxxx');
+define('LDAP_ENCRYPTION','no');
+define('LDAP_VERSION','3');
+define('LDAP_ADMIN_USER','admin');
 */
 
 ?>
