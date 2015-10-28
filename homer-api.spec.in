@@ -49,6 +49,7 @@ HOMER API nginx configuration
 %dir %attr(2770,%{webuser},%{webgroup}) %{webroot}
 %dir %{webroot}/api
 %{webroot}/api/*
+%{webroot}/apidoc/*
 %{_datadir}/sipcapture/sql/*
 
 %files httpd
