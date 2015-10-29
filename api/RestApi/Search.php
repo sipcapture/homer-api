@@ -1271,8 +1271,25 @@ class Search {
 
         // Apply alias when an alias is configured
         for($i=0; $i < count($data); $i++) {
-            $data[$i]['source_alias'] = ( isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'.$data[$i]['node']]) ? $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'.$data[$i]['node']] : $data[$i]['source_ip'] );
-            $data[$i]['destination_alias'] = ( isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'.$data[$i]['node']]) ? $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'.$data[$i]['node']] : $data[$i]['destination_ip'] );
+
+            // Apply source_alias
+            if (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'.$data[$i]['node']])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'.$data[$i]['node']];
+            } elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':*'])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':*'];
+            } else {
+                $data[$i]['source_alias'] = $data[$i]['source_ip'];
+            }
+
+            // Apply destination_alias
+            if (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'.$data[$i]['node']])) {
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'.$data[$i]['node']];
+            } elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':*'])) {
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':*'];
+            } else {
+                $data[$i]['destination_alias'] = $data[$i]['destination_ip'];
+            }
+
         }
 
     }
