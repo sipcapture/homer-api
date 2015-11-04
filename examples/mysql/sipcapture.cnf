@@ -1,0 +1,34 @@
+max_connections = 8000
+key_buffer = 512M
+myisam_sort_buffer_size = 128M
+join_buffer_size = 4M
+read_buffer_size = 4M
+sort_buffer_size = 8M
+table_cache = 1800
+thread_cache_size = 384
+wait_timeout = 7200
+connect_timeout = 10
+tmp_table_size = 64M
+max_heap_table_size = 64M
+max_allowed_packet = 64M
+max_connect_errors = 1000
+read_rnd_buffer_size = 524288
+bulk_insert_buffer_size = 8M
+query_cache_limit = 4M
+query_cache_size =128M
+query_cache_type = 1
+query_prealloc_size = 65536
+query_alloc_block_size = 131072
+
+thread_cache_size = 16
+open_files_limit = 24000
+table_open_cache = 1024
+read_rnd_buffer_size = 16M
+myisam_sort_buffer_size = 128M
+delayed_insert_limit = 8000
+delayed_queue_size = 1000000
+delayed_insert_timeout = 600
+max_delayed_threads = 600
+max_heap_table_size=2G
+# Try number of CPU's*2 for thread_concurrency
+thread_concurrency = 16

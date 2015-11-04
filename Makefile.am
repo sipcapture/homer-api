@@ -5,6 +5,7 @@ include config/project.am
 	api \
 	apidoc \
 	examples/web \
+	examples/mysql \
 	sql \
 	pkg \
 	README.md \

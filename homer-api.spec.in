@@ -51,6 +51,7 @@ HOMER API nginx configuration
 %{webroot}/api/*
 %{webroot}/apidoc/*
 %{_datadir}/sipcapture/sql/*
+%{_sysconfdir}/my.cnf.d/sipcapture.cnf
 
 %attr(0775,root,root)%{_bindir}/sipcapture_configure
 
@@ -92,7 +93,9 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %{__cp} -r api/.htaccess %{buildroot}%{webroot}/api
 
 %{__mkdir} -p %{buildroot}%{_bindir}
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/my.cnf.d
 %{__cp} -f scripts/sipcapture_configure %{buildroot}%{_bindir}/sipcapture_configure
+%{__cp} -f examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
 
 %post
 
