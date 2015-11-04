@@ -89,6 +89,8 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %{__cp} -r api/*.php %{buildroot}%{webroot}/api
 %{__cp} -r api/.htaccess %{buildroot}%{webroot}/api
 
+%{__cp} -f scripts/sipcapture_configure %{buildroot}%{_bindir}/sipcapture_configure
+
 %post
 
 %preun
