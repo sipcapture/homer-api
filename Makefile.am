@@ -7,7 +7,8 @@ include config/project.am
 	examples/web \
 	sql \
 	pkg \
-	README.md
+	README.md \
+	scripts/sipcapture_configure
 
 @PACKAGE@datadir = /var/www/sipcapture/htdocs
 
