@@ -26,8 +26,8 @@ manpage.1: manpage.sgml
   <!ENTITY dhsection   "<manvolnum>SECTION</manvolnum>">
   <!ENTITY dhemail     "<email>kvishnivetsky@sipcapture.org</email>">
   <!ENTITY dhusername  "Konstantin S. Vishnivetsky">
-  <!ENTITY dhucpackage "<refentrytitle>CAPTAGENT</refentrytitle>">
-  <!ENTITY dhpackage   "captagent">
+  <!ENTITY dhucpackage "<refentrytitle>homer-api</refentrytitle>">
+  <!ENTITY dhpackage   "homer-api">
 
   <!ENTITY debian      "<productname>Debian</productname>">
   <!ENTITY gnu         "<acronym>GNU</acronym>">

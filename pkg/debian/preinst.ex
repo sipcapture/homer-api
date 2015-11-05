@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for captagent
+# preinst script for homer-api
 #
 # see: dh_installdeb(1)
 

@@ -19,5 +19,5 @@ Description: SIP capture server
 #
 #Package: homer-api-doc
 #Architecture: all
-#Description: documentation for captagent
+#Description: documentation for homer-api
 # <insert long description, indented with spaces>

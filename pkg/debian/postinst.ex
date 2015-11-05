@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for captagent
+# postinst script for homer-api
 #
 # see: dh_installdeb(1)
 

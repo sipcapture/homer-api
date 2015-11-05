@@ -8,16 +8,16 @@ version=3
 
 # Uncomment to examine a Webpage
 # <Webpage URL> <string match>
-#http://www.example.com/downloads.php captagent-(.*)\.tar\.gz
+#http://www.example.com/downloads.php homer-api-(.*)\.tar\.gz
 
 # Uncomment to examine a Webserver directory
-#http://www.example.com/pub/captagent-(.*)\.tar\.gz
+#http://www.example.com/pub/homer-api-(.*)\.tar\.gz
 
 # Uncommment to examine a FTP server
-#ftp://ftp.example.com/pub/captagent-(.*)\.tar\.gz debian uupdate
+#ftp://ftp.example.com/pub/homer-api-(.*)\.tar\.gz debian uupdate
 
 # Uncomment to find new files on sourceforge, for devscripts >= 2.9
-# http://sf.net/captagent/captagent-(.*)\.tar\.gz
+# http://sf.net/homer-api/homer-api-(.*)\.tar\.gz
 
 # Uncomment to find new files on GooglePages
-# http://example.googlepages.com/foo.html captagent-(.*)\.tar\.gz
+# http://example.googlepages.com/foo.html homer-api-(.*)\.tar\.gz

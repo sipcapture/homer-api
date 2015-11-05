@@ -56,9 +56,9 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
   <!ENTITY dhsection   "SECTION">
   <!-- TITLE should be something like "User commands" or similar (see
        http://www.tldp.org/HOWTO/Man-Page/q2.html). -->
-  <!ENTITY dhtitle     "captagent User Manual">
-  <!ENTITY dhucpackage "CAPTAGENT">
-  <!ENTITY dhpackage   "captagent">
+  <!ENTITY dhtitle     "homer-api User Manual">
+  <!ENTITY dhucpackage "homer-api">
+  <!ENTITY dhpackage   "homer-api">
 ]>
 
 <refentry>
