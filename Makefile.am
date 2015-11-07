@@ -9,7 +9,7 @@ include config/project.am
 	sql \
 	pkg \
 	README.md \
-	scripts/sipcapture_configure
+	scripts/crontab
 
 @PACKAGE@datadir = /var/www/sipcapture/htdocs
 

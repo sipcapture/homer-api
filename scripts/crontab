@@ -1,0 +1,5 @@
+##################################################################
+# Running rotation script to cron once a day (scripts/rotate.sh)
+# at low traffic time
+
+30 3 * * * root /opt/sipcapture/rotate.sh > /dev/null 2>&1

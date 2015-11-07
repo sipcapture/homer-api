@@ -48,12 +48,13 @@ HOMER API nginx configuration
 %defattr(0660,%{webuser},%{webgroup})
 %dir %attr(2770,%{webuser},%{webgroup}) %{webroot}
 %dir %{webroot}/api
+%dir %{_localstatedir}/lib/sipcapture/mysql
 %{webroot}/api/*
 %{webroot}/apidoc/*
 %{_datadir}/sipcapture/sql/*
 %{_sysconfdir}/my.cnf.d/sipcapture.cnf
+%attr(0664,root,root)%{_sysconfdir}/cron.d/sipcapture
 
-%attr(0775,root,root)%{_bindir}/sipcapture_configure
 
 %files httpd
 %{webroot}/api/.htaccess
@@ -77,6 +78,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/nginx/conf.d
 %{__mkdir} -p %{buildroot}%{_datadir}/sipcapture/sql/
+%{__mkdir} -p %{buildroot}%{_localstatedir}/lib/sipcapture/mysql
 %{__cp} examples/web/homer5.apache %{buildroot}%{_sysconfdir}/httpd/conf.d/sipcapture.conf
 %{__cp} examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/conf.d/sipcapture.conf
 %{__cp} sql/* %{buildroot}%{_datadir}/sipcapture/sql/
@@ -92,16 +94,28 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %{__cp} -r api/*.php %{buildroot}%{webroot}/api
 %{__cp} -r api/.htaccess %{buildroot}%{webroot}/api
 
-%{__mkdir} -p %{buildroot}%{_bindir}
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/my.cnf.d
-%{__cp} -f scripts/sipcapture_configure %{buildroot}%{_bindir}/sipcapture_configure
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/cron.d
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
 %{__cp} -f examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
+%{__cp} -f scripts/crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
 
 %post
+/bin/echo "Disable SELinux"
+/usr/sbin/setenforce 0
+/usr/bin/sed -i "s/^SELINUX=.*$/SELINUX=disabled/" /etc/selinux/config
+/bin/echo "Initializing local MySQL server"
+/bin/echo "MYSQLD_OPTS=\"--datadir=%{_localstatedir}/lib/sipcapture/mysql --basedir=/usr\"" > %{_sysconfdir}/sysconfig/mysql
+/sbin/mysqld --initialize-insecure --user=mysql --explicit_defaults_for_timestamp --datadir=%{_localstatedir}/lib/sipcapture/mysql --basedir=/usr
+/bin/echo "Running local MySQL server"
+/sbin/service mysqld start
+/bin/echo "Installing MySQL schemas to local MySQL server"
+for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; done;
 
 %preun
 
 %postun
+/usr/bin/rm -f %{_sysconfdir}/sysconfig/mysql
 
 %clean
 rm -rf $RPM_BUILD_ROOT
