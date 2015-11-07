@@ -54,7 +54,9 @@ HOMER API nginx configuration
 %{_datadir}/sipcapture/sql/*
 %{_sysconfdir}/my.cnf.d/sipcapture.cnf
 %attr(0664,root,root)%{_sysconfdir}/cron.d/sipcapture
-
+%attr(0775,root,root)%{_bindir}/homer_rotate
+%attr(0775,root,root)%{_bindir}/homer_mysql_new_table.pl
+%attr(0775,root,root)%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
 
 %files httpd
 %{webroot}/api/.htaccess
@@ -98,7 +100,10 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/cron.d
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
 %{__cp} -f examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
-%{__cp} -f scripts/crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
+%{__cp} -f scripts/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
+%{__cp} -f scripts/homer_rotate %{buildroot}%{_bindir}/homer_rotate
+%{__cp} -f scripts/homer_mysql_new_table.pl %{buildroot}%{_bindir}/homer_mysql_new_table.pl
+%{__cp} -f scripts/homer_mysql_partrotate_unixtimestamp.pl %{buildroot}%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
 
 %post
 /bin/echo "Disable SELinux"
