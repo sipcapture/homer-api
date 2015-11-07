@@ -99,6 +99,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/my.cnf.d
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/cron.d
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
+%{__mkdir} -p %{buildroot}%{_bindir}
 %{__cp} -f examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
 %{__cp} -f scripts/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
 %{__cp} -f scripts/homer_rotate %{buildroot}%{_bindir}/homer_rotate
