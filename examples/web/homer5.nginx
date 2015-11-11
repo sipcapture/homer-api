@@ -6,7 +6,7 @@ server {
 	index index.html index.htm;
 
 	# Make site accessible from http://localhost/
-	server_name sipcapture;
+	server_name sipcapture.domain.tld;
 
 	location / {
 	    try_files $uri $uri/ /index.html;
@@ -14,8 +14,11 @@ server {
 
 	location /api {
 	    include fastcgi_params;
+	    # NOTE: You should have "cgi.fix_pathinfo = 0;" in php.ini
+            include fastcgi_params;
+	    fastcgi_pass 127.0.0.1:9000;
+    	    # fastcgi_pass unix:/var/run/php5-fpm.sock;
 	    fastcgi_intercept_errors on;
-	    fastcgi_pass unix:/var/run/php5-fpm.sock;
 	    fastcgi_param  SCRIPT_FILENAME $document_root/api/index.php;
         }
 }
