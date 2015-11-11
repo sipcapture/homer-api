@@ -8,38 +8,38 @@
 %define webgroup apache
 %endif
 
-Name:		@PACKAGE_NAME@
-Version:	@PACKAGE_VERSION@
-Release:	@PACKAGE_REVISION@
-Summary:	HTTP based API for HOMER
+Name:           @PACKAGE_NAME@
+Version:        @PACKAGE_VERSION@
+Release:        @PACKAGE_REVISION@
+Summary:        HTTP based API for HOMER
 
-Group:		Telecommunications
-License:	GPLv3
-URL:		@PACKAGE_URL@
-Source0:	%name-%version.tar.gz
+Group:          Telecommunications
+License:        GPLv3
+URL:            @PACKAGE_URL@
+Source0:        %name-%version.tar.gz
 
-Requires:	kamailio >= 4.3
-Requires:	ntp
-Requires:	php >= 5
-Requires:	php-mysql
-Requires:	mysql-community-server >= 5.5
-Requires:	mysql-community-client >= 5.5
+Requires:       kamailio >= 4.3
+Requires:       ntp
+Requires:       php >= 5
+Requires:       php-mysql
+Requires:       mysql-community-server >= 5.5
+Requires:       mysql-community-client >= 5.5
 
 %description
 HTTP based API for HOMER is a robust, carrier-grade, scalable SIP Capture system and Monitoring Application with HEP/HEP2, IP Proto4 (IPIP) encapsulation & port mirroring/monitoring support right out of the box, ready to process & store insane amounts of signaling with instant search, end-to-end analysis and drill-down capabilities for ITSPs, VoIP Providers and Trunk Suppliers using SIP signaling
 
 %package httpd
-Requires:	%name = %version
-Requires:	httpd
-Summary:	httpd config for HTTP based API for HOMER
+Requires:       %name = %version
+Requires:       httpd
+Summary:        httpd config for HTTP based API for HOMER
 
 %description httpd
 HOMER API httpd configuration
 
 %package nginx
-Requires:	%name = %version
-Requires:	nginx
-Summary:	nginx config for HTTP based API for HOMER
+Requires:       %name = %version
+Requires:       nginx
+Summary:        nginx config for HTTP based API for HOMER
 
 %description nginx
 HOMER API nginx configuration
@@ -120,7 +120,7 @@ if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl d
 /bin/rm -rf /var/lib/mysql/*
 /sbin/mysqld --initialize-insecure --user=mysql
 /bin/echo "Starting local MySQL server(again)"
-/sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ;  for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; done );
+/sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ; /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -e "CREATE USER 'homer_user'@'127.0.0.1' IDENTIFIED BY 'homer_password'"; for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -e "GRANT ALL ON homer_$DB.* TO 'homer_user'@'127.0.0.1';"; done; );
 
 %preun
 
