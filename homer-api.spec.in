@@ -109,10 +109,18 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %post
 /bin/echo "Initializing local MySQL server data directory in standard location"
 /bin/echo "MYSQLD_OPTS=\"--explicit_defaults_for_timestamp\"" > %{_sysconfdir}/sysconfig/mysql
-/sbin/mysqld --log-error-verbosity 3 --initialize-insecure --user=mysql --explicit_defaults_for_timestamp; /usr/bin/mv /var/log/mysqld.log /root/mysqld.initialize
+/sbin/mysqld --initialize-insecure --user=mysql
+/usr/bin/mv /var/log/mysqld.log /root/mysqld.initialize
 if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl daemon-reload; fi
-/bin/echo "Running local MySQL server"
-/sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ;  for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; done );
+/bin/echo "Starting local MySQL server"
+/sbin/service mysqld start
+/bin/echo "Stopping local MySQL server"
+/sbin/service mysqld stop
+/bin/echo "Initializing local MySQL server data directory in standard location(again)"
+/bin/rm -rf /var/lib/mysql/*
+/sbin/mysqld --initialize-insecure --user=mysql
+/bin/echo "Starting local MySQL server(again)"
+/sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ;  for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; done );
 
 %preun
 
