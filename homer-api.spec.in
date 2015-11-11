@@ -107,16 +107,12 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %{__cp} -f scripts/homer_mysql_partrotate_unixtimestamp.pl %{buildroot}%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
 
 %post
-/bin/echo "Disable SELinux"
-/usr/sbin/setenforce 0
-/usr/bin/sed -i "s/^SELINUX=.*$/SELINUX=disabled/" /etc/selinux/config
-/bin/echo "Initializing local MySQL server"
-/bin/echo "MYSQLD_OPTS=\"--datadir=%{_localstatedir}/lib/sipcapture/mysql --basedir=/usr\"" > %{_sysconfdir}/sysconfig/mysql
-/sbin/mysqld --initialize-insecure --user=mysql --explicit_defaults_for_timestamp --datadir=%{_localstatedir}/lib/sipcapture/mysql --basedir=/usr
+/bin/echo "Initializing local MySQL server data directory in standard location"
+/bin/echo "MYSQLD_OPTS=\"--explicit_defaults_for_timestamp\"" > %{_sysconfdir}/sysconfig/mysql
+/sbin/mysqld --log-error-verbosity 3 --initialize-insecure --user=mysql --explicit_defaults_for_timestamp; /usr/bin/mv /var/log/mysqld.log /root/mysqld.initialize
+if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl daemon-reload; fi
 /bin/echo "Running local MySQL server"
-/sbin/service mysqld start
-/bin/echo "Installing MySQL schemas to local MySQL server"
-for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; done;
+/sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ;  for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; done );
 
 %preun
 
