@@ -120,7 +120,7 @@ if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl d
 /bin/rm -rf /var/lib/mysql/*
 /sbin/mysqld --initialize-insecure --user=mysql
 /bin/echo "Starting local MySQL server(again)"
-/sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ; /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -e "CREATE USER 'homer_user'@'127.0.0.1' IDENTIFIED BY 'homer_password'"; for DB in data configuration statistic; do /bin/mysql -u root -h 127.0.0.1 --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; /bin/mysql -u root --skip-password -h 127.0.0.1 --skip-password -e "GRANT ALL ON homer_$DB.* TO 'homer_user'@'127.0.0.1';"; done; );
+/sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ; /bin/mysql -u root --skip-password -h localhost --skip-password -e "CREATE USER 'homer_user'@'localhost' IDENTIFIED BY 'homer_password'"; for DB in data configuration statistic; do /bin/mysql -u root -h localhost --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root --skip-password -h localhost --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; /bin/mysql -u root --skip-password -h localhost --skip-password -e "GRANT ALL ON homer_$DB.* TO 'homer_user'@'localhost';"; done; );
 
 %preun
 

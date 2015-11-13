@@ -5,7 +5,7 @@ define('HOMER_CONFIGURATION', 1);
 
 /*********************************************************************************/
 /* AUTH DB homer. User and Configuration */
-define('DB_HOSTNAME', "127.0.0.1");
+define('DB_HOSTNAME', "localhost");
 define('DB_PORT', 3306);
 define('DB_USERNAME', "homer_user");
 define('DB_PASSWORD', "homer_password");
