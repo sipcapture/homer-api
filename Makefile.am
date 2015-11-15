@@ -6,6 +6,7 @@ include config/project.am
 	apidoc \
 	examples/web \
 	examples/mysql \
+	examples/sipcapture \
 	sql \
 	pkg \
 	README.md \

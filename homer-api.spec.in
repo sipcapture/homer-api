@@ -18,7 +18,7 @@ License:        GPLv3
 URL:            @PACKAGE_URL@
 Source0:        %name-%version.tar.gz
 
-Requires:       kamailio >= 4.3
+Requires:       kamailio >= 4.3, kamailio-mysql >= 4.3
 Requires:       ntp
 Requires:       php >= 5
 Requires:       php-mysql
@@ -53,6 +53,11 @@ HOMER API nginx configuration
 %{webroot}/apidoc/*
 %{_datadir}/sipcapture/sql/*
 %{_sysconfdir}/my.cnf.d/sipcapture.cnf
+%attr(0664,root,root)%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
+%attr(0664,root,root)%{_sysconfdir}/sysconfig/sipcapture
+%attr(0664,root,root)/usr/lib/systemd/system/sipcapture.service
+%attr(0664,root,root)%{_sysconfdir}/rsyslog.d/sipcapture.conf
+%attr(0664,root,root)%{_sysconfdir}/logrotate.d/sipcapture.conf
 %attr(0664,root,root)%{_sysconfdir}/cron.d/sipcapture
 %attr(0775,root,root)%{_bindir}/homer_rotate
 %attr(0775,root,root)%{_bindir}/homer_mysql_new_table.pl
@@ -77,12 +82,25 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
 # Configuration templates
+# kamailio configuration
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/kamailio
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/rsyslog.d
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
+%{__mkdir} -p %{buildroot}/usr/lib/systemd/system
+%{__cp} examples/sipcapture/kamailio.cfg %{buildroot}%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
+%{__cp} examples/sipcapture/el%{rhel}/sipcapture.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/sipcapture
+%{__cp} examples/sipcapture/el%{rhel}/sipcapture.service %{buildroot}/usr/lib/systemd/system/sipcapture.service
+%{__cp} examples/sipcapture/sipcapture.rsyslogd %{buildroot}%{_sysconfdir}/rsyslog.d/sipcapture.conf
+%{__cp} examples/sipcapture/sipcapture.logrotated %{buildroot}%{_sysconfdir}/logrotate.d/sipcapture.conf
+# HTTP servers confgiuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/nginx/conf.d
-%{__mkdir} -p %{buildroot}%{_datadir}/sipcapture/sql/
-%{__mkdir} -p %{buildroot}%{_localstatedir}/lib/sipcapture/mysql
 %{__cp} examples/web/homer5.apache %{buildroot}%{_sysconfdir}/httpd/conf.d/sipcapture.conf
 %{__cp} examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/conf.d/sipcapture.conf
+# MySQL configuration
+%{__mkdir} -p %{buildroot}%{_datadir}/sipcapture/sql/
+%{__mkdir} -p %{buildroot}%{_localstatedir}/lib/sipcapture/mysql
 %{__cp} sql/* %{buildroot}%{_datadir}/sipcapture/sql/
 
 # UI and API directories and files
@@ -121,6 +139,23 @@ if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl d
 /sbin/mysqld --initialize-insecure --user=mysql
 /bin/echo "Starting local MySQL server(again)"
 /sbin/service mysqld start || (/usr/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ; /bin/mysql -u root --skip-password -h localhost --skip-password -e "CREATE USER 'homer_user'@'localhost' IDENTIFIED BY 'homer_password'"; for DB in data configuration statistic; do /bin/mysql -u root -h localhost --skip-password -e "create database homer_$DB" &&  /bin/mysql -u root --skip-password -h localhost --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; /bin/mysql -u root --skip-password -h localhost --skip-password -e "GRANT ALL ON homer_$DB.* TO 'homer_user'@'localhost';"; done; );
+/bin/echo "Enable MySQL server";
+if [ -e /bin/systemctl ]; then /bin/systemctl enable mysqld; else /sbin/chkconfig mysqld on; fi
+/bin/echo "Enable Kamailio server";
+if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkconfig sipcapture on; fi
+/sbin/service kamailio start
+
+%post httpd
+/bin/echo "Enable HTTP server";
+if [ -e /bin/systemctl ]; then /bin/systemctl enable httpd; else /sbin/chkconfig httpd on; fi
+/bin/echo "Starting local HTTP server"
+/sbin/service httpd start
+
+%post nginx
+/bin/echo "Enable HTTP server";
+if [ -e /bin/systemctl ]; then /bin/systemctl enable nginx; else /sbin/chkconfig nginx on; fi
+/bin/echo "Starting local HTTP server"
+/sbin/service nginx start
 
 %preun
 
