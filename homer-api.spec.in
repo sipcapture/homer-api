@@ -146,12 +146,17 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkc
 /sbin/service kamailio start
 
 %post httpd
+/bin/chown -R %{webuser}:%{webgroup} %{webroot}
 /bin/echo "Enable HTTP server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable httpd; else /sbin/chkconfig httpd on; fi
 /bin/echo "Starting local HTTP server"
 /sbin/service httpd start
 
 %post nginx
+HOSTNAME=`/bin/hostname`
+/bin/ech "Virtual HTTP host se to : $HOSTNAME"
+/bin/sed -i "s/<HOSTNAME>/$HOSTNAME/g" %{_sysconfdir}/nginx/conf.d/sipcapture.conf 
+/bin/chown -R nginx:nginx %{webroot}
 /bin/echo "Enable HTTP server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable nginx; else /sbin/chkconfig nginx on; fi
 /bin/echo "Starting local HTTP server"

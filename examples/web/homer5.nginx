@@ -1,12 +1,12 @@
 server {
 
-	listen 80 default_server;
+	listen 80;
 
 	root /var/www/sipcapture/htdocs;
 	index index.html index.htm;
 
 	# Make site accessible from http://localhost/
-	server_name sipcapture.domain.tld;
+	server_name <HOSTNAME>;
 
 	location / {
 	    try_files $uri $uri/ /index.html;
