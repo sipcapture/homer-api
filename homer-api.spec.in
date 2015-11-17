@@ -144,7 +144,7 @@ if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl d
 if [ -e /bin/systemctl ]; then /bin/systemctl enable mysqld; else /sbin/chkconfig mysqld on; fi
 /bin/echo "Enable Kamailio server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkconfig sipcapture on; fi
-/sbin/service kamailio start
+/sbin/service sipcapture start
 
 %post httpd
 /bin/chown -R %{webuser}:%{webgroup} %{webroot}
@@ -160,8 +160,10 @@ HOSTNAME=`/bin/hostname`
 /bin/chown -R nginx:nginx %{webroot}
 /bin/echo "Enable HTTP server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable nginx; else /sbin/chkconfig nginx on; fi
+if [ -e /bin/systemctl ]; then /bin/systemctl enable php-fpm; else /sbin/chkconfig php-fpm on; fi
 /bin/echo "Starting local HTTP server"
 /sbin/service nginx start
+/sbin/service php-fpm start
 
 %preun
 
