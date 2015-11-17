@@ -1,3 +1,7 @@
+# Global definitions for SELinux
+%global selinux_types %(%{__awk} '/^#[[:space:]]*SELINUXTYPE=/,/^[^#]/ { if ($3 == "-") printf "%s ", $2 }' %{_sysconfdir}/selinux/config 2>/dev/null)
+%global selinux_variants %([ -z "%{selinux_types}" ] && echo mls targeted || echo %{selinux_types})
+
 # Definitions
 %define debug_package %{nil}
 %if %{_vendor} == suse
@@ -71,6 +75,7 @@ HOMER API nginx configuration
 %files nginx
 %{_sysconfdir}/nginx/conf.d/sipcapture.conf
 %{_sysconfdir}/php-fpm.d/sipcapture.conf
+%{_datadir}/selinux/*/*.pp
 
 %prep
 %setup -b0 -q
@@ -82,6 +87,16 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+
+# SELinux
+for selinuxvariant in %{selinux_variants}
+do
+	install -d %{buildroot}%{_datadir}/selinux/${selinuxvariant}
+	if [ -f examples/web/nginx.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/nginx.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/nginx.pp; fi;
+	if [ -f examples/web/php-fpm.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php-fpm.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php-fpm.pp; fi;
+        if [ -f examples/web/php.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php.pp; fi;
+	if [ -f examples/web/httpd.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/httpd.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/httpd.pp; fi;
+done
 
 # Configuration templates
 # kamailio configuration
@@ -157,6 +172,17 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable httpd; else /sbin/chkconfig
 /sbin/service httpd start
 
 %post nginx
+/bin/echo "installing SELinux policies"
+for selinuxvariant in %{selinux_variants}
+do
+	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/nginx.pp &> /dev/null || :
+	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php-fpm.pp &> /dev/null || :
+        /usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php.pp &> /dev/null || :
+        /usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/httpd.pp &> /dev/null || :
+done
+/sbin/fixfiles -R sipcapture restore || :
+/sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
+
 HOSTNAME=`/bin/hostname`
 /bin/echo "Virtual HTTP host set to : $HOSTNAME"
 /bin/sed -i "s/<HOSTNAME>/$HOSTNAME/g" %{_sysconfdir}/nginx/conf.d/sipcapture.conf 
@@ -167,6 +193,17 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable php-fpm; else /sbin/chkconf
 /bin/echo "Starting local HTTP server"
 /sbin/service nginx start
 /sbin/service php-fpm start
+
+%postun nginx
+if [ $1 -eq 0 ] ; then
+  for selinuxvariant in %{selinux_variants}
+  do
+    /usr/sbin/semodule -s ${selinuxvariant} -r mymodule &> /dev/null || :
+  done
+  /sbin/fixfiles -R sipcapture| :
+  [ -d %{_localstatedir}/cache/sipcapture
+    /sbin/restorecon -R %{_localstatedir}/cache/sipcapture &> /dev/null || :
+fi
 
 %preun
 
