@@ -70,6 +70,7 @@ HOMER API nginx configuration
 
 %files nginx
 %{_sysconfdir}/nginx/conf.d/sipcapture.conf
+%{_sysconfdir}/php-fpm.d/sipcapture.conf
 
 %prep
 %setup -b0 -q
@@ -97,8 +98,10 @@ make DESTDIR=$RPM_BUILD_ROOT install
 # HTTP servers confgiuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/nginx/conf.d
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/php-fpm.d
 %{__cp} examples/web/homer5.apache %{buildroot}%{_sysconfdir}/httpd/conf.d/sipcapture.conf
 %{__cp} examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/conf.d/sipcapture.conf
+%{__cp} examples/web/homer5.php-fpm %{buildroot}%{_sysconfdir}/php-fpm.d/sipcapture.conf
 # MySQL configuration
 %{__mkdir} -p %{buildroot}%{_datadir}/sipcapture/sql/
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/sipcapture/mysql
