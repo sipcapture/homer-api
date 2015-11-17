@@ -54,7 +54,7 @@ if (-e $rc) {
 $ORIGINAL_TABLE=<<END;
 CREATE TABLE IF NOT EXISTS `sip_capture_[TRANSACTION]_[TIMESTAMP]` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
   `method` varchar(50) NOT NULL DEFAULT '',
   `reply_reason` varchar(100) NOT NULL DEFAULT '',
@@ -186,7 +186,7 @@ sub new_table()
         {
             $query = $table;
             $query=~s/\[TRANSACTION\]/$key/ig;
-            $db->do($query);
+            $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$dbh->errstr);
         }
     }
 }
