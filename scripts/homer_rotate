@@ -30,8 +30,8 @@ $programm homer_statistic stats_useragent 0 20
 # Dealing with calls, registrations and a rest of captured data
 # delete tables older then 30 days
 TS=`date +%s`;
-MYSQL_USER="sipcapture"
-MYSQL_PASSWORD="sipcapturestrongpassword"
+MYSQL_USER="homer_user"
+MYSQL_PASSWORD="homer_password"
 MYSQL_DB="homer_data"
 
 TS=`expr $TS - 2592000`
