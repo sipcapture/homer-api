@@ -1,6 +1,9 @@
 [Unit]
 Description=Kamailio SIP router server daemon for sipcapture
-After=syslog.target network.target auditd.service
+After=syslog.target
+After=network.target
+After=auditd.service
+After=mysqld.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/sipcapture
