@@ -126,7 +126,7 @@ if($partcount > $maxparts)
 if($#partsremove > 0)   
 {
     $query = "ALTER TABLE ".$mysql_table." DROP PARTITION ".join(',', @partsremove);
-    $db->do($query);
+    $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr);
     if (!$db->{Executed}) {
            print "Couldn't drop partition: $minpart\n";
            break;
@@ -157,7 +157,7 @@ if($parts_count > 0)
     # Fix MAXVALUE. Thanks Dorn B. <djbinter@gmail.com> for report and fix.
     $query = "ALTER TABLE ".$mysql_table." REORGANIZE PARTITION pmax INTO (".join(',', @partsadd)
                                 ."\n, PARTITION pmax VALUES LESS THAN MAXVALUE)";
-    $db->do($query);
+    $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr);
     if (!$db->{Executed}) {
            print "Couldn't drop partition: $minpart\n";
            break;

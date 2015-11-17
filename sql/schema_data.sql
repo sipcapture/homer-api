@@ -8,7 +8,7 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 CREATE TABLE IF NOT EXISTS `logs_capture` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
   `correlation_id` varchar(256) NOT NULL DEFAULT '',
   `source_ip` varchar(60) NOT NULL DEFAULT '',
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `logs_capture` (
 
 CREATE TABLE IF NOT EXISTS `report_capture` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
   `correlation_id` varchar(256) NOT NULL DEFAULT '',
   `source_ip` varchar(60) NOT NULL DEFAULT '',
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `report_capture` (
 
 CREATE TABLE IF NOT EXISTS `rtcp_capture` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
   `correlation_id` varchar(256) NOT NULL DEFAULT '',
   `source_ip` varchar(60) NOT NULL DEFAULT '',
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `rtcp_capture` (
 
 CREATE TABLE IF NOT EXISTS `sip_capture_call_20150407` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
   `method` varchar(50) NOT NULL DEFAULT '',
   `reply_reason` varchar(100) NOT NULL DEFAULT '',
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `sip_capture_call_20150407` (
 
 CREATE TABLE IF NOT EXISTS `sip_capture_registration_20150407` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
   `method` varchar(50) NOT NULL DEFAULT '',
   `reply_reason` varchar(100) NOT NULL DEFAULT '',
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS `sip_capture_registration_20150407` (
 
 CREATE TABLE IF NOT EXISTS `sip_capture_rest_20150407` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
   `method` varchar(50) NOT NULL DEFAULT '',
   `reply_reason` varchar(100) NOT NULL DEFAULT '',

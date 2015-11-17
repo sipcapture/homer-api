@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `alarm_config` (
 
 CREATE TABLE IF NOT EXISTS `alarm_data` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `create_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` varchar(50) NOT NULL DEFAULT '',
   `total` int(20) NOT NULL DEFAULT 0,
   `source_ip` varchar(150) NOT NULL DEFAULT '0.0.0.0',
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `alarm_data` (
 
 CREATE TABLE IF NOT EXISTS `alarm_data_mem` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `create_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` varchar(50) NOT NULL DEFAULT '',
   `total` int(20) NOT NULL DEFAULT 0,
   `source_ip` varchar(150) NOT NULL DEFAULT '0.0.0.0',
@@ -75,8 +75,8 @@ CREATE TABLE IF NOT EXISTS `alarm_data_mem` (
 
 CREATE TABLE IF NOT EXISTS `stats_data` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `from_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `to_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `from_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `to_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` varchar(50) NOT NULL DEFAULT '',
   `total` int(20) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`,`from_date`),
@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS `stats_data` (
 
 CREATE TABLE IF NOT EXISTS `stats_ip` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `from_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `to_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `from_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `to_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `method` varchar(50) NOT NULL DEFAULT '',
   `source_ip` varchar(255) NOT NULL DEFAULT '0.0.0.0',
   `total` int(20) NOT NULL DEFAULT 0,
@@ -134,8 +134,8 @@ CREATE TABLE IF NOT EXISTS `stats_ip_mem` (
 
 CREATE TABLE IF NOT EXISTS `stats_method` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `from_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `to_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `from_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `to_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `method` varchar(50) NOT NULL DEFAULT '',
   `auth` tinyint(1) NOT NULL DEFAULT '0',
   `cseq` varchar(100) NOT NULL DEFAULT '',
@@ -180,8 +180,8 @@ CREATE TABLE IF NOT EXISTS `stats_method_mem` (
 
 CREATE TABLE IF NOT EXISTS `stats_useragent` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `from_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `to_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `from_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `to_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `useragent` varchar(100) NOT NULL DEFAULT '',
   `method` varchar(50) NOT NULL DEFAULT '',
   `total` int(10) NOT NULL DEFAULT '0',

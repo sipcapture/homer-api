@@ -186,7 +186,7 @@ sub new_table()
         {
             $query = $table;
             $query=~s/\[TRANSACTION\]/$key/ig;
-            $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$dbh->errstr);
+            $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr);
         }
     }
 }
