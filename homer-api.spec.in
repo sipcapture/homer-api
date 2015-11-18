@@ -146,8 +146,10 @@ install -p -m 644 scripts/homer_mysql_partrotate_unixtimestamp.pl %{buildroot}%{
 %post
 /bin/echo "Initializing local MySQL server data directory in standard location"
 /bin/echo "MYSQLD_OPTS=\"--explicit_defaults_for_timestamp\"" > %{_sysconfdir}/sysconfig/mysql
-/sbin/mysqld --initialize-insecure --user=mysql
-/usr/bin/mv /var/log/mysqld.log /root/mysqld.initialize
+%{el6:/usr/sbin/mysqld --initialize-insecure --user=mysql}
+%{el7:/sbin/mysqld --initialize-insecure --user=mysql}
+%{el6:/bin/mv /var/log/mysqld.log /root/mysqld.initialize}
+%{el7:/usr/bin/mv /var/log/mysqld.log /root/mysqld.initialize}
 if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl daemon-reload; fi
 /bin/echo "Starting local MySQL server"
 /sbin/service mysqld start
