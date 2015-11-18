@@ -71,11 +71,14 @@ HOMER API nginx configuration
 %files httpd
 %{webroot}/api/.htaccess
 %{_sysconfdir}/httpd/conf.d/sipcapture.conf
+%{_datadir}/selinux/*/httpd.pp
 
 %files nginx
 %{_sysconfdir}/nginx/conf.d/sipcapture.conf
 %{_sysconfdir}/php-fpm.d/sipcapture.conf
-%{_datadir}/selinux/*/*.pp
+%{_datadir}/selinux/*/nginx.pp
+%{_datadir}/selinux/*/php-fpm.pp
+%{_datadir}/selinux/*/php.pp
 
 %prep
 %setup -b0 -q
@@ -165,7 +168,15 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkc
 /sbin/service sipcapture start
 
 %post httpd
-/bin/chown -R %{webuser}:%{webgroup} %{webroot}
+/bin/echo "installing SELinux policies"
+for selinuxvariant in %{selinux_variants}
+do
+        /usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/httpd.pp &> /dev/null || :
+done
+/sbin/fixfiles -R sipcapture restore || :
+/sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
+
+
 /bin/echo "Enable HTTP server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable httpd; else /sbin/chkconfig httpd on; fi
 /bin/echo "Starting local HTTP server"
@@ -178,7 +189,6 @@ do
 	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/nginx.pp &> /dev/null || :
 	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php-fpm.pp &> /dev/null || :
         /usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php.pp &> /dev/null || :
-        /usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/httpd.pp &> /dev/null || :
 done
 /sbin/fixfiles -R sipcapture restore || :
 /sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
@@ -195,6 +205,17 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable php-fpm; else /sbin/chkconf
 /sbin/service php-fpm start
 
 %postun nginx
+if [ $1 -eq 0 ] ; then
+  for selinuxvariant in %{selinux_variants}
+  do
+    /usr/sbin/semodule -s ${selinuxvariant} -r mymodule &> /dev/null || :
+  done
+  /sbin/fixfiles -R sipcapture| :
+  [ -d %{_localstatedir}/cache/sipcapture
+    /sbin/restorecon -R %{_localstatedir}/cache/sipcapture &> /dev/null || :
+fi
+
+%postun httpd
 if [ $1 -eq 0 ] ; then
   for selinuxvariant in %{selinux_variants}
   do
