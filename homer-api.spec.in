@@ -26,7 +26,7 @@ Requires:       kamailio >= 4.3, kamailio-mysql >= 4.3
 Requires:       ntp
 Requires:       php >= 5
 Requires:       php-mysql
-Requires:	perl-DBD-MySQL
+Requires:       perl-DBD-MySQL
 Requires:       mysql-community-server >= 5.5
 Requires:       mysql-community-client >= 5.5
 
@@ -50,17 +50,17 @@ Summary:        nginx config for HTTP based API for HOMER
 HOMER API nginx configuration
 
 %files
-%defattr(0660,%{webuser},%{webgroup})
-%dir %attr(2770,%{webuser},%{webgroup}) %{webroot}
+%defattr(0664,%{webuser},%{webgroup},0775)
+%dir %{webroot}
 %dir %{webroot}/api
-%dir %{_localstatedir}/lib/sipcapture/mysql
 %{webroot}/api/*
 %{webroot}/apidoc/*
 %{_datadir}/sipcapture/sql/*
 %{_sysconfdir}/my.cnf.d/sipcapture.cnf
 %attr(0664,root,root)%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
 %attr(0664,root,root)%{_sysconfdir}/sysconfig/sipcapture
-%attr(0664,root,root)/usr/lib/systemd/system/sipcapture.service
+%{?el6:%attr(0664,root,root)%{_sysconfdir}/init.d/sipcapture}
+%{?el7:%attr(0664,root,root)/usr/lib/systemd/system/sipcapture.service}
 %attr(0664,root,root)%{_sysconfdir}/rsyslog.d/sipcapture.conf
 %attr(0664,root,root)%{_sysconfdir}/logrotate.d/sipcapture.conf
 %attr(0664,root,root)%{_sysconfdir}/cron.d/sipcapture
@@ -90,7 +90,6 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
-
 # SELinux
 for selinuxvariant in %{selinux_variants}
 do
@@ -100,51 +99,49 @@ do
         if [ -f examples/web/php.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php.pp; fi;
 	if [ -f examples/web/httpd.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/httpd.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/httpd.pp; fi;
 done
-
 # Configuration templates
 # kamailio configuration
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/kamailio
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/rsyslog.d
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
-%{__mkdir} -p %{buildroot}/usr/lib/systemd/system
-%{__cp} examples/sipcapture/kamailio.cfg %{buildroot}%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
-%{__cp} examples/sipcapture/el%{rhel}/sipcapture.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/sipcapture
-%{__cp} examples/sipcapture/el%{rhel}/sipcapture.service %{buildroot}/usr/lib/systemd/system/sipcapture.service
-%{__cp} examples/sipcapture/sipcapture.rsyslogd %{buildroot}%{_sysconfdir}/rsyslog.d/sipcapture.conf
-%{__cp} examples/sipcapture/sipcapture.logrotated %{buildroot}%{_sysconfdir}/logrotate.d/sipcapture.conf
+install -d %{buildroot}%{_sysconfdir}/kamailio
+install -d %{buildroot}%{_sysconfdir}/rsyslog.d
+install -d %{buildroot}%{_sysconfdir}/logrotate.d
+install -d %{buildroot}%{_sysconfdir}/sysconfig
+%{?el6:install -d %{buildroot}%{_sysconfdir}/init.d}
+%{?el7:install -d %{buildroot}/usr/lib/systemd/system}
+install -p -m 644 examples/sipcapture/kamailio.cfg %{buildroot}%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
+install -p -m 644 examples/sipcapture/el%{rhel}/sipcapture.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/sipcapture
+%{?el6:install -p -m 644 examples/sipcapture/el%{rhel}/sipcapture.init %{buildroot}%{_sysconfdir}/init.d/sipcapture}
+%{?el7:install -p -m 644 examples/sipcapture/el%{rhel}/sipcapture.service %{buildroot}/usr/lib/systemd/system/sipcapture.service}
+install -p -m 644 examples/sipcapture/sipcapture.rsyslogd %{buildroot}%{_sysconfdir}/rsyslog.d/sipcapture.conf
+install -p -m 644 examples/sipcapture/sipcapture.logrotated %{buildroot}%{_sysconfdir}/logrotate.d/sipcapture.conf
 # HTTP servers confgiuration
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/nginx/conf.d
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/php-fpm.d
-%{__cp} examples/web/homer5.apache %{buildroot}%{_sysconfdir}/httpd/conf.d/sipcapture.conf
-%{__cp} examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/conf.d/sipcapture.conf
-%{__cp} examples/web/homer5.php-fpm %{buildroot}%{_sysconfdir}/php-fpm.d/sipcapture.conf
+install -d %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -d %{buildroot}%{_sysconfdir}/nginx/conf.d
+install -d %{buildroot}%{_sysconfdir}/php-fpm.d
+install -p -m 644 examples/web/homer5.apache %{buildroot}%{_sysconfdir}/httpd/conf.d/sipcapture.conf
+install -p -m 644 examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/conf.d/sipcapture.conf
+install -p -m 644 examples/web/homer5.php-fpm %{buildroot}%{_sysconfdir}/php-fpm.d/sipcapture.conf
 # MySQL configuration
-%{__mkdir} -p %{buildroot}%{_datadir}/sipcapture/sql/
-%{__mkdir} -p %{buildroot}%{_localstatedir}/lib/sipcapture/mysql
-%{__cp} sql/* %{buildroot}%{_datadir}/sipcapture/sql/
-
+install -d %{buildroot}%{_datadir}/sipcapture/sql/
+install -p -m 644 sql/* %{buildroot}%{_datadir}/sipcapture/sql/
 # UI and API directories and files
-%{__mkdir} -p %{buildroot}%{webroot}
-%{__mkdir} -p %{buildroot}%{webroot}/api
+install -d %{buildroot}%{webroot}
+install -d %{buildroot}%{webroot}/api
 %{__cp} -r api/Authentication %{buildroot}%{webroot}/api
 %{__cp} -r api/Database %{buildroot}%{webroot}/api
 %{__cp} -r api/RestApi %{buildroot}%{webroot}/api
 %{__cp} -r api/RestService %{buildroot}%{webroot}/api
 %{__cp} -r api/Statistic %{buildroot}%{webroot}/api
 %{__cp} -r api/*.php %{buildroot}%{webroot}/api
-%{__cp} -r api/.htaccess %{buildroot}%{webroot}/api
-
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/my.cnf.d
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/cron.d
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
-%{__mkdir} -p %{buildroot}%{_bindir}
-%{__cp} -f examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
-%{__cp} -f scripts/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
-%{__cp} -f scripts/homer_rotate %{buildroot}%{_bindir}/homer_rotate
-%{__cp} -f scripts/homer_mysql_new_table.pl %{buildroot}%{_bindir}/homer_mysql_new_table.pl
-%{__cp} -f scripts/homer_mysql_partrotate_unixtimestamp.pl %{buildroot}%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
+install -p -m 644 api/.htaccess %{buildroot}%{webroot}/api
+install -d %{buildroot}%{_sysconfdir}/my.cnf.d
+install -d %{buildroot}%{_sysconfdir}/cron.d
+install -d %{buildroot}%{_sysconfdir}/sysconfig
+install -d %{buildroot}%{_bindir}
+install -p -m 644 examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
+install -p -m 644 scripts/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
+install -p -m 644 scripts/homer_rotate %{buildroot}%{_bindir}/homer_rotate
+install -p -m 644 scripts/homer_mysql_new_table.pl %{buildroot}%{_bindir}/homer_mysql_new_table.pl
+install -p -m 644 scripts/homer_mysql_partrotate_unixtimestamp.pl %{buildroot}%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
 
 %post
 /bin/echo "Initializing local MySQL server data directory in standard location"
@@ -229,7 +226,6 @@ fi
 %preun
 
 %postun
-/usr/bin/rm -f %{_sysconfdir}/sysconfig/mysql
 
 %clean
 rm -rf $RPM_BUILD_ROOT
