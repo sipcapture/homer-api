@@ -584,7 +584,7 @@ class Search {
 
         $record_id = getVar('id', 0, $param['search'], 'int');
         $callids = getVar('callid', array(), $param['search'], 'array');
-        $b2b = getVar('b2b', false, $param['search'], 'bool');
+        $b2b = getVar('b2b', true, $param['search'], 'bool');
 
         $callwhere = array();
 
