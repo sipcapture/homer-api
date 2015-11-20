@@ -59,7 +59,7 @@ start() {
             check_fork
         fi
 	echo -n $"Starting $PROG: "
-	daemon $KAM $OPTIONS >/dev/null 2>/dev/null
+	daemon $KAM $KAMCFG $OPTIONS >/dev/null 2>/dev/null
 	RETVAL=$?
 	[ $RETVAL = 0 ] && touch $LOCK_FILE && success
 	echo
