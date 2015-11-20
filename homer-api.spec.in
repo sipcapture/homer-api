@@ -101,18 +101,12 @@ do
 done
 # Configuration templates
 # kamailio configuration
-install -d %{buildroot}%{_sysconfdir}/kamailio
-install -d %{buildroot}%{_sysconfdir}/rsyslog.d
-install -d %{buildroot}%{_sysconfdir}/logrotate.d
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 %{?el6:install -d %{buildroot}%{_sysconfdir}/init.d}
 %{?el7:install -d %{buildroot}/usr/lib/systemd/system}
-install -p -m 644 examples/sipcapture/kamailio.cfg %{buildroot}%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
 install -p -m 644 examples/sipcapture/el%{rhel}/sipcapture.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/sipcapture
 %{?el6:install -p -m 644 examples/sipcapture/el%{rhel}/sipcapture.init %{buildroot}%{_sysconfdir}/init.d/sipcapture}
 %{?el7:install -p -m 644 examples/sipcapture/el%{rhel}/sipcapture.service %{buildroot}/usr/lib/systemd/system/sipcapture.service}
-install -p -m 644 examples/sipcapture/sipcapture.rsyslogd %{buildroot}%{_sysconfdir}/rsyslog.d/sipcapture.conf
-install -p -m 644 examples/sipcapture/sipcapture.logrotated %{buildroot}%{_sysconfdir}/logrotate.d/sipcapture.conf
 # HTTP servers confgiuration
 install -d %{buildroot}%{_sysconfdir}/httpd/conf.d
 install -d %{buildroot}%{_sysconfdir}/nginx/conf.d
