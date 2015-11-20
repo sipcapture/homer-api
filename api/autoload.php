@@ -121,7 +121,14 @@ function generateWhere ($search, $and_or, $db, $b2b, $skip_keys = array()) {
                    else {
                        $mkey = "".$key."";                                              
                        if($key == "callid" && $b2b && BLEGCID == "b2b" ) {
-                           $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR ". $mkey.$eqlike.$mydb->quote($value.BLEGTAIL).")";
+                           if(preg_match('/' . preg_quote(BLEGTAIL, '/') . '$/', $value))
+                           {
+                               $newvalue = substr($value, 0, (strlen ($value)) - (strlen BLEGTAIL));
+                               $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR ". $mkey.$eqlike.$mydb->quote($newvalue).")";
+                           }
+                           else {
+                                $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR ". $mkey.$eqlike.$mydb->quote($value.BLEGTAIL).")";
+                           }
                        }                                              
                        else if($key == "callid" && $b2b && (BLEGCID == "xcid" || BLEGCID == "x-cid") ) {
                            $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR callid_aleg ".$eqlike.$mydb->quote($value).")";
