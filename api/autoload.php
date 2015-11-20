@@ -123,7 +123,7 @@ function generateWhere ($search, $and_or, $db, $b2b, $skip_keys = array()) {
                        if($key == "callid" && $b2b && BLEGCID == "b2b" ) {
                            if(preg_match('/' . preg_quote(BLEGTAIL, '/') . '$/', $value))
                            {
-                               $newvalue = substr($value, 0, (strlen ($value)) - (strlen BLEGTAIL));
+                               $newvalue = substr($value, 0, (strlen ($value)) - (strlen(BLEGTAIL)));
                                $callwhere[] = "( ". $mkey.$eqlike.$mydb->quote($value)." OR ". $mkey.$eqlike.$mydb->quote($newvalue).")";
                            }
                            else {
