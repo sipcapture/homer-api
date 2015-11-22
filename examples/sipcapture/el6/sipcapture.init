@@ -23,11 +23,11 @@
 KAM=/usr/sbin/kamailio
 KAMCFG=/etc/kamailio/kamailio-sipcapture.cfg
 PROG=kamailio
-PID_FILE=/var/run/kamailio.pid
-LOCK_FILE=/var/lock/subsys/kamailio
+PID_FILE=/var/run/sipcapture.pid
+LOCK_FILE=/var/lock/subsys/sipcapture
 RETVAL=0
-DEFAULTS=/etc/sysconfig/kamailio
-RUN_KAMAILIO=no
+DEFAULTS=/etc/sysconfig/sipcapture
+RUN_KAMAILIO=yes
 
 
 # Do not start kamailio if fork=no is set in the config file
@@ -43,7 +43,7 @@ check_fork ()
 check_kamailio_config ()
 {
         # Check if kamailio configuration is valid before starting the server
-        out=$($KAM $KAMCFG -c 2>&1 > /dev/null)
+        out=$($KAM -f $KAMCFG -c 2>&1 > /dev/null)
         retcode=$?
         if [ "$retcode" != '0' ]; then
             echo "Not starting $DESC: invalid configuration file!"
@@ -59,7 +59,7 @@ start() {
             check_fork
         fi
 	echo -n $"Starting $PROG: "
-	daemon $KAM $KAMCFG $OPTIONS >/dev/null 2>/dev/null
+	daemon $KAM -f $KAMCFG $OPTIONS >/dev/null 2>/dev/null
 	RETVAL=$?
 	[ $RETVAL = 0 ] && touch $LOCK_FILE && success
 	echo

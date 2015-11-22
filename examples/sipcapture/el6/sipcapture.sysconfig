@@ -1,5 +1,5 @@
 #
-# Kamailio startup options
+# SIPCapture startup options
 #
 
 # Set to yes to enable kamailio, once configured properly.
