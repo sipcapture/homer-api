@@ -29,7 +29,7 @@ Requires:       php-mysql
 Requires:       perl-DBD-MySQL
 Requires:       mysql-community-server >= 5.5
 Requires:       mysql-community-client >= 5.5
-Requires:       selinux-policy-targeted
+Requires:       selinux-policy
 
 %description
 HTTP based API for HOMER is a robust, carrier-grade, scalable SIP Capture system and Monitoring Application with HEP/HEP2, IP Proto4 (IPIP) encapsulation & port mirroring/monitoring support right out of the box, ready to process & store insane amounts of signaling with instant search, end-to-end analysis and drill-down capabilities for ITSPs, VoIP Providers and Trunk Suppliers using SIP signaling
@@ -45,7 +45,7 @@ HOMER API httpd configuration
 %package nginx
 Requires:       %name = %version
 Requires:       nginx, php-fpm
-BuildRequires:  selinux-policy
+BuildRequires:  selinux-policy-devel
 Summary:        nginx config for HTTP based API for HOMER
 
 %description nginx
