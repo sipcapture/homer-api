@@ -29,6 +29,7 @@ Requires:       php-mysql
 Requires:       perl-DBD-MySQL
 Requires:       mysql-community-server >= 5.5
 Requires:       mysql-community-client >= 5.5
+Requires:       selinux-policy-targeted
 
 %description
 HTTP based API for HOMER is a robust, carrier-grade, scalable SIP Capture system and Monitoring Application with HEP/HEP2, IP Proto4 (IPIP) encapsulation & port mirroring/monitoring support right out of the box, ready to process & store insane amounts of signaling with instant search, end-to-end analysis and drill-down capabilities for ITSPs, VoIP Providers and Trunk Suppliers using SIP signaling
@@ -44,6 +45,7 @@ HOMER API httpd configuration
 %package nginx
 Requires:       %name = %version
 Requires:       nginx, php-fpm
+BuildRequires:  selinux-policy
 Summary:        nginx config for HTTP based API for HOMER
 
 %description nginx
@@ -72,7 +74,7 @@ HOMER API nginx configuration
 %defattr(0664,root,root,0775)
 %attr(0664,%{webuser},%{webuser})%{webroot}/api/.htaccess
 %{_sysconfdir}/httpd/conf.d/sipcapture.conf
-%{_datadir}/selinux/*/httpd.pp
+#%{_datadir}/selinux/*/httpd.pp
 
 %files nginx
 %defattr(0664,root,root,0775)
@@ -80,7 +82,7 @@ HOMER API nginx configuration
 %{_sysconfdir}/php-fpm.d/sipcapture.conf
 %{_datadir}/selinux/*/nginx.pp
 %{_datadir}/selinux/*/php-fpm.pp
-%{_datadir}/selinux/*/php.pp
+#%{_datadir}/selinux/*/php.pp
 
 %prep
 %setup -b0 -q
@@ -88,6 +90,11 @@ HOMER API nginx configuration
 %build
 %configure --enable-rpmbuilb
 make
+for p in nginx php-fpm php httpd; do
+    if [ -f examples/web/$p.te ]; then
+	(cd examples/web ; make -f /usr/share/selinux/devel/Makefile $p.pp && mv $p.pp $p.pp.targeted;);
+    fi;
+done
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -98,7 +105,7 @@ do
 	install -d %{buildroot}%{_datadir}/selinux/${selinuxvariant}
 	if [ -f examples/web/nginx.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/nginx.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/nginx.pp; fi;
 	if [ -f examples/web/php-fpm.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php-fpm.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php-fpm.pp; fi;
-        if [ -f examples/web/php.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php.pp; fi;
+	if [ -f examples/web/php.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php.pp; fi;
 	if [ -f examples/web/httpd.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/httpd.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/httpd.pp; fi;
 done
 # Configuration templates
@@ -209,7 +216,7 @@ if [ $1 -eq 0 ] ; then
     /usr/sbin/semodule -s ${selinuxvariant} -r mymodule &> /dev/null || :
   done
   /sbin/fixfiles -R sipcapture| :
-  [ -d %{_localstatedir}/cache/sipcapture
+  [ -d %{_localstatedir}/cache/sipcapture ]
     /sbin/restorecon -R %{_localstatedir}/cache/sipcapture &> /dev/null || :
 fi
 
@@ -220,7 +227,7 @@ if [ $1 -eq 0 ] ; then
     /usr/sbin/semodule -s ${selinuxvariant} -r mymodule &> /dev/null || :
   done
   /sbin/fixfiles -R sipcapture| :
-  [ -d %{_localstatedir}/cache/sipcapture
+  [ -d %{_localstatedir}/cache/sipcapture ]
     /sbin/restorecon -R %{_localstatedir}/cache/sipcapture &> /dev/null || :
 fi
 

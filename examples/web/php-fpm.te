@@ -1,0 +1,11 @@
+
+module php-fpm 1.0;
+
+require {
+	type tor_port_t;
+	type httpd_t;
+	class tcp_socket name_bind;
+}
+
+#============= httpd_t ==============
+allow httpd_t tor_port_t:tcp_socket name_bind;
