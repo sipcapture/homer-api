@@ -90,7 +90,7 @@ HOMER API nginx configuration
 %build
 %configure --enable-rpmbuilb
 make
-for p in nginx php-fpm php httpd; do
+for p in nginx php-fpm sipcapture-dashboards; do
     if [ -f examples/web/$p.te ]; then
 	(cd examples/web ; make -f /usr/share/selinux/devel/Makefile $p.pp && mv $p.pp $p.pp.targeted;);
     fi;
