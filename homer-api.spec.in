@@ -74,14 +74,15 @@ HOMER API nginx configuration
 %defattr(0664,root,root,0775)
 %attr(0664,%{webuser},%{webuser})%{webroot}/api/.htaccess
 %{_sysconfdir}/httpd/conf.d/sipcapture.conf
-#%{_datadir}/selinux/*/httpd.pp
+%{_datadir}/selinux/*/sipcapture-dashboards.pp
 
 %files nginx
 %defattr(0664,root,root,0775)
 %{_sysconfdir}/nginx/conf.d/sipcapture.conf
 %{_sysconfdir}/php-fpm.d/sipcapture.conf
 %{_datadir}/selinux/*/nginx.pp
-%{_datadir}/selinux/*/php.pp
+%{_datadir}/selinux/*/php-fpm.pp
+%{_datadir}/selinux/*/sipcapture-dashboards.pp
 
 %prep
 %setup -b0 -q
@@ -191,7 +192,7 @@ for selinuxvariant in %{selinux_variants}
 do
 	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/sipcapture-dashboards.pp &> /dev/null || :
 	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/nginx.pp &> /dev/null || :
-	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php.pp &> /dev/null || :
+	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php-fpm.pp &> /dev/null || :
 done
 /sbin/fixfiles -R sipcapture restore || :
 /sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
