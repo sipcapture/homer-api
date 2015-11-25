@@ -1,0 +1,12 @@
+module sipcapture-dashboards 1.0;
+
+require {
+        type httpd_t;
+        type httpd_sys_content_t;
+        class file write;
+}
+
+#============= httpd_t ==============
+
+#!!!! This avc can be allowed using the boolean 'httpd_unified'
+allow httpd_t httpd_sys_content_t:file write;

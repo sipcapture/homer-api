@@ -104,9 +104,8 @@ for selinuxvariant in %{selinux_variants}
 do
 	install -d %{buildroot}%{_datadir}/selinux/${selinuxvariant}
 	if [ -f examples/web/nginx.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/nginx.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/nginx.pp; fi;
-	if [ -f examples/web/php-fpm.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php-fpm.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php-fpm.pp; fi;
 	if [ -f examples/web/php.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php.pp; fi;
-	if [ -f examples/web/httpd.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/httpd.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/httpd.pp; fi;
+	if [ -f examples/web/sipcapture-dashboards.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/sipcapture-dashboards.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/sipcapture-dashboards.pp; fi;
 done
 # Configuration templates
 # kamailio configuration
@@ -176,7 +175,7 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkc
 /bin/echo "installing SELinux policies"
 for selinuxvariant in %{selinux_variants}
 do
-        /usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/httpd.pp &> /dev/null || :
+	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/sipcapture-dashboards.pp &> /dev/null || :
 done
 /sbin/fixfiles -R sipcapture restore || :
 /sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
@@ -191,9 +190,9 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable httpd; else /sbin/chkconfig
 /bin/echo "installing SELinux policies"
 for selinuxvariant in %{selinux_variants}
 do
+	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/sipcapture-dashboards.pp &> /dev/null || :
 	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/nginx.pp &> /dev/null || :
-	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php-fpm.pp &> /dev/null || :
-        /usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php.pp &> /dev/null || :
+	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/php.pp &> /dev/null || :
 done
 /sbin/fixfiles -R sipcapture restore || :
 /sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
