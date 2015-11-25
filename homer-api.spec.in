@@ -14,7 +14,7 @@
 
 Name:           @PACKAGE_NAME@
 Version:        @PACKAGE_VERSION@
-Release:        @PACKAGE_REVISION@%{dist}
+Release:        %{BUILD_NUMBER}
 Summary:        HTTP based API for HOMER
 
 Group:          Telecommunications
