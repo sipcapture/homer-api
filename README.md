@@ -1,7 +1,7 @@
 [![Logo](http://sipcapture.org/data/images/sipcapture_header.png)](http://sipcapture.org)
 
 ## HOMER 5 API
-User-Interface and Front-End elements for Homer 5
+API Element for Homer 5
 
 ### RELEASE CANDIDATE 1
 
