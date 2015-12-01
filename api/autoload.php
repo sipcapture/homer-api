@@ -116,7 +116,9 @@ function generateWhere ($search, $and_or, $db, $b2b, $skip_keys = array()) {
                            if($key == "callid" && $b2b && BLEGCID == "b2b" ) $dda[] = "".$key."".$eqlike.$mydb->quote($v.BLEGTAIL);
                            else if($key == "callid" && $b2b && BLEGCID == "xcid" ) $dda[] = "callid_aleg".$eqlike.$mydb->quote($v);
                       }
-                      $callwhere[] = "( ". ($eqlike == " = ") ? implode(" OR ",$dda) : implode(" AND ",$dda)." )";                                                      
+                      //LOGIC: if x=![a;b] => (x!=a AND x=!b), for x=[a;b] => (x=a OR x=b)
+                      $callwhere[] = "( ". ($eqlike == "!=") ? implode(" AND ",$dda) : implode(" OR ",$dda)." )"; 
+                      //$callwhere[] = "( ". ($eqlike == " = ") ? implode(" OR ",$dda) : implode(" AND ",$dda)." )";                                                      
                    }
                    else {
                        $mkey = "".$key."";                                              
