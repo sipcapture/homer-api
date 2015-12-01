@@ -7,6 +7,11 @@
 #
 # Please, make all your configuration changes here
 #
+# *** To enable extra stats
+#     - define WITH_STATISTIC_METHOD_EXTRA
+#     - define WITH_STATISTIC_INVITE_1XX
+
+
 
 #!substdef "!HOMER_DB_USER!homer_user!g"
 #!substdef "!HOMER_DB_PASSWORD!homer_password!g"
@@ -216,8 +221,18 @@ route {
 	else if(is_method("UPDATE")) {
 		if($sht(a=>method::update) == $null) $sht(a=>method::update) = 0; 
 		$sht(a=>method::update) = $sht(a=>method::update) + 1; 
-	}	
+	}
 
+#!ifdef WITH_STATISTIC_METHOD_EXTRA
+	else if(is_method("ACK")) {
+                if($sht(a=>method::ack) == $null) $sht(a=>method::ack) = 0; 
+                $sht(a=>method::ack) = $sht(a=>method::ack) + 1;
+        }
+        else {
+                if($sht(a=>method::unknown) == $null) $sht(a=>method::unknown) = 0; 
+                $sht(a=>method::unknown) = $sht(a=>method::uknown) + 1; 
+        }     
+#endif        
 
 	#Store
 	route(STORE);
@@ -327,6 +342,21 @@ onreply_route {
 			if($sht(a=>response::200::invite) == $null) $sht(a=>response::200::invite)= 0;
 			$sht(a=>response::200::invite) = $sht(a=>response::200::invite) + 1; 
 		}
+		#Aditional stats
+#!ifdef WITH_STATISTIC_INVITE_1XX		
+	        else if(status == "100") {
+                        if($sht(a=>response::100::invite) == $null) $sht(a=>response::100::invite)= 0;
+                        $sht(a=>response::100::invite) = $sht(a=>response::100::invite) + 1;
+                }
+                else if(status == "180") {
+                        if($sht(a=>response::180::invite) == $null) $sht(a=>response::180::invite)= 0;
+                        $sht(a=>response::180::invite) = $sht(a=>response::180::invite) + 1;
+                }   
+                else if(status == "183") {                      
+                        if($sht(a=>response::183::invite) == $null) $sht(a=>response::183::invite)= 0;
+                        $sht(a=>response::183::invite) = $sht(a=>response::183::invite) + 1;
+                }
+#endif                
 	}
 	else if($rm == "BYE") {
 
@@ -605,6 +635,20 @@ route[CHECK_STATS] {
         $sht(a=>method::options) = 0;
     }
 
+#!ifdef WITH_STATISTIC_METHOD_EXTRA
+    #UNKNOWN
+    if($sht(a=>method::unknown) > 0) {
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, total) VALUES($var(f_date), $var(t_date), 'UNKNOWN', $sht(a=>method::unknown)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>method::unknown)");
+        $sht(a=>method::unknown) = 0;
+    }
+    
+    #ACK
+    if($sht(a=>method::ack) > 0) {
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, total) VALUES($var(f_date), $var(t_date), 'ACK', $sht(a=>method::ack)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>method::ack)");
+        $sht(a=>method::ack) = 0;
+    }
+#endif
+
     #REFER
     if($sht(a=>method::refer) > 0) {
         sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, total) VALUES($var(f_date), $var(t_date), 'REFER', $sht(a=>method::refer)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>method::refer)");
@@ -636,6 +680,27 @@ route[CHECK_STATS] {
         sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '401', 'INVITE', $sht(a=>response::401::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::401::invite)");
         $sht(a=>response::401::invite) = 0;
     }
+
+#!ifdef WITH_STATISTIC_INVITE_1XX
+    #100 INVITE
+    if($sht(a=>response::100::invite) > 0) {
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '100', 'INVITE', $sht(a=>response::100::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::100::i
+        $sht(a=>response::100::invite) = 0;
+    }
+
+    #180 INVITE
+    if($sht(a=>response::180::invite) > 0) {
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '180', 'INVITE', $sht(a=>response::180::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::180::i
+        $sht(a=>response::180::invite) = 0;
+    }
+
+    #183 INVITE
+    if($sht(a=>response::183::invite) > 0) {
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '183', 'INVITE', $sht(a=>response::183::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::183::i
+        $sht(a=>response::183::invite) = 0; 
+    }
+
+#endif
 
     #200 INVITE
     if($sht(a=>response::200::invite) > 0) {
