@@ -138,6 +138,13 @@ class Auth {
         return $this->_instance;
     }
 
+    /* TEST CHECK FOR API*/
+    public function getTestAPI() {
+    
+        echo "<h1>Your api call works! Well done!";
+        exit;    
+    }
+
     /**
      * @param string $server
      * @url stats/([0-9]+)
