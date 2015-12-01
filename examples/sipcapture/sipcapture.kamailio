@@ -77,8 +77,8 @@ stats.min = 5 desc "My stats TIME min"
 # - processing of any incoming SIP request starts with this route
 route {
 
-	if($sht(a=>method::all) == $null) $sht(a=>method::all) = 0;
-	$sht(a=>method::all) = $sht(a=>method::all) + 1;
+	if($sht(a=>method::total) == $null) $sht(a=>method::total) = 0;
+	$sht(a=>method::total) = $sht(a=>method::total) + 1;
 	if($sht(a=>packet::count) == $null) $sht(a=>packet::count) = 0;
         if($sht(a=>packet::size) == $null) $sht(a=>packet::size) = 0;
 	
@@ -95,7 +95,9 @@ route {
 	}
 
 	$sht(b=>$rm::$cs::$ci) = 1;	
-
+	if($sht(a=>method::all) == $null) $sht(a=>method::all) = 0;
+	$sht(a=>method::all) = $sht(a=>method::all) + 1;
+	
 	if (is_method("INVITE|REGISTER")) {
 
 		if($ua =~ "(friendly-scanner|sipvicious|sipcli)") {
@@ -224,8 +226,8 @@ route {
 
 onreply_route {
 
-	if($sht(a=>method::all) == $null) $sht(a=>method::all) = 0;
-	$sht(a=>method::all) = $sht(a=>method::all) + 1;
+	if($sht(a=>method::total) == $null) $sht(a=>method::total) = 0;
+	$sht(a=>method::total) = $sht(a=>method::total) + 1;
 
 	if($sht(b=>$rs::$cs::$rm::$ci) != $null) {
 		#Store
@@ -234,6 +236,9 @@ onreply_route {
 	}
 
 	$sht(b=>$rs::$cs::$rm::$ci) = 1;
+	
+	if($sht(a=>method::all) == $null) $sht(a=>method::all) = 0;
+	$sht(a=>method::all) = $sht(a=>method::all) + 1;
 
 	#413 Too large
 	if(status == "413") {	
@@ -656,10 +661,16 @@ route[CHECK_STATS] {
         $sht(a=>response::200::bye) = 0;
     }
 
-    #ALL MESSAGES
+    #ALL TRANSACTIONS MESSAGES
     if($sht(a=>method::all) > 0) {
         sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, total) VALUES($var(f_date), $var(t_date), 'ALL', $sht(a=>method::all)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>method::all)");
         $sht(a=>method::all) = 0;
+    }
+    
+     #ALL MESSAGES ON INTERFACE
+    if($sht(a=>method::total) > 0) {
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, total) VALUES($var(f_date), $var(t_date), 'TOTAL', $sht(a=>method::total)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>method::total)");
+        $sht(a=>method::total) = 0;
     }
 }
 
