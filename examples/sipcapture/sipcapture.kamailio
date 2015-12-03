@@ -232,7 +232,7 @@ route {
                 if($sht(a=>method::unknown) == $null) $sht(a=>method::unknown) = 0; 
                 $sht(a=>method::unknown) = $sht(a=>method::uknown) + 1; 
         }     
-#endif        
+#!endif        
 
 	#Store
 	route(STORE);
@@ -356,7 +356,7 @@ onreply_route {
                         if($sht(a=>response::183::invite) == $null) $sht(a=>response::183::invite)= 0;
                         $sht(a=>response::183::invite) = $sht(a=>response::183::invite) + 1;
                 }
-#endif                
+#!endif                
 	}
 	else if($rm == "BYE") {
 
@@ -647,7 +647,7 @@ route[CHECK_STATS] {
         sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, total) VALUES($var(f_date), $var(t_date), 'ACK', $sht(a=>method::ack)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>method::ack)");
         $sht(a=>method::ack) = 0;
     }
-#endif
+#!endif
 
     #REFER
     if($sht(a=>method::refer) > 0) {
@@ -700,7 +700,7 @@ route[CHECK_STATS] {
         $sht(a=>response::183::invite) = 0; 
     }
 
-#endif
+#!endif
 
     #200 INVITE
     if($sht(a=>response::200::invite) > 0) {
