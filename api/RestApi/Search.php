@@ -47,7 +47,7 @@ class Search {
     */
     public function getLoggedIn(){
 
-;	$answer = array();
+	$answer = array();
 
 	if($this->authmodule == false) return $answer;
 
