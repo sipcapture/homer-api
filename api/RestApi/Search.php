@@ -34,7 +34,7 @@ class Search {
     private $query_types;
 
     private $authmodule = true;
-
+    
     function __construct()
     {
 	$this->query_types = array("call", "registration", "rest");
@@ -47,7 +47,7 @@ class Search {
     */
     public function getLoggedIn(){
 
-	$answer = array();
+;	$answer = array();
 
 	if($this->authmodule == false) return $answer;
 
@@ -124,6 +124,9 @@ class Search {
 
         /* get our DB */
         $db = $this->getContainer('db');
+        
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
 
         $data = array();
         $lnodes = array();
@@ -168,6 +171,16 @@ class Search {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
 
+        $layerHelper = array();
+        $layerHelper['table'] = array();        
+        $layerHelper['order'] = array();                
+        $layerHelper['where'] = array();                                
+        $layerHelper['table']['base'] = "sip_capture";        
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
+        $layerHelper['where']['type'] = "AND";
+        $layerHelper['where']['param'] = $callwhere;
+                
         foreach($nodes as $node) {
 	    $db->dbconnect_node($node);
 	    $limit = $limit_orig;
@@ -176,13 +189,19 @@ class Search {
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
-			    $order = " order by id DESC LIMIT ".$limit;
-			    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
-			    $query  = "SELECT t.".FIELDS_CAPTURE.", '".$query_type."' as trans, '".$node['name']."' as dbnode";
-			    $query .= " FROM ".$table." as t ";
-			    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-			    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-			    $noderows = $db->loadObjectArray($query.$order);
+			    
+			    $layerHelper['table']['type'] = $query_type;
+			    $layerHelper['table']['timestamp'] = gmdate("Ymd", $ts);
+			    $layerHelper['time'] = $time;			    
+			    $layerHelper['order']['limit'] = $limit;
+			    
+			    $layerHelper['values'] = array();
+			    $layerHelper['values'][] = FIELDS_CAPTURE;
+                            $layerHelper['values'][] = "'".$query_type."' as trans";
+                            $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+			    			    
+			    $query = $layer->querySearchData($layerHelper);
+			    $noderows = $db->loadObjectArray($query);
 			    $data = array_merge($data,$noderows);
 			    $limit -= count($noderows);
 		    }
@@ -223,6 +242,10 @@ class Search {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+                     
 
         $data = array();
         $lnodes = array();
@@ -293,6 +316,17 @@ class Search {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
         
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['table']['base'] = "sip_capture";
+        $layerHelper['order']['by'] = "t.id";
+        $layerHelper['order']['type'] = "DESC";
+        $layerHelper['where']['type'] = "AND";
+        $layerHelper['where']['param'] = $callwhere;
+                                                                                
+        
         foreach($nodes as $node) {
 	    $db->dbconnect_node($node);
 	    $limit = $limit_orig;
@@ -301,13 +335,19 @@ class Search {
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
-			$order = " order by t.id DESC LIMIT ".$limit;
-			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
-			$query  = "SELECT t.".$fields.", '".$query_type."' as trans, '".$node['name']."' as dbnode";
-			$query .= " FROM ".$table." as t";
-			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-			$noderows = $db->loadObjectArray($query.$order);
+
+			$layerHelper['table']['type'] = $query_type;
+                        $layerHelper['table']['timestamp'] = gmdate("Ymd", $ts);
+                        $layerHelper['time'] = $time;
+                        $layerHelper['order']['limit'] = $limit;
+
+                        $layerHelper['values'] = array();
+                        $layerHelper['values'][] = FIELDS_CAPTURE;
+                        $layerHelper['values'][] = "'".$query_type."' as trans";
+                        $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+
+			$query = $layer->querySearchMessagesData($layerHelper);			
+			$noderows = $db->loadObjectArray($query);
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
 		    }
@@ -1229,6 +1269,7 @@ class Search {
             //$config = \Config::factory('configs/config.ini', APPLICATION_ENV, 'auth');
             if($name == "auth") $containerClass = sprintf("Authentication\\".AUTHENTICATION);
             else if($name == "db") $containerClass = sprintf("Database\\".DATABASE_CONNECTOR);
+            else if($name == "layer") $containerClass = sprintf("Database\\Layer\\".DATABASE_DRIVER);
             $this->_instance[$name] = new $containerClass();
         }
         return $this->_instance[$name];
