@@ -1,15 +1,14 @@
 [![Logo](http://sipcapture.org/data/images/sipcapture_header.png)](http://sipcapture.org)
 
 ## HOMER 5 API
-API Element for Homer 5
+
+Modular component for [HOMER 5](http://github.com/sipcapture/homer)
 
 ### RELEASE CANDIDATE 1
 
-Project Documentation:
+Project Documentation is available here:
 
-* https://github.com/sipcapture/homer/tree/homer5
-
-* https://github.com/sipcapture/homer/wiki
+https://github.com/sipcapture/homer/wiki
 
 For Help contact: support@sipcapture.org
 
