@@ -49,7 +49,7 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
 
     ->setDebugMode(false) //prints the debug trace, line number and file if a exception has been thrown.
     ->addGetRoute('session', 'getSession') // => /api/session
-    ->addGetRoute('test', 'getTestAPI') // => /api/session    
+    ->addGetRoute('test', 'getTestAPI') // => /api/test
     ->addPostRoute('session', 'doSession') // => /api/session
     ->addDeleteRoute('session', 'doLogout') // => /admin/logout
     ->addGetRoute('logout', 'doLogout') // => /admin/logout
@@ -144,15 +144,15 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
     ->done()
     
     ->addSubController('dashboard', 'RestApi\Dashboard') //adds a new sub entry point 'tools' => admin/tools
-      ->addPostRoute('store/([0-9A-Z_-]+)', 'postIdDashboard')
+      ->addPostRoute('store/([0-9A-Za-z_-]+)', 'postIdDashboard')
       ->addPostRoute('store', 'postDashboard')
       ->addPostRoute('upload', 'uploadDashboard')
       ->addGetRoute('store/1', 'newDashboard')      
-      ->addPostRoute('menu/([0-9A-Z_-]+)', 'postMenuDashboard')
+      ->addPostRoute('menu/([0-9A-Za-z_-]+)', 'postMenuDashboard')
       ->addGetRoute('node', 'getNode')
       ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdDashboard')      
       ->addGetRoute('store', 'getDashboard')
-      ->addDeleteRoute('store/([0-9A-Z_-]+)', 'deleteIdDashboard')      
+      ->addDeleteRoute('store/([0-9A-Za-z_-]+)', 'deleteIdDashboard')      
       ->addDeleteRoute('store', 'deleteDashboard')
     ->done()
     

@@ -83,12 +83,15 @@ class Dashboard {
         $table = "user_menu";
         $query = "SELECT id,name,icon,active,alias FROM ".$table." WHERE active = 1 order by weight ASC";
         $data = $db->loadObjectArray($query);
+        $skipDashboards = array();
 
 	foreach($data as $row) {
 		$menu = array();
 		$menu['name'] = $row['name'];
 		$menu['href'] = !empty($row['alias']) ? $row['alias'] : $row['id'];
 		$menu['class'] = "fa ".$row['icon'];
+		$menu['id'] = $row['id'];
+		$skipDashboards[$row['id']] = 1;
 		$globalmenu[] = $menu;
         }
 
@@ -134,12 +137,20 @@ class Dashboard {
         if ($handle = opendir(DASHBOARD_PARAM)) {
 	   while (false !== ($file = readdir($handle))) {
 		if ($file[0] == "_") {
+		
+		    $boardid = str_replace(".json", "", $file);
+		    
+		    if($skipDashboards[$boardid] == 1) continue;
+		
 		    $dar = DASHBOARD_PARAM."/".$file;
 		    $myfile = fopen($dar, "r") or die("Unable to open file!");
+		    
 		    $text =  fread($myfile, filesize($dar));
 		    $json = json_decode($text, true);	
+		    
 		    $parent = new \stdClass;
-		    $parent->boardid = str_replace(".json", "", $file);
+                    $parent->boardid = $boardid;		    		    
+		    
 	            $parent->name = $json['title'];
 	            $parent->class = "fa fa-angle-double-right";
 		    $boards[] = $parent; 
@@ -212,6 +223,7 @@ class Dashboard {
          
 	$boards = array();
         
+                
         if ($handle = opendir(DASHBOARD_PARAM)) {
 	   while (false !== ($file = readdir($handle))) {
 		if ($file != "." && $file != "..") {
@@ -263,7 +275,17 @@ class Dashboard {
     
     public function postIdDashboard($id){
         
-         if(count(($adata = $this->getLoggedIn()))) return $adata;
+        if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+                  
+        $table = "user_menu";
+        $query = "SELECT id FROM user_menu WHERE active = 1 AND alias='?' limit 1";
+        $query  = $db->makeQuery($query, $id);
+        $data = $db->loadObjectArray($query);
+        foreach($data as $row) {  $id = $row['id']; }
         
         //if (!is_string($json)) $json = json_encode($json);                                        
 	$dar = DASHBOARD_PARAM."/".$id.".json";
@@ -304,6 +326,12 @@ class Dashboard {
         $table = "user_menu";
         if($protect)
         {        
+        
+            $query = "SELECT id FROM user_menu WHERE active = 1 AND alias='?' limit 1";
+            $query  = $db->makeQuery($query, $id);
+            $data = $db->loadObjectArray($query);
+            foreach($data as $row) {  $id = $row['id']; }
+        
             $query = "INSERT INTO ".$table." SET id='?', name='?', icon='?', weight=?, alias='?' ON DUPLICATE KEY UPDATE name = '?', icon = '?',  weight=?, alias='?'";
             $query  = $db->makeQuery($query, $id, $name, $icon, $weight, $alias, $name, $icon, $weight, $alias);            
         }
@@ -354,6 +382,17 @@ class Dashboard {
     public function deleteIdDashboard($id){
         
         if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $table = "user_menu";
+        $query = "SELECT id FROM user_menu WHERE active = 1 AND alias='?' limit 1";
+        $query  = $db->makeQuery($query, $id);
+        $data = $db->loadObjectArray($query);
+        foreach($data as $row) {  $id = $row['id']; }
+
          
         //if (!is_string($json)) $json = json_encode($json);                                        
 	$dar = DASHBOARD_PARAM."/".$id.".json";
