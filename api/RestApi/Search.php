@@ -1310,7 +1310,6 @@ class Search {
             $alias_cache[$alias['ip'].':'.$alias['port'].':'.$alias['capture_id']] = $alias['alias'];
         }
 
-        // Apply alias when an alias is configured
         for($i=0; $i < count($data); $i++) {
 
             // Apply source_alias
@@ -1318,7 +1317,14 @@ class Search {
                 $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'.$data[$i]['node']];
             } elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':*'])) {
                 $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':*'];
-            } else {
+            }
+            elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':0'])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':0'];
+            }           
+            elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'];
+            } 
+            else {
                 $data[$i]['source_alias'] = $data[$i]['source_ip'];
             }
 
@@ -1327,14 +1333,18 @@ class Search {
                 $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'.$data[$i]['node']];
             } elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':*'])) {
                 $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':*'];
-            } else {
+            } 
+            elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':0'])) {  
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':0'];
+            } 
+            elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'])) { 
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':']; 
+            } 
+            else {
                 $data[$i]['destination_alias'] = $data[$i]['destination_ip'];
             }
-
         }
-
     }
-
 }
 
 ?>
