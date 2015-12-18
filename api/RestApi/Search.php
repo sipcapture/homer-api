@@ -715,7 +715,8 @@ class Search {
 	$info['callid'] = array();
 
 	$reply['info']=$info;
-	$reply['hosts']=$hosts;
+	//$reply['hosts']=$hosts;
+	$reply['hosts'] = $this->applyHostsAliases($hosts);
 	$reply['uac']=$uac;
 	$reply['rtpinfo']=$rtpinfo;
 	$reply['calldata'] = $localdata;
@@ -794,7 +795,8 @@ class Search {
         }
 
 	$reply['info']=$info;
-	$reply['hosts']=$hosts;
+	//$reply['hosts']=$hosts;
+	$reply['hosts'] = $this->applyHostsAliases($hosts);
 	$reply['uac']=$uac;
 	$reply['rtpinfo']=$rtpinfo;
 	$reply['calldata'] = $localdata;
@@ -1307,43 +1309,88 @@ class Search {
         $query = "SELECT ip, port, capture_id, alias FROM alias";
         $aliases = $db->loadObjectArray($query);
         foreach($aliases as $alias) {
-            $alias_cache[$alias['ip'].':'.$alias['port'].':'.$alias['capture_id']] = $alias['alias'];
+            if($alias['capture_id'] == "*" || $alias['capture_id'] == "0" || $alias['capture_id'] == "") 
+            {            
+                if($alias['port'] == "0") $alias_cache[$alias['ip']] = $alias['alias'];                
+                else $alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];                
+            }            
+            else if($alias['port'] == "0") $alias_cache[$alias['ip'].'-'.$alias['capture_id']] = $alias['alias'];            
+            else $alias_cache[$alias['ip'].':'.$alias['port'].'-'.$alias['capture_id']] = $alias['alias'];
         }
 
+        // Apply alias when an alias is configured
         for($i=0; $i < count($data); $i++) {
 
             // Apply source_alias
-            if (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'.$data[$i]['node']])) {
-                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'.$data[$i]['node']];
-            } elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':*'])) {
-                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':*'];
+            if (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].'-'.$data[$i]['node']])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].'-'.$data[$i]['node']];
+            } elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']];
             }
-            elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':0'])) {
-                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':0'];
-            }           
-            elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'])) {
-                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].':'];
+            elseif (isset($alias_cache[$data[$i]['source_ip'].'-'.$data[$i]['node']])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].'-'.$data[$i]['node'].':'];
             } 
+            elseif (isset($alias_cache[$data[$i]['source_ip']])) {
+                $data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip']];
+            }           
             else {
                 $data[$i]['source_alias'] = $data[$i]['source_ip'];
             }
-
+            
             // Apply destination_alias
-            if (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'.$data[$i]['node']])) {
-                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'.$data[$i]['node']];
-            } elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':*'])) {
-                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':*'];
+            if (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].'-'.$data[$i]['node']])) {
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].'-'.$data[$i]['node']];
+            } elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']])) {
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']];
+            }
+            elseif (isset($alias_cache[$data[$i]['destination_ip'].'-'.$data[$i]['node']])) {
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].'-'.$data[$i]['node'].':'];
             } 
-            elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':0'])) {  
-                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':0'];
-            } 
-            elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':'])) { 
-                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].':']; 
-            } 
+            elseif (isset($alias_cache[$data[$i]['destination_ip']])) {
+                $data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip']];
+            }           
             else {
                 $data[$i]['destination_alias'] = $data[$i]['destination_ip'];
             }
         }
+    }
+    
+    private function applyHostsAliases(&$data) {
+
+        // Load alias cache
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+        $query = "SELECT ip, port, capture_id, alias FROM alias";
+        $aliases = $db->loadObjectArray($query);
+        foreach($aliases as $alias) {
+            if($alias['capture_id'] == "*" || $alias['capture_id'] == "0" || $alias['capture_id'] == "") 
+            {            
+                if($alias['port'] == "0") $alias_cache[$alias['ip']] = $alias['alias'];                
+                else $alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];                
+            }            
+            else if($alias['port'] == "0") $alias_cache[$alias['ip'].'-'.$alias['capture_id']] = $alias['alias'];            
+            else $alias_cache[$alias['ip'].':'.$alias['port'].'-'.$alias['capture_id']] = $alias['alias'];
+        }
+
+        $newhosts = array();
+
+        $i = 0;
+        // Apply alias when an alias is configured
+        foreach($data as $key=>$value) {
+            
+            // Apply source_alias
+            if (isset($alias_cache[$key])) $alias = $alias_cache[$key];
+            else $alias = $key;
+                        
+            if(!isset($newhosts[$alias])) {
+                $newhosts[$alias]['position'] = $i++;
+            }
+            
+            $newhosts[$alias]['hosts'][] = array($key => $value);                        
+        }
+        
+        return $newhosts;
     }
 }
 
