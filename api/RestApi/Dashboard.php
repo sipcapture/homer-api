@@ -392,8 +392,11 @@ class Dashboard {
         $query  = $db->makeQuery($query, $id);
         $data = $db->loadObjectArray($query);
         foreach($data as $row) {  $id = $row['id']; }
+        
+        $query = "DELETE FROM user_menu WHERE id='?'";
+        $query  = $db->makeQuery($query, $id);
+        $db->executeQuery($query);
 
-         
         //if (!is_string($json)) $json = json_encode($json);                                        
 	$dar = DASHBOARD_PARAM."/".$id.".json";
 	$json = "";
