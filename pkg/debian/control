@@ -2,22 +2,31 @@ Source: homer-api
 Section: comm
 Priority: optional
 Maintainer: Konstantin S. Vishnivetsky <kvishnivetsky@sipcapture.org>
-Build-Depends:	debhelper (>= 8.0.0),
-		debconf,
-		autotools-dev,
-		libmysqlclient-dev
-Standards-Version: 5.0.1
+Uploaders: Victor Seva <linuxmaniac@torreviejawireless.org>
+Build-Depends: debhelper (>= 9~),
+               dh-autoreconf
+Standards-Version: 3.9.6
 Homepage: http://sipcapture.org
-Vcs-Git: git://github.com/sipcapture/homer-api
+Vcs-Git: https://github.com/sipcapture/homer-api.git
+Vcs-Browser: https://github.com/sipcapture/homer-api
 
 Package: homer-api
-Architecture: linux-any
-Depends: ${shlibs:Depends}, ${misc:Depends}, kamailio (>= 4.3.0), kamailio-mysql-modules (>= 4.3.0), ntp, php5, php5-mysql, libdbd-mysql-perl, mysql-server (>= 5.5.0), mysql-client (>= 5.5.0)
-Description: SIP capture server
- HOMER5 a robust, carrier-grade, scalable SIP Capture system and Monitoring Application with HEP/HEP2, IP Proto4 (IPIP) encapsulation & port mirroring/monitoring support right out of the box, ready to process & store insane amounts of signaling with instant search, end-to-end analysis and drill-down capabilities for ITSPs, VoIP Providers and Trunk Suppliers using SIP signaling
-
-#
-#Package: homer-api-doc
-#Architecture: all
-#Description: documentation for homer-api
-# <insert long description, indented with spaces>
+Architecture: all
+Depends: kamailio (>= 4.3.0),
+         kamailio-mysql-modules (>= 4.3.0),
+         libdbd-mysql-perl,
+         mysql-client (>= 5.5.0),
+         mysql-server (>= 5.5.0),
+         ntp,
+         php5,
+         php5-mysql,
+         ${misc:Depends}
+Description: SIP capture server API
+ HOMER5 a robust, carrier-grade, scalable SIP Capture system and
+ Monitoring Application with HEP/HEP2, IP Proto4 (IPIP) encapsulation
+ & port mirroring/monitoring support right out of the box, ready to
+ process & store insane amounts of signaling with instant search,
+ end-to-end analysis and drill-down capabilities for ITSPs, VoIP
+ Providers and Trunk Suppliers using SIP signaling
+ .
+ This package contains the HOMER API
