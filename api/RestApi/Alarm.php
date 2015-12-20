@@ -237,7 +237,7 @@ class Alarm {
         
         $table = "alarm_data";            
         $limit = " limit 100";
-        $query = "SELECT * FROM ".$table." where status = 1 and create_date > NOW() - INTERVAL 2 DAY order by create_date DESC".$limit;
+        $query = "SELECT *,UNIX_TIMESTAMP(`create_date`) as alarm_ts FROM ".$table." where status = 1 and create_date > NOW() - INTERVAL 2 DAY order by create_date DESC".$limit;
         $data = $db->loadObjectArray($query);
 
         /* sorting */
