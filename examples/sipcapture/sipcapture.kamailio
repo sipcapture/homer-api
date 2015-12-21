@@ -73,6 +73,7 @@ modparam("sipcapture", "capture_on", 1)
 modparam("sipcapture", "hep_capture_on", 1)
 modparam("sipcapture", "insert_retries", 5)
 modparam("sipcapture", "insert_retry_timeout", 10)
+#modparam("sipcapture", "capture_node", "homer01")
 
 #Stats time
 stats.min = 5 desc "My stats TIME min"
