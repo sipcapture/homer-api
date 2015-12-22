@@ -167,7 +167,9 @@ if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl d
 /sbin/service mysqld start || (%{?el7:/usr}/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ; %{?el6:/usr}/bin/mysql -u root --skip-password -h localhost --skip-password -e "CREATE USER 'homer_user'@'localhost' IDENTIFIED BY 'homer_password'"; for DB in data configuration statistic; do %{?el6:/usr}/bin/mysql -u root -h localhost --skip-password -e "create database homer_$DB" &&  %{?el6:/usr}/bin/mysql -u root --skip-password -h localhost --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; %{?el6:/usr}/bin/mysql -u root --skip-password -h localhost --skip-password -e "GRANT ALL ON homer_$DB.* TO 'homer_user'@'localhost';"; done; /bin/echo "Running rotate script to actualize DB tables"; %{_bindir}/homer_rotate );
 /bin/echo "Enable MySQL server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable mysqld; else /sbin/chkconfig mysqld on; fi
-/bin/echo "Enable Kamailio server";
+/bin/echo "Disable native Kamailio server";
+if [ -e /sbin/chkconfig ]; then /sbin/chkconfig kamailio off; else /bin/echo "WARNING: Please, manully diable kamailio service!!!"; fi
+/bin/echo "Enable SIPCAPTURE Kamailio server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkconfig sipcapture on; fi
 /sbin/service sipcapture start
 
