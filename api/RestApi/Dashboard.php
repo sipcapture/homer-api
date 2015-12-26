@@ -120,7 +120,7 @@ class Dashboard {
 
 
 	$menu = array();	
-	$menu['name'] = 'Custom Panels';
+	$menu['name'] = 'Panels';
 	$menu['href'] = '#';
 	$menu['class'] = 'fa fa-dashboard';
 	$menu['rowclass'] = 'fa fa-angle-left pull-right';
