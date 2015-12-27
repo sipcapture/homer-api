@@ -89,6 +89,7 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('config/edit', 'doEditAlarmConfig') // => /api/session
       ->addDeleteRoute('config/delete/([0-9]+)', 'deleteAlarmConfig')      
       ->addGetRoute('list/get', 'getAlarmList') // => /api/session      
+      ->addPostRoute('list/get', 'doAlarmList') // => /api/session      
       ->addPostRoute('list/edit', 'doEditAlarmList') // => /api/session      
       ->addGetRoute('method', 'getAlarmMethod') // => /api/session
       ->addPostRoute('method', 'doAlarmMethod') // => /api/session

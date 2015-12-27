@@ -267,6 +267,77 @@ class Alarm {
     }
      
      
+     public function doAlarmList($timestamp, $param){
+    
+	/* auth */
+        if(count(($adata = $this->getLoggedIn()))) return $adata;                
+
+        /* get our DB */
+        $db = $this->getContainer('db');
+        $db->select_db(DB_STATISTIC);
+        $db->dbconnect();
+                                 
+        $data = array();
+        $search = array();
+        $callwhere = array();
+        $calldata = array();
+        $arrwhere = "";
+        
+	foreach($param['filter'] as $key=>$filter) {
+        
+            $search[$key]['method'] = getVar('method', NULL, $filter, 'string');
+            $search[$key]['cseq'] = getVar('cseq', NULL, $filter, 'string');
+            $search[$key]['auth'] = getVar('auth', -1, $filter, 'int');
+            $search[$key]['totag'] = getVar('method', -1, $filter, 'int');        
+            
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
+            if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
+        }
+        
+        if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";
+                        
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['from_ts'] = intval($time['from']/1000);
+        $time['to_ts'] = intval($time['to']/1000);        
+        
+        $and_or = getVar('orand', NULL, $param['filter'], 'string');        
+        $limit = getVar('limit', 500, $param, 'int');
+        $total = getVar('total', false, $param, 'bool');
+        
+        $order = "order by create_date DESC";                
+        $table = "alarm_data";            
+        $limit = " limit 100";
+        $query = "SELECT  *,UNIX_TIMESTAMP(`create_date`) as alarm_ts FROM ".$table." WHERE (`create_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts'].")) AND status = 1 ".$order." ".$limit;
+        $data = $db->loadObjectArray($query);
+
+        /* sorting */
+        //usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+                           
+        $answer = array();          
+                
+        if(empty($data)) {
+        
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['status'] = 200;                
+                $answer['message'] = 'no data';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }                
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['message'] = 'ok';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+        
+        return $answer;
+    }
+     
+     
      public function doEditAlarmList($param){
     
 	/* auth */
