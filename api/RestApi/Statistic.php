@@ -262,6 +262,7 @@ class Statistic {
         foreach($param['filter'] as $key=>$filter) {
         
             $search[$key]['type'] = getVar('type', NULL, $filter, 'string');            
+            $search[$key]['source_ip'] = getVar('source_ip', NULL, $filter, 'string');            
             $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
@@ -280,11 +281,11 @@ class Statistic {
         $order = "";
 
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, source_ip, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY type";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
+           $fields = "id, source_ip, description, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
         }
 
          $order .= " order by id DESC";
