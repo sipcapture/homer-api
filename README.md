@@ -4,6 +4,8 @@
 
 Modular component for [HOMER 5](http://github.com/sipcapture/homer)
 
+![splitter](http://i.imgur.com/lytn4zn.png)
+
 ### Documentation
 
 Project Documentation is available here:
