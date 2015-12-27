@@ -192,11 +192,11 @@ class Statistic {
         $order = "";
         
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, source_ip, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY type";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, total";                                            
+           $fields = "id, source_ip, description, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, total";                                            
         }
 
         $order .= " order by id DESC";
@@ -281,11 +281,11 @@ class Statistic {
         $order = "";
 
         if($total) {
-           $fields = "id, source_ip, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY type";       
         }
         else {
-           $fields = "id, source_ip, description, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
+           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
         }
 
          $order .= " order by id DESC";
