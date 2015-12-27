@@ -74,6 +74,8 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
     ->addSubController('statistic', 'RestApi\Statistic') //adds a new sub entry point 'tools' => admin/tools
       ->addGetRoute('method', 'getStatisticMethod') // => /api/session
       ->addPostRoute('method', 'doStatisticMethod') // => /api/session
+      ->addGetRoute('alarm', 'getStatisticAlarm') // => /api/session
+      ->addPostRoute('alarm', 'doStatisticAlarm') // => /api/session
       ->addPostRoute('data', 'doStatisticData') // => /api/session
       ->addGetRoute('data', 'getStatisticData') // => /api/session
       ->addPostRoute('ip', 'doStatisticIP') // => /api/session
