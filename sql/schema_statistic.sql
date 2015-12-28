@@ -126,6 +126,50 @@ CREATE TABLE IF NOT EXISTS `stats_ip_mem` (
   UNIQUE KEY `datemethod` (`method`,`source_ip`)
 ) ENGINE=MEMORY  DEFAULT CHARSET=latin1;
 
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stats_geo_mem`
+--
+
+CREATE TABLE IF NOT EXISTS `stats_geo_mem` (
+`id` bigint(20) unsigned NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `method` varchar(50) NOT NULL DEFAULT '',
+  `country` varchar(255) NOT NULL DEFAULT 'UN',
+  `lat` float NOT NULL DEFAULT '0',
+  `lon` float NOT NULL DEFAULT '0',
+  `total` int(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `datemethod` (`method`,`country`)
+) ENGINE=MEMORY DEFAULT CHARSET=latin1;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stats_geo`
+--
+
+CREATE TABLE IF NOT EXISTS `stats_geo` (
+`id` bigint(20) unsigned NOT NULL,
+  `from_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `to_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `method` varchar(50) NOT NULL DEFAULT '',
+  `country` varchar(255) NOT NULL DEFAULT 'UN',
+  `lat` float NOT NULL DEFAULT '0',
+  `lon` float NOT NULL DEFAULT '0',
+  `total` int(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`,`from_date`),
+  UNIQUE KEY `datemethod` (`from_date`,`to_date`,`method`,`country`),
+  KEY `from_date` (`from_date`),
+  KEY `to_date` (`to_date`),
+  KEY `method` (`method`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8
+/*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`from_date`))
+(PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
+
 -- --------------------------------------------------------
 
 --
