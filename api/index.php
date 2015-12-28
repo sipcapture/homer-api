@@ -80,6 +80,8 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addGetRoute('data', 'getStatisticData') // => /api/session
       ->addPostRoute('ip', 'doStatisticIP') // => /api/session
       ->addGetRoute('ip', 'getStatisticIP') // => /api/session
+      ->addPostRoute('country', 'doStatisticCountry') // => /api/session
+      ->addGetRoute('country', 'getStatisticCountry') // => /api/session
       ->addPostRoute('useragent', 'doStatisticUserAgent') // => /api/session
       ->addGetRoute('useragent', 'getStatisticUserAgent') // => /api/session
     ->done()
