@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `stats_geo_mem` (
 --
 
 CREATE TABLE IF NOT EXISTS `stats_geo` (
-`id` bigint(20) unsigned NOT NULL,
+`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `from_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `to_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `method` varchar(50) NOT NULL DEFAULT '',
