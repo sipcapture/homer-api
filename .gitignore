@@ -16,3 +16,5 @@ ltmain.sh
 missing
 stamp-h1
 autom4te.cache
+configuration.php
+preferences.php
