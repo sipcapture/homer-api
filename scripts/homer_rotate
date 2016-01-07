@@ -21,6 +21,7 @@ $programm homer_data logs_capture 0 10
 $programm homer_data report_capture  0 10
 #stats: part step: 1 day and 20 days keep data
 $programm homer_statistic stats_ip 0 20
+$programm homer_statistic stats_geo 0 20
 #stats: part step: 1 day and 20 days keep data
 $programm homer_statistic alarm_data 0 20
 $programm homer_statistic stats_method 0 20
