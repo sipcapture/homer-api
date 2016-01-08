@@ -155,6 +155,10 @@ class LDAP extends Authentication {
 	   return $_SESSION['data'];
         }
 	
+        function updateUser($param) {
+                $this->getUser();
+        }
+
 	
 	//create random password with 8 alphanumerical characters
 	function createPassword() {

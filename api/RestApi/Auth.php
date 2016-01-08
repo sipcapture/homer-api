@@ -45,7 +45,7 @@ class Auth {
     public function getLoggedIn(){
         return $this->getContainer('auth')->checkSession();
     }
-
+   
     /**
     * @param string $username
     * @param string $password
@@ -126,7 +126,43 @@ class Auth {
         
         return $answer;
     }
+    
+    public function getUser(){
+        
+        $answer = array();        
+                            
+        if($this->getContainer('auth')->checkSession()) {
+                $answer['sid'] = session_id();
+                $answer['auth'] = true;             
+                $answer['status'] = 200;            
+   		$answer['data']  = $this->getContainer('auth')->getUser();
+        }
+        else {
+                $answer['sid'] = session_id();
+                $answer['auth'] = false;             
+                $answer['status'] = 403;        
+                $answer['message'] = 'wrong session';
+                $answer['data'] = array();
+        }        
+        
+        return $answer;
+    }
 
+    public function doUser($param){
+
+        if($this->getContainer('auth')->checkSession()) {
+                return $this->getContainer('auth')->updateUser($param);
+        }
+        else {
+                $answer['sid'] = session_id();
+                $answer['auth'] = false;             
+                $answer['status'] = 403;        
+                $answer['message'] = 'wrong session';
+                $answer['data'] = array();
+        }        
+        
+        return $answer;
+    }
 
     public function getContainer()
     {

@@ -120,9 +120,9 @@ class Internal extends Authentication {
 
            $mydb = $this->getContainer('db');
 
-           $query  = $mydb->makeQuery("SELECT uid, gid, username, `grp`, firstname, lastname, email, lastvisit  FROM users WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
+           $query  = $mydb->makeQuery("SELECT uid, gid, username, `grp`, firstname, lastname, email, lastvisit,department  FROM ".$this->user_table." WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
            $rows = $mydb->loadObjectList($query);
-
+           
            if(count($rows)) {
                 $row = $rows[0];
                 $user['uid']     = $row->uid;
@@ -133,9 +133,45 @@ class Internal extends Authentication {
                 $user['lastname']   = $row->lastname;
                 $user['email']      = $row->email;
                 $user['lastvisit']  = $row->lastvisit;
+                $user['department']  = $row->department;
+                
                 return $user;
            }                                
            else return array();
+        }
+        
+        function updateUser($param) {
+
+           if(!isset($_SESSION['loggedin'])) $_SESSION['loggedin'] = '-1';
+           if($_SESSION['loggedin'] == "-1") return array();
+
+	   /* get our DB */
+           $mydb = $this->getContainer('db');
+	   $mydb->select_db(DB_CONFIGURATION);
+	   $mydb->dbconnect();
+     
+           $data = array();
+	   $search = array();
+	   $callwhere = array();  
+	   $calldata = array();
+         
+	   $update['department'] = getVar('department', '', $param, 'string');
+	   $update['email'] = getVar('email', '', $param, 'string');
+	   $update['firstname'] = getVar('firstname', '', $param, 'string');
+	   $update['lastname'] = getVar('lastname', '', $param, 'string');
+	   $password = getVar('password', '', $param, 'string');
+	   $uid = getVar('uid', 0, $param, 'int');
+     
+	   $exten = "";
+	   $callwhere = generateWhere($update, 1, $mydb, 0);
+	   if(count($callwhere)) {
+                if(strlen($password) > 0) $exten = "`password` = PASSWORD('".$password."'),";
+                $exten .= implode(", ", $callwhere);
+           }
+
+	   $query = $mydb->makeQuery("UPDATE ".$this->user_table." SET ".$exten. " WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
+	   $mydb->executeQuery($query);       	   
+	   return $this->getUser();
         }
 
 	
@@ -143,8 +179,7 @@ class Internal extends Authentication {
 	function passwordReset($username, $user_table, $pass_column, $user_column){
 
 		//generate new password
-		$newpassword = $this->createPassword();
-		
+		$newpassword = $this->createPassword();		
 		//update database with new password
 		$query = "UPDATE ".$this->user_table." SET ".$this->pass_column."='".$newpassword."' WHERE ".$this->user_column."='".stripslashes($username)."'";
 		if(!$db->executeQuery($query)) {

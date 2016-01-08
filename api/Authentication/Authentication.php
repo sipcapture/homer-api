@@ -57,6 +57,18 @@ class Authentication {
 				
 		return false;
 	}	
+	
+	function getUser() {
+
+		return;
+	}
+	
+	function updateUser($param){
+               $this->getUser();               
+        }
+	
 }
+
+
 
 ?>

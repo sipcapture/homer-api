@@ -51,6 +51,8 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
     ->addGetRoute('session', 'getSession') // => /api/session
     ->addGetRoute('test', 'getTestAPI') // => /api/test
     ->addPostRoute('session', 'doSession') // => /api/session
+    ->addGetRoute('user', 'getUser') // => /api/session
+    ->addPostRoute('user', 'doUser') // => /api/session
     ->addDeleteRoute('session', 'doLogout') // => /admin/logout
     ->addGetRoute('logout', 'doLogout') // => /admin/logout
     
