@@ -342,7 +342,7 @@ class Search {
                         $layerHelper['order']['limit'] = $limit;
 
                         $layerHelper['values'] = array();
-                        $layerHelper['values'][] = FIELDS_CAPTURE;
+                        $layerHelper['values'][] = $fields;
                         $layerHelper['values'][] = "'".$query_type."' as trans";
                         $layerHelper['values'][] = "'".$node['name']."' as dbnode";
 
