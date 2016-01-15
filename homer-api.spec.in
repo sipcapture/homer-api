@@ -65,7 +65,7 @@ HOMER API nginx configuration
 %{?el7:%attr(0664,root,root)/usr/lib/systemd/system/sipcapture.service}
 %attr(0664,root,root)%{_sysconfdir}/rsyslog.d/sipcapture.conf
 %attr(0664,root,root)%{_sysconfdir}/logrotate.d/sipcapture
-%attr(0664,root,root)%{_sysconfdir}/cron.d/sipcapture
+%attr(0644,root,root)%{_sysconfdir}/cron.d/sipcapture
 %attr(0775,root,root)%{_bindir}/homer_rotate
 %attr(0775,root,root)%{_bindir}/homer_mysql_new_table.pl
 %attr(0775,root,root)%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
