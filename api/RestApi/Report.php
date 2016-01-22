@@ -392,6 +392,145 @@ class Report {
         return $answer;
         
     }
+    
+    public function doRtpAgentReport($id, $timestamp, $param){
+    
+        /* get our DB */
+        $db = $this->getContainer('db');
+        
+        $data = array();
+        $search = array();        
+        $lnodes = array();
+        $callwhere = array();        
+        
+        //if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
+                                                          
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
+        $time['from_ts'] = floor($time['from']/1000);
+        $time['to_ts'] = round($time['to']/1000);
+
+        $time['from_ts']-=600;
+        $time['to_ts']+=60;
+        
+        /* search fields */        
+        $node = getVar('node', NULL, $param['search'], 'string');
+        $type = getVar('type', -1, $param['search'], 'int');
+        $proto = getVar('proto', -1, $param['search'], 'int');
+        $family = getVar('family', -1, $param['search'], 'int');        
+        $and_or = getVar('orand', NULL, $param['search'], 'string');        
+        $limit_orig = getVar('limit', 100, $param, 'int');
+                
+        $callids = getVar('callid', array(), $param['search'], 'array');         
+        $search['correlation_id'] = implode(";", $callids);
+        $answer = array();  
+        
+        if(empty($callids))
+        {                
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['status'] = 200;                
+                $answer['message'] = 'no data';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);                
+                return $answer;                
+        }
+               
+                        
+        $nodes = array();
+        if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
+        else {
+            foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
+        }
+
+        foreach($nodes as $node)
+        {        
+            
+	    $db->dbconnect_node($node);                            
+            $limit = $limit_orig;
+            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
+
+            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
+                         
+                $table = "rtpagent_capture";                            
+                $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                            
+                if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+                $noderows = $db->loadObjectArray($query);
+
+                $data = array_merge($data,$noderows);                
+                $limit -= count($noderows);
+            }
+        }
+
+        /* sorting */
+        usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+              
+              
+        $allowreport = array("LocalAddr", "RemoteAddr", "PacketLoss", "Delay", "QualityEst");
+	foreach($data as $key=>$row) {
+	        
+	        if($row['type'] == 1 && $id != "raw")  
+	        {
+	                $ldata = array();
+        		$mas = preg_split("/\r\n\r\n/", $row['msg']);
+	        	$data[$key]['msg'] = $mas[1];
+	        	$drs = preg_split("/\r\n/", $mas[1]);
+	        	foreach($drs as $k=>$d)
+	        	{	        
+                            $v = preg_split("/:/", $d);                                                        
+                            $a = explode(' ', $v[1]);
+
+                            /* short report */
+                            if($id == "short" && !in_array($v[0], $allowreport)) continue;                            
+                            
+                            $dval = array();
+                            foreach ($a as $are) {
+                                $b = explode('=', $are);
+                                if(!empty($b[0])) {
+                                    if($b[1] == null) $b[1] = $b[0];
+                                    $dval[$b[0]] = $b[1];
+                                }
+                            }
+                            if(!empty($v[0])) $ldata[$v[0]] = $dval;                                                                                    	        	
+	        	}	        	
+	        	
+	        	$data[$key]['msg'] = $ldata;
+                }
+        }
+    
+        if(empty($data)) {
+        
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['status'] = 200;                
+                $answer['message'] = 'no data';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }                
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['message'] = 'ok';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+        
+        return $answer;
+        
+    }
+
+    public function getRtpAgentReport($raw_get_data){
+    
+        $id = $raw_get_data['id'];
+        $timestamp = $raw_get_data['timestamp'];
+        $param = $raw_get_data['param'];
+
+        return doRtpAgentReport($id, $timestamp, $param);
+    }
 
     /*share */
     public function doLogReportById($param){
@@ -494,6 +633,46 @@ class Report {
             $id =  "short";
 
             $data =  $this->doQualityReport($id, $timestamp, $param);
+
+        }
+
+        if(empty($data)) {
+
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+                return $answer;
+        } else {
+                return $data;
+        }
+    }
+    
+      /*share */
+    public function doRtpAgentReportById($param){
+
+        $data = array();
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $uuid = getVar('transaction_id', "", $param, 'string');
+
+        $query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
+        $query  = $db->makeQuery($query, $uuid );
+        $json = $db->loadObjectArray($query);
+
+        if(!empty($json)) {
+
+            $djson = json_decode($json[0]['data'], true);
+
+            $timestamp = $djson['timestamp'];
+            $param = $djson['param'];
+            $id =  "short";
+
+            $data =  $this->doRtpAgentReport($id, $timestamp, $param);
 
         }
 
