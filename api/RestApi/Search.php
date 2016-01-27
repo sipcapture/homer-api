@@ -389,6 +389,57 @@ class Search {
 
         return;
     }
+    
+    public function doExternalExportData($timestamp, $param){
+
+        if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+        $data = $this->doSearchMessagesData($timestamp, $param, true);
+
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0);
+        
+	$apishark = EXTERNAL_PCAP_URI."/api/v1/".EXTERNAL_PCAP_API."/upload";
+	$pfile = PCAPDIR."/".$pcapfile;
+	$fileHandle = fopen($pfile, 'w') or die("Error opening file");
+	fwrite($fileHandle, $buf);
+	fclose($fileHandle);
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_VERBOSE, 0);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
+	curl_setopt($ch, CURLOPT_URL, $apishark);
+	curl_setopt($ch, CURLOPT_POST, true);
+	// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	// curl_setopt($ch, CURLOPT_CAINFO, getcwd() . "/opt/ca-cert-cshark.crt");
+
+	$post = array(
+        	"file"=>"@$pfile",
+	);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+	$response = curl_exec($ch);
+
+	unlink($pfile);
+	
+	$data = array();
+	$json=json_decode($response,true);	
+	if(array_key_exists('id', $json)) {
+		$url = EXTERNAL_PCAP_URI."/captures/".$json[id];
+		$data["url"] = $url;
+        }
+        else if(array_key_exists('exceptions', $json)) {
+		$url = EXTERNAL_PCAP_URI."/captures/".$json[id];
+		$data["exceptions"] = $json["exceptions"];
+        }
+        else {
+            $data["exceptions"] = "unknown error";
+        }
+        
+        
+        return $data;
+    }
 
     public function doSearchMethod($timestamp, $param){
 

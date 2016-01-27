@@ -68,7 +68,8 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('export/pcap', 'doPcapExport') // => /api/session
       ->addPostRoute('export/text', 'doTextExport') // => /api/session
       ->addPostRoute('export/data/pcap', 'doPcapExportData') // => /api/session
-      ->addPostRoute('export/data/text', 'doTextExportData') // => /api/session      
+      ->addPostRoute('export/data/text', 'doTextExportData') // => /api/session
+      ->addPostRoute('export/data/external', 'doExternalExportData') // => /api/session      
       ->addGetRoute('data', 'getSearchData') // => /api/session
     ->done()
 
