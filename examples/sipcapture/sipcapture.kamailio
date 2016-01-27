@@ -27,6 +27,8 @@ log_stderror=no
 memdbg=5
 memlog=5
 
+##!define WITH_HOMER_GEO
+
 log_facility=LOG_LOCAL1
 
 fork=yes
@@ -54,6 +56,10 @@ loadmodule "sl.so"
 loadmodule "siputils.so"
 loadmodule "exec.so"
 
+#!ifdef WITH_HOMER_GEO
+loadmodule "geoip.so"
+#!endif
+
 
 modparam("htable", "htable", "a=>size=8;autoexpire=400")
 modparam("htable", "htable", "b=>size=8;autoexpire=31")
@@ -74,6 +80,10 @@ modparam("sipcapture", "hep_capture_on", 1)
 modparam("sipcapture", "insert_retries", 5)
 modparam("sipcapture", "insert_retry_timeout", 10)
 #modparam("sipcapture", "capture_node", "homer01")
+
+#!ifdef WITH_HOMER_GEO
+modparam("geoip", "path", "/usr/local/etc/kamailio/GeoLiteCity.dat")
+#!endif
 
 #Stats time
 stats.min = 5 desc "My stats TIME min"
@@ -113,6 +123,14 @@ route {
 
 		#IP Method
 		sql_query("cb", "INSERT INTO stats_ip_mem ( method, source_ip, total) VALUES('$rm', '$si', 1) ON DUPLICATE KEY UPDATE total=total+1");
+
+#!ifdef WITH_HOMER_GEO
+		if(geoip_match("$si", "src")) {
+                        xlog("REGISTER|INVITE SIP message [$si] from: $gip(src=>cc)\n");
+                        sql_query("cb", "INSERT INTO stats_geo_mem ( method, country, lat, lon, total) VALUES('$rm', '$gip(src=>cc)', '$gip(src=>lat)', '$gip(src=>lon)', 1) ON DUPLICATE KEY UPDATE total=total+1");
+                }
+#!endif
+
 
 		if($au != $null)  $var(anumber) = $au;
 		else $var(anumber) = $fU;
@@ -516,6 +534,10 @@ route[CHECK_STATS] {
     sql_query("cb", "INSERT INTO stats_ip (from_date, to_date, method, source_ip, total) SELECT $var(f_date) as from_date, $var(t_date) as to_date, method, source_ip, total FROM stats_ip_mem;");
     sql_query("cb", "TRUNCATE TABLE stats_ip_mem");
 
+#!ifdef WITH_HOMER_GEO
+    sql_query("cb", "INSERT INTO stats_geo (from_date, to_date, method, country, lat, lon, total) SELECT $var(f_date) as from_date, $var(t_date) as to_date, method, country, lat, lon, total FROM stats_geo_mem;");
+    sql_query("cb", "TRUNCATE TABLE stats_geo_mem");
+#!endif
     
     #INSERT SQL STATS
     #Packet HEP stats
