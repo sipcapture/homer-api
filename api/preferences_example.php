@@ -84,9 +84,9 @@ define('LDAP_USERNAME_ATTRIBUTE_CLOSE',"");
 define('LDAP_USERLEVEL',3); 
 */
 
-/* external pcap storage. I.e :cloud shark */
-define('EXTERNAL_PCAP', 0);
-define('EXTERNAL_PCAP_API', "");
-define('EXTERNAL_PCAP_URI', "https://www.cloudshark.org");
+/* external pcap storage. I.e can be cloudshark, dropbox or google drive */
+define('CLOUD_STORAGE', 0);
+define('CLOUD_STORAGE_API', "");
+define('CLOUD_STORAGE_URI', "https://www.cloudshark.org");
 
 ?>

@@ -64,12 +64,13 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('sharelink', 'doShareLink') // => /api/session
       ->addPostRoute('share/transaction', 'doSearchShareTransaction') // => /api/session
       ->addPostRoute('share/export/pcap', 'doPcapExportById') // => /api/session
-      ->addPostRoute('share/export/text', 'doTextExportById') // => /api/session
+      ->addPostRoute('share/export/text', 'doTextExportById') // => /api/session      
       ->addPostRoute('export/pcap', 'doPcapExport') // => /api/session
       ->addPostRoute('export/text', 'doTextExport') // => /api/session
+      ->addPostRoute('export/cloud', 'doCloudExport') // => /api/session      
       ->addPostRoute('export/data/pcap', 'doPcapExportData') // => /api/session
       ->addPostRoute('export/data/text', 'doTextExportData') // => /api/session
-      ->addPostRoute('export/data/external', 'doExternalExportData') // => /api/session      
+      ->addPostRoute('export/data/cloud', 'doCloudExportData') // => /api/session      
       ->addGetRoute('data', 'getSearchData') // => /api/session
     ->done()
 
