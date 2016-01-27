@@ -85,8 +85,8 @@ define('LDAP_USERLEVEL',3);
 */
 
 /* external pcap storage. I.e :cloud shark */
-define('EXTERNAL_PCAP', 1);
-define('EXTERNAL_PCAP_API', "867b0f3fa6029629ea5c12d362160f52");
+define('EXTERNAL_PCAP', 0);
+define('EXTERNAL_PCAP_API', "");
 define('EXTERNAL_PCAP_URI', "https://www.cloudshark.org");
 
 ?>
