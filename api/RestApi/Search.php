@@ -1107,21 +1107,22 @@ class Search {
 	$fileHandle = fopen($pfile, 'w') or die("Error opening file");
 	fwrite($fileHandle, $buf);
 	fclose($fileHandle);
+	
+	$cfile = $this->getCurlValue($pfile,'application/cap',pcapfile);	
 
 	$ch = curl_init();
+
 	curl_setopt($ch, CURLOPT_HEADER, 0);
 	curl_setopt($ch, CURLOPT_VERBOSE, 0);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);  
 	curl_setopt($ch, CURLOPT_URL, $apishark);
 	curl_setopt($ch, CURLOPT_POST, true);
-	// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-	// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-	// curl_setopt($ch, CURLOPT_CAINFO, getcwd() . "/opt/ca-cert-cshark.crt");
 
-	$post = array(
-        	"file"=>"@$pfile",
-	);
+	$post = array("file" => $cfile);
+
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 	$response = curl_exec($ch);
 
@@ -1140,7 +1141,8 @@ class Search {
         else {
             $data["exceptions"] = "unknown error";
         }
-        
+	
+	curl_close($ch);        
         
         return $data;
     }
@@ -1494,6 +1496,25 @@ class Search {
         
         return $newhosts;
     }
+    
+    // Helper function courtesy of https://github.com/guzzle/guzzle/blob/3a0787217e6c0246b457e637ddd33332efea1d2a/src/Guzzle/Http/Message/PostFile.php#L90
+    function getCurlValue($filename, $contentType, $postname)
+    {
+    	// PHP 5.5 introduced a CurlFile object that deprecates the old @filename syntax
+	    // See: https://wiki.php.net/rfc/curl-file-upload
+	    if (function_exists('curl_file_create')) {
+        	return curl_file_create($filename, $contentType, $postname);
+	    }
+ 
+	    // Use the old style if using an older version of PHP
+	    $value = "@{$this->filename};filename=" . $postname;
+	    if ($contentType) {
+	        $value .= ';type=' . $contentType;
+	    }
+ 
+	    return $value;
+   }
+    
 }
 
 ?>
