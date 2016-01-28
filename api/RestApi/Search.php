@@ -1509,7 +1509,7 @@ class Search {
 	    }
  
 	    // Use the old style if using an older version of PHP
-	    $value = "@{$this->filename};filename=" . $postname;
+	    $value = "@".$filename.";filename=" . $postname;
 	    if ($contentType) {
 	        $value .= ';type=' . $contentType;
 	    }
