@@ -152,6 +152,11 @@ class Search {
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
         $time['from_ts'] = intval($time['from']/1000);
         $time['to_ts'] = intval($time['to']/1000);
+        
+        $and_or = getVar('orand', NULL, $param, 'string');
+        $b2b = getVar('b2b', false, $param, 'bool');
+        $uniq = getVar('uniq', false, $param, 'bool');
+                
         $limit_orig = getVar('limit', 100, $param, 'int');
         if($limit_orig <= 0) $limit_orig = 100;
 
@@ -178,7 +183,7 @@ class Search {
         $layerHelper['table']['base'] = "sip_capture";        
         $layerHelper['order']['by'] = "id";
         $layerHelper['order']['type'] = "DESC";
-        $layerHelper['where']['type'] = "AND";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";                
         $layerHelper['where']['param'] = $callwhere;
                 
         foreach($nodes as $node) {
@@ -199,6 +204,7 @@ class Search {
 			    $layerHelper['values'][] = FIELDS_CAPTURE;
                             $layerHelper['values'][] = "'".$query_type."' as trans";
                             $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+                            if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
 			    			    
 			    $query = $layer->querySearchData($layerHelper);
 			    $noderows = $db->loadObjectArray($query);
@@ -211,6 +217,16 @@ class Search {
 
         /* apply aliases */
         $this->applyAliases($data);
+        
+        if($uniq) {              
+            $message = array();
+            foreach($data as $key=>$row) 
+            {
+                if(isset($message[$row['md5sum']])) unset($data[$key]);
+                else $message[$row['md5sum']] = $row['node'];
+            }
+        }
+        
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -306,7 +322,7 @@ class Search {
 
         $callwhere = array();
         $callwhere = generateWhere($search, $and_or, $db, $b2b);
-
+        
         $fields = FIELDS_CAPTURE;
         if($full) $fields.=", msg ";
 
@@ -323,7 +339,7 @@ class Search {
         $layerHelper['table']['base'] = "sip_capture";
         $layerHelper['order']['by'] = "t.id";
         $layerHelper['order']['type'] = "DESC";
-        $layerHelper['where']['type'] = "AND";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
                                                                                 
         
