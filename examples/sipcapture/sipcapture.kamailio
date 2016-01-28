@@ -788,9 +788,10 @@ route[STORE] {
 	$var(a) = $var(table) + "_" + $timef(%Y%m%d);
 	#for Kamailio >4.3 please uncomment this parameters:
         #$var(a) = $var(table) + "_%Y%m%d";
+        # New utimef can fix the timediff issue. But unfortunately only kamailio 4.4
+        #$var(a) = $var(table) + "_" + $utimef(%Y%m%d);
 	
-
-        sip_capture("$var(a)");
+	sip_capture("$var(a)");
 }
 
 
