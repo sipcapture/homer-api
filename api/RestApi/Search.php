@@ -355,6 +355,9 @@ class Search {
 		}
             }
         }
+
+        /* apply aliases */
+        $this->applyAliases($data);
         
         if($uniq) {            
             $message = array();
@@ -364,9 +367,6 @@ class Search {
                 else $message[$row['md5sum']] = $row['node'];
             }                    
         }
-
-        /* apply aliases */
-        $this->applyAliases($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -730,6 +730,9 @@ class Search {
 		}
             }
         }
+
+        /* apply aliases */
+        $this->applyAliases($data);
         
         if($uniq) {            
             $message = array();
@@ -739,9 +742,6 @@ class Search {
                 else $message[$row['md5sum']] = $row['node'];
             }
         }
-
-        /* apply aliases */
-        $this->applyAliases($data);
 
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
