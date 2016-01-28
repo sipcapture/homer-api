@@ -785,12 +785,21 @@ route[STORE] {
         }
 
 	#For old models. Not accurate insert time. System vs capture time.
-	$var(a) = $var(table) + "_" + $timef(%Y%m%d);
-	#for Kamailio >4.3 please uncomment this parameters:
-        #$var(a) = $var(table) + "_%Y%m%d";
-        # New utimef can fix the timediff issue. But unfortunately only kamailio 4.4
-        #$var(a) = $var(table) + "_" + $utimef(%Y%m%d);
+	$var(utc) = $timef(%Y%m%d);	
+	#as workaround for kamailio < 4.4
+	#sql_query("cb", "SELECT UTC_DATE()+0;", "ra");
+    	#if($dbr(ra=>rows)>0) {
+        #      $var(utc) = $dbr(ra=>[0,0]);
+        #}
+        #sql_result_free("ra");
 	
+	#for Kamailio >4.3 please uncomment this parameters:
+	# New utimef can fix the timediff issue. But unfortunately only kamailio 4.4
+	#$var(utc) = $utimef(%Y%m%d);
+	# or sipcapture style
+	#$var(utc) = "%Y%m%d";
+
+	$var(a) = $var(table) + "_" + $var(utc);
 	sip_capture("$var(a)");
 }
 
