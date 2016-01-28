@@ -292,12 +292,12 @@ class Search {
         $search['destination_ip'] = getVar('destination_ip', NULL, $param['search'], 'string');
         $search['destination_port'] = getVar('destination_port', NULL, $param['search'], 'string');
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
-        $search['uniq'] = getVar('uniq', NULL, $param['search'], 'string');
         $search['proto'] = getVar('proto', NULL, $param['search'], 'string');
         $search['family'] = getVar('family', NULL, $param['search'], 'string');
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
         $b2b = getVar('b2b', false, $param['search'], 'bool');
+        $uniq = getVar('uniq', false, $param['search'], 'bool');
         #$limit_orig = getVar('limit', 100, $param, 'int');
         $limit_orig = getVar('limit', 100, $param['search'], 'int');
 	if($limit_orig <= 0) $limit_orig = 100;
@@ -339,12 +339,13 @@ class Search {
 			$layerHelper['table']['type'] = $query_type;
                         $layerHelper['table']['timestamp'] = gmdate("Ymd", $ts);
                         $layerHelper['time'] = $time;
-                        $layerHelper['order']['limit'] = $limit;
+                        $layerHelper['order']['limit'] = $limit;                        
 
                         $layerHelper['values'] = array();
                         $layerHelper['values'][] = $fields;
                         $layerHelper['values'][] = "'".$query_type."' as trans";
                         $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+                        if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
 
 			$query = $layer->querySearchMessagesData($layerHelper);			
 			$noderows = $db->loadObjectArray($query);
@@ -353,6 +354,15 @@ class Search {
 		    }
 		}
             }
+        }
+        
+        if($uniq) {            
+            $message = array();
+            foreach($data as $key=>$row) 
+            {
+                if(isset($message[$row['md5sum']])) unset($data[$key]);
+                else $message[$row['md5sum']] = $row['node'];
+            }                    
         }
 
         /* apply aliases */
@@ -678,6 +688,7 @@ class Search {
         $record_id = getVar('id', 0, $param['search'], 'int');
         $callids = getVar('callid', array(), $param['search'], 'array');
         $b2b = getVar('b2b', true, $param['search'], 'bool');
+        $uniq = getVar('uniq', false, $param['search'], 'bool');
 
         $callwhere = array();
 
@@ -708,6 +719,7 @@ class Search {
 			$order = " order by id DESC LIMIT ".$limit;
 			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
 			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode";
+			if($uniq) $query .= ", MD5(msg) as md5sum";
 			$query .= " FROM ".$table." as t";
 			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
@@ -716,6 +728,15 @@ class Search {
 			$limit -= count($noderows);
 		    }
 		}
+            }
+        }
+        
+        if($uniq) {            
+            $message = array();
+            foreach($data as $key=>$row)
+            {
+                if(isset($message[$row['md5sum']])) unset($data[$key]);
+                else $message[$row['md5sum']] = $row['node'];
             }
         }
 
