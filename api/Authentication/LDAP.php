@@ -87,23 +87,35 @@ class LDAP extends Authentication {
                                 return false;
                             }
                         }
-                        // Default each user has normal User Privs
-                        $_SESSION['loggedin'] = $param['username'];
-                        $_SESSION['userlevel'] = LDAP_USERLEVEL;
-                        $_SESSION['uid'] = $result[0][LDAP_UID][0];
-                        $_SESSION['username'] = $result[0][LDAP_USERNAME][0];
-                        $_SESSION['gid'] = $result[0][LDAP_GID][0];
-                        $_SESSION['grp'] = "users";
 
-                        $user['uid']     =  $result[0][LDAP_UID][0];
-                        $user['username'] = $result[0][LDAP_USERNAME][0];
-                        $user['gid']      = $result[0][LDAP_GID][0];
+                        if(array_key_exists($result[0], LDAP_UID)) $user['uid'] =  $result[0][LDAP_UID][0];
+                        else $user['uid'] =  base_convert($param['username'], 16, 10);                        
+                        
+                        if(array_key_exists($result[0], LDAP_GID)) $user['gid'] = $result[0][LDAP_GID][0];
+                        else $user['gid'] = 10;
+                                                
+                        if(array_key_exists($result[0], LDAP_FIRSTNAME)) $user['firstname']  = $result[0][LDAP_FIRSTNAME][0];
+                        else $user['firstname']  = $param['username'];
+                        
+                        if(array_key_exists($result[0], LDAP_LASTNAME))  $user['lastname']   = $result[0][LDAP_LASTNAME][0];
+                        else $user['lastname']   = $param['username'];
+                        
+                        if(array_key_exists($result[0], LDAP_EMAIL)) $user['email']      = $result[0][LDAP_EMAIL][0];
+                        else $user['email'] = "no@exist.com";
+                        
+                        $user['username'] = $param['username'];
                         $user['grp']      = "users";
-                        $user['firstname']  = $result[0][LDAP_FIRSTNAME][0];
-                        $user['lastname']   = $result[0][LDAP_LASTNAME][0];
-                        $user['email']      = $result[0][LDAP_EMAIL][0];
-                        $user['lastvisit']  = date('c');
+                        $user['lastvisit']  = date('c');                        
+                        $_SESSION['uid'] = $user['uid'];
+                        $_SESSION['loggedin'] = $user['username'];
+                        $_SESSION['userlevel'] = LDAP_USERLEVEL;
+                        $_SESSION['username'] = $user['username'];
+                        $_SESSION['gid'] = $user['gid'];
+                        $_SESSION['grp'] = "users";
+                        
                         $_SESSION['data'] = $user;
+                        
+                        
 
                         // Assigne Admin Privs, should be read from the LDAP Directory in the future
                         $ADMIN_USER = split(",", LDAP_ADMIN_USER);
