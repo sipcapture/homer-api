@@ -81,7 +81,13 @@ define('LDAP_BASEDN',"dc=example,dc=com");
 define('LDAP_REALM',"My Realm");
 define('LDAP_USERNAME_ATTRIBUTE_OPEN',"uid=");
 define('LDAP_USERNAME_ATTRIBUTE_CLOSE',"");
-define('LDAP_USERLEVEL',3); 
+define('LDAP_USERLEVEL',3);
+define('LDAP_UID',"uidnumber");
+define('LDAP_USERNAME',"uid");
+define('LDAP_GID',"gidnumber");
+define('LDAP_FIRSTNAME',"givenname");
+define('LDAP_LASTNAME',"sn");
+define('LDAP_EMAIL',"mail");
 */
 
 /* external pcap storage. I.e can be cloudshark, dropbox or google drive */
