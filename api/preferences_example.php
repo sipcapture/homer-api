@@ -90,6 +90,7 @@ define('LDAP_LASTNAME',"sn");
 define('LDAP_EMAIL',"mail");
 define('LDAP_GROUPDN',true)
 define('LDAP_GROUP_USER','uid')
+define('LDAP_GROUP_ARRAY',false)
 define('LDAP_GROUP_ATTRIBUTE','memberUid')
 */
 
