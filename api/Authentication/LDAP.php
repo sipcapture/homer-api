@@ -83,7 +83,7 @@ class LDAP extends Authentication {
 
 
                         if (defined("LDAP_GROUPDN")) {
-                            if (!$this->check_filegroup_membership($ds,$result[0][LDAP_GROUP_USER])) {
+                            if (!$this->check_filegroup_membership($ds, (defined("LDAP_GROUP_ARRAY") && LDAP_GROUP_ARRAY) ? $result[0][LDAP_GROUP_USER][0] : $result[0][LDAP_GROUP_USER])) {
                                 return false;
                             }
                         }
