@@ -528,8 +528,8 @@ class Search {
 
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
-        $time['from_ts'] = floor($time['from']/1000);
-        $time['to_ts'] = round($time['to']/1000);
+        $time['from_ts'] = floor($time['from']/1000) - 300;
+        $time['to_ts'] = round($time['to']/1000) + 300;
 
         $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
         $and_or = $utils['logic_or'] ? " OR " : " AND ";
