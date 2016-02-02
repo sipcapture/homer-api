@@ -14,6 +14,13 @@ define('DB_STATISTIC', "homer_statistic");
 define('DB_HOMER', "homer_data");
 define('SINGLE_NODE', 1);
 
+/* DB_TABLE_ROTATE: search in tables with date addition
+ * * true (default): e.g. sip_capture_call_20160202
+ * * false: e.g.: sip_capture_call
+ * */
+
+define('DB_TABLE_ROTATE', 1);
+
 /*********************************************************************************/
 
 /* webHomer Settings 

@@ -39,7 +39,10 @@ class pgsql {
         function querySearchData($layerHelper) 
         {
         
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type'];
+		if (DB_TABLE_ROTATE) {
+			$table .= "_".$layerHelper['table']['timestamp'];
+		}
                 $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
                 $values = implode(",", $layerHelper['values']);
                 $time = $layerHelper['time'];                                
@@ -58,8 +61,11 @@ class pgsql {
         function querySearchMessagesData($layerHelper) 
         {
         
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
-                $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type'];
+		if (DB_TABLE_ROTATE) {
+			$table .= "_".$layerHelper['table']['timestamp'];
+		}
+		$order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
                 $values = implode(",", $layerHelper['values']);
                 $time = $layerHelper['time'];                                
                 $callwhere = $layerHelper['where']['param'];                                
