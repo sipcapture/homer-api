@@ -123,7 +123,8 @@ class LDAP extends Authentication {
 
                             if ($value == $param['username']) {
                                 $_SESSION['userlevel'] = 1; # LDAP_ADMINLEVEL;
-                                $user['grp'] = "users,admins";
+				$user['grp'] = "users,admins";
+				$_SESSION["grp"] = "users,admins";
                             }
                         }
                         return $user;
