@@ -26,7 +26,6 @@
  *
 */
 
-
 namespace Database\Layer;
 
 defined( '_HOMEREXEC' ) or die( 'Restricted access' );
@@ -36,8 +35,10 @@ class mysql {
         /*generate query for MYSQL and Search DATA GET */
         function querySearchData($layerHelper) 
         {
-        
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type'];
+		if (DB_TABLE_ROTATE) {
+			$table .= "_".$layerHelper['table']['timestamp'];
+		}
                 $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
                 $values = implode(",", $layerHelper['values']);
                 $time = $layerHelper['time'];                                
@@ -48,7 +49,7 @@ class mysql {
                 $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                 if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
                 $query .= $order;
-                
+
                 return $query;
         }                                    
         
@@ -56,7 +57,10 @@ class mysql {
         function querySearchMessagesData($layerHelper) 
         {
         
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type'];
+		if (DB_TABLE_ROTATE) {
+			$table .= "_".$layerHelper['table']['timestamp'];
+		}
                 $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
                 $values = implode(",", $layerHelper['values']);
                 $time = $layerHelper['time'];                                

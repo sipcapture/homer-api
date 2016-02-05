@@ -553,7 +553,10 @@ class Search {
 		if($trans[$query_type]) {
 		    if($limit < 1) break;
 		    $order = " LIMIT ".$limit;
-		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
+		    $table = "sip_capture_".$query_type;
+		    if ( DB_TABLE_ROTATE ){
+			    $table .= "_".gmdate("Ymd", $ts);
+		    }
 		    $query  = "SELECT t.*, '".$query_type."' as trans ";
 		    $query .= "FROM ".$table." as t";
 		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
@@ -625,7 +628,10 @@ class Search {
 		if($trans[$query_type]) {
 		    if($limit < 1) break;
 		    $order = " order by id DESC LIMIT ".$limit;
-		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
+		    $table = "sip_capture_".$query_type;
+		    if ( DB_TABLE_ROTATE ){
+			    $table .= "_".gmdate("Ymd", $ts);
+		    }
 		    $query  = "SELECT t.*, '".$query_type."' as trans";
 		    $query .= " FROM ".$table." as t";
 		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
@@ -733,7 +739,10 @@ class Search {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
 			$order = " order by id DESC LIMIT ".$limit;
-			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
+			$table = "sip_capture_".$query_type;
+			if ( DB_TABLE_ROTATE ){
+				$table .= "_".gmdate("Ymd", $ts);
+			}
 			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode";
 			if($uniq) $query .= ", MD5(msg) as md5sum";
 			$query .= " FROM ".$table." as t";
