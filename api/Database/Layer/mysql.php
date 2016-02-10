@@ -37,8 +37,13 @@ class mysql {
         function querySearchData($layerHelper) 
         {
         
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
-                $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
+		if(isset($layerHelper['order']['by'])) {
+	                $order = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];
+		}
+		else {
+	                $order = " LIMIT ".$layerHelper['order']['limit'];
+		}
                 $values = implode(",", $layerHelper['values']);
                 $time = $layerHelper['time'];                                
                 $callwhere = $layerHelper['where']['param'];                                
@@ -56,8 +61,13 @@ class mysql {
         function querySearchMessagesData($layerHelper) 
         {
         
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
-                $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
+		if(isset($layerHelper['order']['by'])) {
+			$order = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];
+		}
+		else {
+			$order = " LIMIT ".$layerHelper['order']['limit'];
+		}
                 $values = implode(",", $layerHelper['values']);
                 $time = $layerHelper['time'];                                
                 $callwhere = $layerHelper['where']['param'];                                

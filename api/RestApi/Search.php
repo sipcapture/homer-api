@@ -181,8 +181,6 @@ class Search {
         $layerHelper['order'] = array();                
         $layerHelper['where'] = array();                                
         $layerHelper['table']['base'] = "sip_capture";        
-        $layerHelper['order']['by'] = "id";
-        $layerHelper['order']['type'] = "DESC";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";                
         $layerHelper['where']['param'] = $callwhere;
                 
@@ -337,8 +335,6 @@ class Search {
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
         $layerHelper['table']['base'] = "sip_capture";
-        $layerHelper['order']['by'] = "t.id";
-        $layerHelper['order']['type'] = "DESC";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
                                                                                 
