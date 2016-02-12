@@ -334,6 +334,99 @@ class Statistic {
         return $this->doStatisticData($timestamp, $param);
     }
 
+
+    /* do statistic generic */
+    public function doStatisticGeneric($timestamp, $param){
+    
+	/* auth */
+        if(count(($adata = $this->getLoggedIn()))) return $adata;                
+
+        /* get our DB */
+        $db = $this->getContainer('db');
+        $db->select_db(DB_STATISTIC);
+        $db->dbconnect();
+                         
+        $data = array();
+
+        $search = array();
+        $callwhere = array();
+        $calldata = array();
+        $arrwhere = "";
+        
+        foreach($param['filter'] as $key=>$filter) {
+
+            foreach($filter as $fk=>$fd) {        
+                /* remove all not needed characters */
+                $nfk = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $fk);
+                $search[$key][$nfk] = getVar($nfk, NULL, $filter, 'string');            
+            }
+            
+            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
+            if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
+        }
+        
+        if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";
+                        
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['from_ts'] = intval($time['from']/1000);
+        $time['to_ts'] = intval($time['to']/1000);        
+        
+        $and_or = getVar('orand', NULL, $param['filter'], 'string');        
+        $limit = getVar('limit', 500, $param, 'int');
+        $total = getVar('total', false, $param, 'bool');
+        
+        $order = "";
+
+        if($total) {
+           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
+           $order .= " GROUP BY type";       
+        }
+        else {
+           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
+        }
+
+         $order .= " order by id DESC";
+        
+        $table = "stats_generic";            
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query.= $arrwhere;
+        $query.= $order;
+        $data = $db->loadObjectArray($query);
+
+        $answer = array();          
+                
+        if(empty($data)) {
+        
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['status'] = 200;                
+                $answer['message'] = 'no data';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }                
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['message'] = 'ok';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+        
+        return $answer;
+    }
+    
+    
+    public function getStatisticGeneric($raw_get_data){
+    
+        $timestamp = $raw_get_data['timestamp'];
+        $param = $raw_get_data['param'];
+
+        return $this->doStatisticGeneric($timestamp, $param);
+    }
+
+
     /* api: statistic/ip */
     
     public function doStatisticIP($timestamp, $param){

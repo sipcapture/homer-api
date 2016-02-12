@@ -82,6 +82,8 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('alarm', 'doStatisticAlarm') // => /api/session
       ->addPostRoute('data', 'doStatisticData') // => /api/session
       ->addGetRoute('data', 'getStatisticData') // => /api/session
+      ->addPostRoute('generic', 'doStatisticGeneric') // => /api/session
+      ->addGetRoute('generic', 'getStatisticGeneric') // => /api/session
       ->addPostRoute('ip', 'doStatisticIP') // => /api/session
       ->addGetRoute('ip', 'getStatisticIP') // => /api/session
       ->addPostRoute('country', 'doStatisticCountry') // => /api/session

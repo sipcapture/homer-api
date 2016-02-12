@@ -293,12 +293,13 @@ class Dashboard {
 
 	if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
         	$jd = json_decode($GLOBALS['HTTP_RAW_POST_DATA']);
-        	$json = json_encode($jd, true);
+        	if(json_last_error() == JSON_ERROR_NONE) {
+                	$json = $GLOBALS['HTTP_RAW_POST_DATA'];
+                        $myfile = fopen($dar, "w") or die("Unable to open file!");
+                        fwrite($myfile, $json);
+                        fclose($myfile);		        
+                }
         }
-
-        $myfile = fopen($dar, "w") or die("Unable to open file!");
-	fwrite($myfile, $json);
-        fclose($myfile);		        
   
         $boards = array();    
         return $boards;
