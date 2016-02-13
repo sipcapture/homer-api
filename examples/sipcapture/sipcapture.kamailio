@@ -18,6 +18,7 @@
 #!substdef "!HOMER_LISTEN_PROTO!udp!g"
 #!substdef "!HOMER_LISTEN_IF!0.0.0.0!g"
 #!substdef "!HOMER_LISTEN_PORT!9060!g"
+#!substdef "!HOMER_STATS_SERVER!tcp:MY_IP_ADDR:8888!g"
 
 ####### Global Parameters #########
 
@@ -28,6 +29,7 @@ memdbg=5
 memlog=5
 
 ##!define WITH_HOMER_GEO
+##!define WITH_HOMER_CUSTOM_STATS #enable it for HTTP custom stats
 
 log_facility=LOG_LOCAL1
 
@@ -39,6 +41,10 @@ disable_tcp=yes
 
 /* IP and port for HEP capturing) */
 listen=HOMER_LISTEN_PROTO:HOMER_LISTEN_IF:HOMER_LISTEN_PORT
+
+#!ifdef WITH_HOMER_CUSTOM_STATS
+listen=HOMER_STATS_SERVER
+#!endif
 
 #Max loops
 max_while_loops=100
@@ -60,11 +66,22 @@ loadmodule "exec.so"
 loadmodule "geoip.so"
 #!endif
 
+#!ifdef WITH_HOMER_CUSTOM_STATS
+loadmodule "xhttp.so"
+loadmodule "jansson.so"
+loadmodule "avpops.so"
+#!endif
+
 
 modparam("htable", "htable", "a=>size=8;autoexpire=400")
 modparam("htable", "htable", "b=>size=8;autoexpire=31")
 # TODO: tune autoexpire setting for htable "c"
 modparam("htable", "htable", "c=>size=8;autoexpire=31")
+
+#!ifdef WITH_HOMER_CUSTOM_STATS
+modparam("htable", "htable", "d=>size=8;autoexpire=400")
+modparam("xhttp", "url_match", "^/api/v1/stat")
+#!endif
 
 modparam("rtimer", "timer", "name=ta;interval=60;mode=1;")
 modparam("rtimer", "exec", "timer=ta;route=TIMER_STATS")
@@ -760,6 +777,18 @@ route[CHECK_STATS] {
         sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, total) VALUES($var(f_date), $var(t_date), 'TOTAL', $sht(a=>method::total)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>method::total)");
         $sht(a=>method::total) = 0;
     }
+
+#!ifdef WITH_HOMER_CUSTOM_STATS
+    #Generic stats
+    sht_iterator_start("i1", "d");
+    while(sht_iterator_next("i1")) {
+                $var(key) = $(shtitkey(i1){s.select,2,:});
+                sql_query("cb", "INSERT INTO stats_generic (from_date, to_date, type, total) VALUES($var(f_date), $var(t_date), '$var(key)', $shtitval(i1)) ON DUPLICATE KEY UPDATE total=(total+$shtitval(i1))/2");
+    }
+    sht_iterator_end("i1");
+    sht_rm_name_re("d=>.*");
+#!endif
+
 }
 
 
@@ -807,3 +836,43 @@ route[STORE] {
 event_route[sipcapture:request] {
 	xlog("received sipcapture request from $si:$sp\r\n");
 }
+
+#!ifdef WITH_HOMER_CUSTOM_STATS
+event_route[xhttp:request] {
+        set_reply_close();
+        set_reply_no_connect();
+        xlog("L_WARN", "HTTP request received on $Rp, $hu\n");
+        if($hu =~ "/api/v1/stats/push") {
+                #Json is our body
+                $var(json) = $rb;
+                jansson_get("type", $var(json), "$var(n)");
+                xlog("L_WARN","Type is $var(n)");
+                if($var(n) == "rtp_stat") {
+                         $var(i) = 0;
+                         $(avp(x)[0]) = 'interval';
+                         $(avp(x)[1]) = 'streams';
+                         $(avp(x)[3]) = 'packets';
+                         $(avp(x)[4]) = 'lost';
+                         $(avp(x)[5]) = 'late';
+                         $(avp(x)[6]) = 'lost_perc';
+                         $(avp(x)[7]) = 'late_perc';
+                         $(avp(x)[8]) = 'out_of_seq';
+                         $(avp(x)[9]) = 'delay_min';
+                         $(avp(x)[10]) = 'delay_max';
+                         while(is_avp_set("$(avp(x)[$var(i)])")) {
+                                  xlog("L_INFO", "Array value [$var(i)]: $(avp(x)[$var(i)])\n");
+                                  jansson_get("$(avp(x)[$var(i)])", $var(json), "$var(d)");
+                                  $var(n) = $(var(d){s.int});
+                                  if($sht(d=>generic::$(avp(x)[$var(i)])) == $null) $sht(d=>generic::$(avp(x)[$var(i)])) = $var(n);
+                                  else $sht(d=>generic::$(avp(x)[$var(i)])) = ($sht(d=>generic::$(avp(x)[$var(i)])) + $var(n))/2;                                  
+                                  $var(i) = $var(i) + 1;
+                         }
+          }
+          xhttp_reply("200", "Ok", "done", "");
+          exit;
+        }
+
+        xhttp_reply("403", "Forbidden", "", "");
+        exit;
+}
+#!endif
