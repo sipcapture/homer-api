@@ -18,7 +18,7 @@
 #!substdef "!HOMER_LISTEN_PROTO!udp!g"
 #!substdef "!HOMER_LISTEN_IF!0.0.0.0!g"
 #!substdef "!HOMER_LISTEN_PORT!9060!g"
-#!substdef "!HOMER_STATS_SERVER!tcp:MY_IP_ADDR:8888!g"
+#!substdef "!HOMER_STATS_SERVER!tcp:HOMER_LISTEN_IF:8888!g"
 
 ####### Global Parameters #########
 
