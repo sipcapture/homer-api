@@ -822,7 +822,7 @@ route[STORE] {
         #}
         #sql_result_free("ra");
 	
-	#for Kamailio >4.3 please uncomment this parameters:
+	#for Kamailio >=4.4 please uncomment this parameters:
 	# New utimef can fix the timediff issue. But unfortunately only kamailio 4.4
 	#$var(utc) = $utimef(%Y%m%d);
 	# or sipcapture style
