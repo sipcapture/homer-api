@@ -96,9 +96,9 @@ class Internal extends Authentication {
         
         //logout function 
         function logOut(){
-                $_SESSION['loggedin'] = '-1';
+                //$_SESSION['loggedin'] = '-1';
          	session_destroy();
-         	
+         	$_SESSION = array(); 
                 return;
 	}
 
