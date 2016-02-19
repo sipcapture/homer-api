@@ -694,8 +694,8 @@ class Search {
         //workaround for BYE click
         $time['from_ts'] -=600;
 
-        $limit_orig = getVar('limit', 100, $param['search'], 'int');
-        if($limit_orig <= 0) $limit_orig = 100;
+        $limit_orig = getVar('limit', 200, $param['search'], 'int');
+        if($limit_orig <= 0) $limit_orig = 200;
 
         $record_id = getVar('id', 0, $param['search'], 'int');
         $callids = getVar('callid', array(), $param['search'], 'array');
