@@ -1,3 +1,4 @@
+[mysqld]
 max_connections = 8000
 key_buffer = 512M
 myisam_sort_buffer_size = 128M
