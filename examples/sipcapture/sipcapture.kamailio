@@ -99,7 +99,7 @@ modparam("sipcapture", "insert_retry_timeout", 10)
 #modparam("sipcapture", "capture_node", "homer01")
 
 #!ifdef WITH_HOMER_GEO
-modparam("geoip", "path", "/usr/local/etc/kamailio/GeoLiteCity.dat")
+modparam("geoip", "path", "/usr/share/GeoIP/GeoIP.dat")
 #!endif
 
 #Stats time
