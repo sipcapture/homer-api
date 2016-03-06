@@ -851,14 +851,14 @@ event_route[xhttp:request] {
                          $var(i) = 0;
                          $(avp(x)[0]) = 'interval';
                          $(avp(x)[1]) = 'streams';
-                         $(avp(x)[3]) = 'packets';
-                         $(avp(x)[4]) = 'lost';
-                         $(avp(x)[5]) = 'late';
-                         $(avp(x)[6]) = 'lost_perc';
-                         $(avp(x)[7]) = 'late_perc';
-                         $(avp(x)[8]) = 'out_of_seq';
-                         $(avp(x)[9]) = 'delay_min';
-                         $(avp(x)[10]) = 'delay_max';
+                         $(avp(x)[2]) = 'packets';
+                         $(avp(x)[3]) = 'lost';
+                         $(avp(x)[4]) = 'late';
+                         $(avp(x)[5]) = 'lost_perc';
+                         $(avp(x)[6]) = 'late_perc';
+                         $(avp(x)[7]) = 'out_of_seq';
+                         $(avp(x)[8]) = 'delay_min';
+                         $(avp(x)[9]) = 'delay_max';
                          while(is_avp_set("$(avp(x)[$var(i)])")) {
                                   xlog("L_INFO", "Array value [$var(i)]: $(avp(x)[$var(i)])\n");
                                   jansson_get("$(avp(x)[$var(i)])", $var(json), "$var(d)");
