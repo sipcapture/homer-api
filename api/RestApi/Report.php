@@ -62,82 +62,115 @@ class Report {
 	return $answer;
     }
 
-    public function doRTCPReport($timestamp, $param){
-    
+       public function doRTCPReport($timestamp, $param){
+
         /* get our DB */
         $db = $this->getContainer('db');
                 
-        $data = array();        
+        $data = array();
         $lnodes = array();
-        
+        $newcorrid = array();
+    
         //if(array_key_exists('node', $param)) $lnodes = $param['node'];
         if(isset($param['location'])) $lnodes = $param['location']['node'];
                 
-                        
+                
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
         $time['from_ts'] = floor($time['from']/1000);
         $time['to_ts'] = round($time['to']/1000);
         
         /* lets make a range */
-        $time['from_ts']-=600;
-        $time['to_ts']+=60;
+        $time['from_ts']-=600; 
+        $time['to_ts']+=60;    
                 
-        /* search fields */        
+        /* search fields */
         $node = getVar('node', NULL, $param['search'], 'string');
         $type = getVar('type', -1, $param['search'], 'int');
         $proto = getVar('proto', -1, $param['search'], 'int');
         $family = getVar('family', -1, $param['search'], 'int');
-        $and_or = getVar('orand', NULL, $param['search'], 'string');        
-        $limit_orig = getVar('limit', 100, $param, 'int');        
+        $and_or = getVar('orand', NULL, $param['search'], 'string');
+        $limit_orig = getVar('limit', 100, $param, 'int');          
         $answer = array();                          
-        $callids = getVar('callid', array(), $param['search'], 'array');                         
+        $callids = getVar('callid', array(), $param['search'], 'array');
         $callwhere = array();
 
         $cn = count($callids);
         for($i=0; $i < $cn; $i++) $callids[] = substr($callids[$i], 0, -1);
-        
-        $search['correlation_id'] = implode(";", $callids);                
+
+
         //$callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
          
-        $answer = array();  
+         
+        $answer = array();
         
         if(empty($callids))
-        {                
+        {                  
                 $answer['sid'] = session_id();
-                $answer['auth'] = 'true';             
-                $answer['status'] = 200;                
-                $answer['message'] = 'no data';                             
+                $answer['auth'] = 'true';     
+                $answer['status'] = 200;      
+                $answer['message'] = 'no data';
                 $answer['data'] = $data;
-                $answer['count'] = count($data);                
-                return $answer;                
+                $answer['count'] = count($data);
+                return $answer;                 
         }
-        
-        $nodes = array();
+	
+	  $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
         else {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
+         
+        /* get all correlation_id */
+        foreach($nodes as $node)
+        {        
+                 
+            $db->dbconnect_node($node);
+            $limit = 20;
+            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
+
+            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
+
+                    if($limit < 1) break;
+                    $order = " LIMIT ".$limit;
+                    $table = "sip_capture_call_".gmdate("Ymd", $ts);
+                    $query  = "SELECT DISTINCT(correlation_id) ";   
+                    $query .= "FROM ".$table;
+                    $query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+                    $noderows = $db->loadObjectArray($query.$order);
+                    foreach($noderows as $k=>$d) $newcorrid[$d["correlation_id"]]=$d["correlation_id"];
+                    $limit -= count($noderows);
+            }
+        }    
+
+        if(!empty($noderows))
+        {
+            $search=array();
+            $callids = implode(";", $newcorrid);
+        }
+         
+        $search['correlation_id'] = implode(";", $callids);
 
         foreach($nodes as $node)
         {        
-            
-	    $db->dbconnect_node($node);                            
+                 
+            $db->dbconnect_node($node);
             $limit = $limit_orig;
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
             for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
                          
-                $table = "rtcp_capture";                            
+                $table = "rtcp_capture";
                 $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                 if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
                 $noderows = $db->loadObjectArray($query);
-                $data = array_merge($data,$noderows);                
+                $data = array_merge($data,$noderows);    
                 $limit -= count($noderows);
             }
         }
 
-	 /* RTCP report fix */
+       /* RTCP report fix */
         for($i=0; $i < count($data); $i++) {
             if(!is_array($data[$i]["msg"])) $data[$i]["msg"] = json_decode($data[$i]["msg"]);
         }
@@ -145,29 +178,27 @@ class Report {
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 
-                
         if(empty($data)) {
-        
+
                 $answer['sid'] = session_id();
-                $answer['auth'] = 'true';             
-                $answer['status'] = 200;                
-                $answer['message'] = 'no data';                             
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
                 $answer['data'] = $data;
                 $answer['count'] = count($data);
         }                
         else {
                 $answer['status'] = 200;
                 $answer['sid'] = session_id();
-                $answer['auth'] = 'true';             
-                $answer['message'] = 'ok';                             
+                $answer['auth'] = 'true';       
+                $answer['message'] = 'ok';
                 $answer['data'] = $data;
                 $answer['count'] = count($data);
         }
-        
-        return $answer;
-        
-    }
 
+        return $answer;
+
+    }
 
     public function doLogReport($timestamp, $param){
     
