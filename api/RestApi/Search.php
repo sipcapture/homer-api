@@ -250,7 +250,7 @@ class Search {
         return $answer;
     }
 
-    public function doSearchMessagesData($timestamp, $param, $full = false){
+    public function doSearchMessagesData($timestamp, $param, $full = false, $count = false){
 
         /* get our DB */
         $db = $this->getContainer('db');
@@ -348,16 +348,25 @@ class Search {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
 
+			
+
 			$layerHelper['table']['type'] = $query_type;
                         $layerHelper['table']['timestamp'] = gmdate("Ymd", $ts);
                         $layerHelper['time'] = $time;
                         $layerHelper['order']['limit'] = $limit;                        
 
                         $layerHelper['values'] = array();
-                        $layerHelper['values'][] = $fields;
-                        $layerHelper['values'][] = "'".$query_type."' as trans";
-                        $layerHelper['values'][] = "'".$node['name']."' as dbnode";
-                        if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
+                        
+                        if(!$count)
+                        {                         
+                            $layerHelper['values'][] = $fields;
+                            $layerHelper['values'][] = "'".$query_type."' as trans";
+                            $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+                            if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
+                        }
+                        else {
+                            $layerHelper['values'][] = "id, count(*) as cnt";                        
+                        }
 
 			$query = $layer->querySearchMessagesData($layerHelper);			
 			$noderows = $db->loadObjectArray($query);
@@ -380,8 +389,20 @@ class Search {
             }                    
         }
 
-        /* sorting */
-        usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+        if($count) {
+            $cnt = 0;
+            foreach($data as $key=>$row) 
+            {
+                $cnt+=$row[cnt];
+            }                                 
+            
+            $data = array();
+            $data["cnt"] = $cnt;
+        }
+        else {
+            /* sorting */
+            usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+        }
         
         return $data;
     }
@@ -390,7 +411,7 @@ class Search {
 
         if(count(($adata = $this->getLoggedIn()))) return $adata;
 
-        $data = $this->doSearchMessagesData($timestamp, $param, true);
+        $data = $this->doSearchMessagesData($timestamp, $param, true, false);
 
         list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0);
 
@@ -410,6 +431,15 @@ class Search {
         sendFile(200, "OK", $pcapfile, $fsize, $buf);
 
         return;
+    }
+    
+    public function doCountExportData($timestamp, $param){
+
+        if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+        $data = $this->doSearchMessagesData($timestamp, $param, true, true);
+        
+        return $data;        
     }
     
     public function doCloudExportData($timestamp, $param){
