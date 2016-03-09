@@ -348,7 +348,7 @@ class Search {
 	    $db->dbconnect_node($node);
 	    $limit = $limit_orig;
 
-	    foreach($timearray as $tkey=>$tval) 
+	    foreach($timearray as $tkey=>$tval) {
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
