@@ -184,17 +184,21 @@ class Search {
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";                
         $layerHelper['where']['param'] = $callwhere;
                 
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
+
         foreach($nodes as $node) {
 	    $db->dbconnect_node($node);
 	    $limit = $limit_orig;
 
-	    for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
+	    foreach($timearray as $tkey=>$tval) 
+            {
+
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
 			    
 			    $layerHelper['table']['type'] = $query_type;
-			    $layerHelper['table']['timestamp'] = gmdate("Ymd", $ts);
+			    $layerHelper['table']['timestamp'] = $tkey;
 			    $layerHelper['time'] = $time;			    
 			    $layerHelper['order']['limit'] = $limit;
 			    
@@ -338,20 +342,19 @@ class Search {
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
                                                                                 
-        
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
+
         foreach($nodes as $node) {
 	    $db->dbconnect_node($node);
 	    $limit = $limit_orig;
 
-	    for($ts = $time['from_ts']; $ts <= $time['to_ts']; $ts+=86400) {
+	    foreach($timearray as $tkey=>$tval) 
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
 
-			
-
 			$layerHelper['table']['type'] = $query_type;
-                        $layerHelper['table']['timestamp'] = gmdate("Ymd", $ts);
+                        $layerHelper['table']['timestamp'] = $tkey;
                         $layerHelper['time'] = $time;
                         $layerHelper['order']['limit'] = $limit;                        
 
@@ -645,13 +648,15 @@ class Search {
 
         $ts = $time['from_ts'];
 
-        for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
+
+	 foreach($timearray as $tkey=>$tval) {
 
 	    foreach($this->query_types as $query_type) {
 		if($trans[$query_type]) {
 		    if($limit < 1) break;
 		    $order = " order by id DESC LIMIT ".$limit;
-		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
+		    $table = "sip_capture_".$query_type."_".$tkey;
 		    $query  = "SELECT t.*, '".$query_type."' as trans";
 		    $query .= " FROM ".$table." as t";
 		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
@@ -747,19 +752,22 @@ class Search {
         else {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
-        
+	
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
+
         foreach($nodes as $node)
         {
             $db->dbconnect_node($node);
             $limit = $limit_orig;
             $ts = $time['from_ts']; 
 
-            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
+	    foreach($timearray as $tkey=>$tval) {
+
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
 			$order = " order by id DESC LIMIT ".$limit;
-			$table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
+			$table = "sip_capture_".$query_type."_".$tkey;
 			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode";
 			if($uniq) $query .= ", MD5(msg) as md5sum";
 			$query .= " FROM ".$table." as t";
@@ -1578,6 +1586,21 @@ class Search {
 	    }
  
 	    return $value;
+   }
+   
+   
+   function getTimeArray($from_ts, $to_ts) {
+          
+   	$timearray = array();
+        $tkey = gmdate("Ymd", $to_ts);     
+        $timearray[$tkey]=$tkey;                         
+
+        for($ts = $from_ts; $ts <= $to_ts; $ts+=86400) {
+                $tkey = gmdate("Ymd", $ts);
+                $timearray[$tkey]=$tkey;                 
+        }
+
+   	return $timearray;
    }
     
 }

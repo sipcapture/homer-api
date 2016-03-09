@@ -121,6 +121,8 @@ class Report {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
          
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
+
         /* get all correlation_id */
         foreach($nodes as $node)
         {        
@@ -129,11 +131,11 @@ class Report {
             $limit = 20;
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
-            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
+	    foreach($timearray as $tkey=>$tval) {
 
                     if($limit < 1) break;
                     $order = " LIMIT ".$limit;
-                    $table = "sip_capture_call_".gmdate("Ymd", $ts);
+                    $table = "sip_capture_call_".$tkey;
                     $query  = "SELECT DISTINCT(correlation_id) ";   
                     $query .= "FROM ".$table;
                     $query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
@@ -152,6 +154,8 @@ class Report {
          
         $search['correlation_id'] = implode(";", $callids);
 
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
+
         foreach($nodes as $node)
         {        
                  
@@ -159,7 +163,7 @@ class Report {
             $limit = $limit_orig;
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
-            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
+	
                          
                 $table = "rtcp_capture";
                 $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
@@ -256,15 +260,12 @@ class Report {
             $limit = $limit_orig;
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
-            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
-                         
-                $table = "logs_capture";                            
-                $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-                if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-                $noderows = $db->loadObjectArray($query);
-                $data = array_merge($data,$noderows);                
-                $limit -= count($noderows);
-            }
+	    $table = "logs_capture";                            
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+            $noderows = $db->loadObjectArray($query);
+            $data = array_merge($data,$noderows);                
+            $limit -= count($noderows);            
         }
 
         /* sorting */
@@ -353,17 +354,14 @@ class Report {
             $limit = $limit_orig;
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
-            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
-                         
-                $table = "report_capture";                            
-                $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+	    $table = "report_capture";                            
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                             
-                if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-                $noderows = $db->loadObjectArray($query);
+            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+            $noderows = $db->loadObjectArray($query);
 
-                $data = array_merge($data,$noderows);                
-                $limit -= count($noderows);
-            }
+            $data = array_merge($data,$noderows);                
+            $limit -= count($noderows);            
         }
 
         /* sorting */
@@ -483,17 +481,14 @@ class Report {
             $limit = $limit_orig;
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
-            for($ts = $time['from_ts']; $ts < $time['to_ts']; $ts+=86400) {
-                         
-                $table = "rtpagent_capture";                            
-                $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+	    $table = "rtpagent_capture";                            
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                             
-                if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-                $noderows = $db->loadObjectArray($query);
+            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+            $noderows = $db->loadObjectArray($query);
 
-                $data = array_merge($data,$noderows);                
-                $limit -= count($noderows);
-            }
+            $data = array_merge($data,$noderows);                
+            $limit -= count($noderows);            
         }
 
         /* sorting */
@@ -768,6 +763,19 @@ class Report {
 
     } 
     
+    function getTimeArray($from_ts, $to_ts) {
+
+        $timearray = array();
+        $tkey = gmdate("Ymd", $to_ts);
+        $timearray[$tkey]=$tkey;
+
+        for($ts = $from_ts; $ts <= $to_ts; $ts+=86400) {
+                $tkey = gmdate("Ymd", $ts);
+                $timearray[$tkey]=$tkey;
+        }
+
+        return $timearray;
+   }    
 }
 
 ?>
