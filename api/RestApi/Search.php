@@ -1560,8 +1560,18 @@ class Search {
             
             // Apply source_alias
             if (isset($alias_cache[$key])) $alias = $alias_cache[$key];
-            else $alias = $key;
-                        
+            else {
+                // extract IP address from $key:
+                if (preg_match('/(.*):.*/', $key, $matches)) {
+                    $key_ip_address = $matches[1];
+                    if (isset($alias_cache[$key_ip_address])) {
+                        $alias = $alias_cache[$key_ip_address];
+                    }
+                    else $alias = $key;
+                }
+                else $alias = $key;
+            }
+
             if(!isset($newhosts[$alias])) {
                 $newhosts[$alias]['position'] = $i++;
             }
