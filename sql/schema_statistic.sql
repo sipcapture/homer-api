@@ -262,12 +262,14 @@ CREATE TABLE IF NOT EXISTS `stats_generic` (
   `from_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `to_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `type` varchar(50) NOT NULL DEFAULT '',
+  `tag` varchar(50) NOT NULL DEFAULT '',
   `total` int(20) NOT NULL,
   PRIMARY KEY (`id`,`from_date`),
-  UNIQUE KEY `datemethod` (`from_date`,`to_date`,`type`),
+  UNIQUE KEY `datemethod` (`from_date`,`to_date`,`type`,`tag`),
   KEY `from_date` (`from_date`),
   KEY `to_date` (`to_date`),
-  KEY `method` (`type`)
+  KEY `method` (`type`,`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8
 /*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`from_date`))
 (PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */;
+
