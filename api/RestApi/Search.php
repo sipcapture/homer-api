@@ -574,24 +574,26 @@ class Search {
             $nodes[] = $this->getNode($location['node']);
         }
 
-	foreach($nodes as $node) {
-	    $ts = $time['from_ts'];
-            $db->dbconnect_node($node);
+        $timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
-	    foreach($this->query_types as $query_type) {
-		if($trans[$query_type]) {
-		    if($limit < 1) break;
-		    $order = " LIMIT ".$limit;
-		    $table = "sip_capture_".$query_type."_".gmdate("Ymd", $ts);
-		    $query  = "SELECT t.*, '".$query_type."' as trans ";
-		    $query .= "FROM ".$table." as t";
-		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-		    $noderows = $db->loadObjectArray($query.$order);
-		    $data = array_merge($data,$noderows);
-		    $limit -= count($noderows);
-		}
-	    }
+        foreach($nodes as $node) {
+            $db->dbconnect_node($node);
+            foreach($timearray as $tkey=>$tval) {
+                foreach($this->query_types as $query_type) {
+                    if($trans[$query_type]) {
+                        if($limit < 1) break;
+                        $order = " LIMIT ".$limit;
+                        $table = "sip_capture_".$query_type."_".$tkey;
+                        $query  = "SELECT t.*, '".$query_type."' as trans ";
+                        $query .= "FROM ".$table." as t";
+                        $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                        if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+                        $noderows = $db->loadObjectArray($query.$order);
+                        $data = array_merge($data,$noderows);
+                        $limit -= count($noderows);
+                    }
+                }
+            }
         }
 
         /* apply aliases */
