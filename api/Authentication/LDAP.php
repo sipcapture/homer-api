@@ -67,7 +67,7 @@ class LDAP extends Authentication {
             @ldap_start_tls($ds);
         }
 
-        if (defined('LDAP_BIND_USER') && defined('LDAP_ADMIN_USER')) {
+        if (defined('LDAP_BIND_USER') && defined('LDAP_BIND_PASSWORD')) {
             if (!@ldap_bind( $ds, LDAP_BIND_USER, LDAP_BIND_PASSWORD)) {
                 return array();
             }
@@ -88,19 +88,19 @@ class LDAP extends Authentication {
                             }
                         }
 
-                        if(array_key_exists($result[0], LDAP_UID)) $user['uid'] =  $result[0][LDAP_UID][0];
+                        if(array_key_exists(LDAP_UID, $result[0])) $user['uid'] =  $result[0][LDAP_UID][0];
                         else $user['uid'] =  base_convert($param['username'], 16, 10);                        
                         
-                        if(array_key_exists($result[0], LDAP_GID)) $user['gid'] = $result[0][LDAP_GID][0];
+                        if(array_key_exists(LDAP_GID, $result[0])) $user['gid'] = $result[0][LDAP_GID][0];
                         else $user['gid'] = 10;
                                                 
-                        if(array_key_exists($result[0], LDAP_FIRSTNAME)) $user['firstname']  = $result[0][LDAP_FIRSTNAME][0];
+                        if(array_key_exists(LDAP_FIRSTNAME, $result[0])) $user['firstname']  = $result[0][LDAP_FIRSTNAME][0];
                         else $user['firstname']  = $param['username'];
                         
-                        if(array_key_exists($result[0], LDAP_LASTNAME))  $user['lastname']   = $result[0][LDAP_LASTNAME][0];
+                        if(array_key_exists(LDAP_LASTNAME, $result[0]))  $user['lastname']   = $result[0][LDAP_LASTNAME][0];
                         else $user['lastname']   = $param['username'];
                         
-                        if(array_key_exists($result[0], LDAP_EMAIL)) $user['email']      = $result[0][LDAP_EMAIL][0];
+                        if(array_key_exists(LDAP_EMAIL, $result[0])) $user['email']      = $result[0][LDAP_EMAIL][0];
                         else $user['email'] = "no@exist.com";
                         
                         $user['username'] = $param['username'];
