@@ -149,7 +149,8 @@ class Report {
         if(!empty($noderows))
         {
             $search=array();
-            $callids = implode(";", $newcorrid);
+            //$callids = implode(";", $newcorrid);
+            $callids = $newcorrid;
         }
          
         $search['correlation_id'] = implode(";", $callids);
