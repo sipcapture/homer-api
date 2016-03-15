@@ -98,9 +98,8 @@ class Report {
         $cn = count($callids);
         for($i=0; $i < $cn; $i++) $callids[] = substr($callids[$i], 0, -1);
 
-
+        $search['callid'] = implode(";", $callids);
         //$callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
-         
          
         $answer = array();
         
@@ -141,7 +140,11 @@ class Report {
                     $query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                     if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
                     $noderows = $db->loadObjectArray($query.$order);
-                    foreach($noderows as $k=>$d) $newcorrid[$d["correlation_id"]]=$d["correlation_id"];
+                    foreach($noderows as $k=>$d) {
+                    	$newcorrid[$d["correlation_id"]]=$d["correlation_id"];
+                  	$kz = substr($d["correlation_id"], 0, -1);
+                        $newcorrid[$kz] = $kz;
+                    }
                     $limit -= count($noderows);
             }
         }    
