@@ -165,7 +165,7 @@ class Report {
                  
             $db->dbconnect_node($node);
             $limit = $limit_orig;
-            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
+            $callwhere = generateWhere($search, $and_or, $db, 0);
             $table = "rtcp_capture";
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
