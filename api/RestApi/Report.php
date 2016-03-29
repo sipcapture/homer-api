@@ -244,14 +244,34 @@ class Report {
         $callids = getVar('callid', array(), $param['search'], 'array');
         $callwhere = array();
 
-        $cn = count($callids);
-        for($i=0; $i < $cn; $i++) $callids[] = substr($callids[$i], 0, -1);
+        $mapsCallid = array();
 
-        $search['callid'] = implode(";", $callids);
+        $cn = count($callids);
+        for($i=0; $i < $cn; $i++) {
+                $mapsCallid[$callids[$i]] =  $callids[$i];                                                
+
+                if(BLEGCID == "b2b") {
+                    $length = strlen(BLEGTAIL);                    
+                    if(substr($callids[$i], -$length) == BLEGTAIL) {
+                         $k = substr($callids[$i], 0, -$length);
+                         $mapsCallid[$k] = $k;
+                    }                
+                    else {
+                         $k = $callids[$i].BLEGTAIL;
+                         $mapsCallid[$k] = $k;
+                    }
+                                        
+                    $s = substr($k, 0, -1);
+                    $mapsCallid[$s] =  $s;
+                }
+
+                $k = substr($callids[$i], 0, -1);
+                $mapsCallid[$k] =  $k;
+        }
 
         $answer = array();
         
-        if(empty($callids))
+        if(empty($mapsCallid))
         {                  
                 $answer['sid'] = session_id();
                 $answer['auth'] = 'true';     
@@ -261,6 +281,8 @@ class Report {
                 $answer['count'] = count($data);
                 return $answer;                 
         }
+
+        $search['callid'] = implode(";",  array_keys($mapsCallid));
 	
         $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
@@ -302,7 +324,6 @@ class Report {
             $search=array();
             $callids = $newcorrid;            
         }
-        
         
         /* codecs */
         list($export,$duration, $xrtpreport) =  $this->getCodecsFromMessagesForTransaction($timestamp, $param);        
@@ -1112,18 +1133,47 @@ class Report {
         $and_or = getVar('orand', NULL, $param['search'], 'string');        
         $limit_orig = getVar('limit', 100, $param, 'int');
         $callids = getVar('callid', array(), $param['search'], 'array');         
-        $search['correlation_id'] = implode(";", $callids);
-                                 
-        if(empty($callids))
-        {                
-                $answer['sid'] = session_id();
-                $answer['auth'] = 'true';             
-                $answer['status'] = 200;                
-                $answer['message'] = 'no data';                             
-                $answer['data'] = $data;
-                $answer['count'] = count($data);                
-                return $answer;                
+        
+        $mapsCallid = array();
+
+        $cn = count($callids);
+        for($i=0; $i < $cn; $i++) {
+                $mapsCallid[$callids[$i]] =  $callids[$i];
+
+                if(BLEGCID == "b2b") {
+                    $length = strlen(BLEGTAIL);
+                    if(substr($callids[$i], -$length) == BLEGTAIL) {
+                         $k = substr($callids[$i], 0, -$length);
+                         $mapsCallid[$k] = $k;
+                    }                
+                    else {           
+                         $k = $callids[$i].BLEGTAIL;
+                         $mapsCallid[$k] = $k;
+                    }
+                     
+                    $s = substr($k, 0, -1);
+                    $mapsCallid[$s] =  $s; 
+                }
+
+                $k = substr($callids[$i], 0, -1);
+                $mapsCallid[$k] =  $k;
         }
+
+
+        $answer = array();
+
+        if(empty($mapsCallid))
+        {                     
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';     
+                $answer['status'] = 200;      
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+                return $answer;                 
+        }
+                        
+        $search['correlation_id'] = implode(";",  array_keys($mapsCallid));
 
         $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
