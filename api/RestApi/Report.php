@@ -291,7 +291,7 @@ class Report {
         }
          
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
-
+	
         /* get all correlation_id */
         foreach($nodes as $node)
         {        
@@ -302,7 +302,7 @@ class Report {
 
 	    foreach($timearray as $tkey=>$tval) {
 
-                    if($limit < 1) break;
+                    if(count($newcorrid) > $limit) break;
                     $order = " LIMIT ".$limit;
                     $table = "sip_capture_call_".$tkey;
                     $query  = "SELECT DISTINCT(correlation_id) ";   
@@ -315,11 +315,10 @@ class Report {
                   	$kz = substr($d["correlation_id"], 0, -1);
                         $newcorrid[$kz] = $kz;
                     }
-                    $limit -= count($noderows);
             }
         }    
-
-        if(!empty($noderows))
+                
+        if(!empty($newcorrid))
         {
             $search=array();
             $callids = $newcorrid;            
