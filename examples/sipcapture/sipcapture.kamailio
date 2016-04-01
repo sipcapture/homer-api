@@ -812,6 +812,10 @@ route[STORE] {
         {
                 $var(table) = "sip_capture_call";
         } 
+        else if($rm =~ "(NOTIFY)$" && is_present_hf("Event") && $hdr(Event)=~"refer;")
+        {
+                $var(table) = "sip_capture_call";
+        }
         else if($rm =~ "(INFO)$")
         {
                 $var(table) = "sip_capture_call";
