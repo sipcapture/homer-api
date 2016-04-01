@@ -28,6 +28,7 @@ log_stderror=no
 memdbg=5
 memlog=5
 
+##!define KAMAILIO_4_3
 ##!define WITH_HOMER_GEO
 ##!define WITH_HOMER_CUSTOM_STATS #enable it for HTTP custom stats
 
@@ -276,7 +277,11 @@ route {
                         $var(table) = "report_capture";
                         $var(callid) = $(rb{re.subst,/(.*)CallID:([0-9A-Za-z@-]{5,120})(.*)$/\2/s});
                         #xlog("CALLID: $var(callid)");
-                        report_capture("$var(table)", "$var(callid)");
+#!ifdef KAMAILIO_4_3
+			xlog("report_capture is not in < 4.3");
+#!else
+			report_capture("$var(table)", "$var(callid)");
+#!endif                        
                         drop;
                 }
         }
@@ -828,25 +833,27 @@ route[STORE] {
             $var(table) = "sip_capture_rest";
         }
 
-	#For old models. Not accurate insert time. System vs capture time.
-	$var(utc) = $timef(%Y%m%d);	
-	#as workaround for kamailio < 4.4
-	#sql_query("cb", "SELECT UTC_DATE()+0;", "ra");
-    	#if($dbr(ra=>rows)>0) {
-        #      $var(utc) = $dbr(ra=>[0,0]);
-        #}
-        #sql_result_free("ra");
 	
+#!ifdef KAMAILIO_4_3
+	#For old models. Not accurate insert time. System vs capture time.
+	#$var(utc) = $timef(%Y%m%d);	
+	#as workaround for kamailio < 4.4
+	sql_query("cb", "SELECT UTC_DATE()+0;", "ra");
+    	if($dbr(ra=>rows)>0) {
+              $var(utc) = $dbr(ra=>[0,0]);
+        }
+        sql_result_free("ra");
+#!else
 	#for Kamailio >=4.4 please uncomment this parameters:
 	# New utimef can fix the timediff issue. But unfortunately only kamailio 4.4
-	#$var(utc) = $utimef(%Y%m%d);
+	$var(utc) = $utimef(%Y%m%d);
 	# or sipcapture style
 	#$var(utc) = "%Y%m%d";
+#!endif                        
 
 	$var(a) = $var(table) + "_" + $var(utc);
 	sip_capture("$var(a)");
 }
-
 
 event_route[sipcapture:request] {
 	xlog("received sipcapture request from $si:$sp\r\n");
