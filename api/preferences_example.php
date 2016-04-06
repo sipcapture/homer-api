@@ -69,8 +69,8 @@ define('PROFILE_PARAM', ROOT.'/store/profile');
 define('DASHBOARD_STORE','db');
 define('DASHBOARD_PARAM', ROOT.'/store/dashboard');
 
-/* PUBLIC HOST FOR SHARE */
-define('PUBLIC_SHARE_HOST',"http://your.public.host/share/");
+/* PUBLIC HOST FOR SHARE - LEAVE EMPTY IF SAME AS HOMER UI */
+define('PUBLIC_SHARE_HOST',"");
 
 /* LDAP SETTINGS */
 
