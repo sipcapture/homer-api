@@ -416,7 +416,7 @@ class Search {
 
         $data = $this->doSearchMessagesData($timestamp, $param, true, false);
 
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0);
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0, date('Z'));
 
         sendFile(200, "OK", $pcapfile, $fsize, $buf);
 
@@ -429,7 +429,14 @@ class Search {
 
         $data = $this->doSearchMessagesData($timestamp, $param, true);
         
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 1);
+	if(isset($param['timezone']) && isset($param['timezone']['value'])) {
+                $val = getVar('value', 0, $param['timezone'], 'long');
+                $offset = $val < -1 ? abs($val) : -$val;
+                $offset *=60;                                            
+        }
+        else $offset = date('Z');  
+                
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 1, $offset);
 
         sendFile(200, "OK", $pcapfile, $fsize, $buf);
 
@@ -451,7 +458,7 @@ class Search {
 
         $data = $this->doSearchMessagesData($timestamp, $param, true);
 
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0);
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0, date('Z'));
         
 	$apishark = CLOUD_STORAGE_URI."/api/v1/".CLOUD_STORAGE_API."/upload";
 	$pfile = PCAPDIR."/".$pcapfile;
@@ -1149,7 +1156,7 @@ class Search {
 
         $data =  $this->getMessagesForTransaction($timestamp, $param);
 
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0);
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0, date('Z'));
 
         sendFile(200, "OK", $pcapfile, $fsize, $buf);
 
@@ -1161,8 +1168,15 @@ class Search {
         if(count(($adata = $this->getLoggedIn()))) return $adata;
 
         $data =  $this->getMessagesForTransaction($timestamp, $param);
+        
+        if(isset($param['timezone']) && isset($param['timezone']['value'])) {
+                $val = getVar('value', 0, $param['timezone'], 'long');
+                $offset = $val < -1 ? abs($val) : -$val;                
+                $offset *=60;                                                
+        }
+        else $offset = date('Z');                
 
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 1);
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 1, $offset);
 
         sendFile(200, "OK", $pcapfile, $fsize, $buf);
 
@@ -1175,7 +1189,7 @@ class Search {
 
         $data =  $this->getMessagesForTransaction($timestamp, $param);
         
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0);
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0, date('Z'));
         
 	$apishark = CLOUD_STORAGE_URI."/api/v1/".CLOUD_STORAGE_API."/upload";
 	$pfile = PCAPDIR."/".$pcapfile;
@@ -1241,7 +1255,7 @@ class Search {
 
         $data =  $this->getMessagesForTransaction($timestamp, $param);
 
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0);
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 0, date('Z'));
 
         sendFile(200, "OK", $pcapfile, $fsize, $buf);
 
@@ -1266,17 +1280,30 @@ class Search {
 
         $data =  $this->getMessagesForTransaction($timestamp, $param);
 
-        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 1);
+	if(isset($param['timezone']) && isset($param['timezone']['value'])) {
+                $val = getVar('value', 0, $param['timezone'], 'long');
+                $offset = $val < -1 ? abs($val) : -$val;
+                $offset *=60;                                            
+        }
+        else $offset = date('Z');  
+
+        list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 1, $offset);
 
         sendFile(200, "OK", $pcapfile, $fsize, $buf);
 
         return;
     }
 
-    function generateHomerTextPCAP($results, $text) {
+    function generateHomerTextPCAP($results, $text, $offset) {
 
-           date_default_timezone_set(HOMER_TIMEZONE);
-
+           if($text) {           
+               $tz = timezone_name_from_abbr('', $offset, 1);
+               if($tz === false) $tz = timezone_name_from_abbr('', $offset, 0);               
+               if($tz === false) date_default_timezone_set(HOMER_TIMEZONE);
+               else date_default_timezone_set($tz);                       
+           }
+           
+           
            if(!count($results)) return array();
 
            /* GENERATE PCAP */
@@ -1323,7 +1350,7 @@ class Search {
 		     $sec = intval($result['micro_ts'] / 1000000);
 		     $usec = $result['micro_ts'] - ($sec*1000000);
 
-		     $buf .= "U ".date("Y/m/d H:i:s", $sec).".".$usec." "
+		     $buf .= "U ".date("Y/m/d H:i:s", $sec).".".$usec." ".date("O",$sec)." "
 			  .$result['source_ip'].":".$result['source_port']." -> "
 			  .$result['destination_ip'].":".$result['destination_port']."\r\n\r\n";
 		     $buf.=$data."\r\n";
