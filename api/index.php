@@ -37,6 +37,12 @@ ini_set('date.timezone', HOMER_TIMEZONE);
 
 /* if defined session_name, set this */
 if(defined('SESSION_NAME')) session_name(SESSION_NAME);
+
+if(defined('SESSION_TIME')) {
+    ini_set('session.gc_maxlifetime', SESSION_TIME);
+    session_set_cookie_params(SESSION_TIME);
+}
+
 session_start();
 
 include "autoload.php";
