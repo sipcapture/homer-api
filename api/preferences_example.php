@@ -99,4 +99,8 @@ define('CLOUD_STORAGE', 0);
 define('CLOUD_STORAGE_API', "");
 define('CLOUD_STORAGE_URI', "https://www.cloudshark.org");
 
+/* session timer */
+define('SESSION_TIME', 3600);
+
+
 ?>
