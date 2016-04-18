@@ -49,6 +49,8 @@ define('SEARCHLOG', 0);
 define('DEFAULTDBNODE',1);
   
 define('SESSION_NAME',"HOMERSESSID"); /* session ID name. */
+/* session timer */
+define('SESSION_TIME', 3600);
 
 /* SQL SCHEMA VERSION */
 define('SQL_SCHEMA_VERSION', 5); /* SQL SCHEMA VERSION. Default 5 */
@@ -98,9 +100,5 @@ define('LDAP_GROUP_ATTRIBUTE','memberUid')
 define('CLOUD_STORAGE', 0);
 define('CLOUD_STORAGE_API', "");
 define('CLOUD_STORAGE_URI', "https://www.cloudshark.org");
-
-/* session timer */
-define('SESSION_TIME', 3600);
-
 
 ?>
