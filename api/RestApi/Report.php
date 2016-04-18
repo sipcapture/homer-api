@@ -605,7 +605,8 @@ class Report {
             $callwhere = generateWhere($search, $and_or, $db, 0);
             $table = "report_capture";
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";            
+            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")"; 
+            $query.= " AND type = 1";                       
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);    
             $limit -= count($noderows);            
@@ -645,8 +646,8 @@ class Report {
 
 		//$src_ip = $data[$key]["source_ip"];
 		//$dst_ip = $data[$key]["destination_ip"];
-		/* exit */
-		if(!array_key_exists("LocalAddr", $$dataArray) && !array_key_exists("RemoteAddr", $$dataArray)) {
+		/* exit */		
+		if(!array_key_exists("LocalAddr", $dataArray) && !array_key_exists("RemoteAddr", $dataArray)) {
                         break;		
 		}
 		
@@ -765,7 +766,7 @@ class Report {
             $table = "report_capture";
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";            
-            $query .= " AND type = 1";            
+            $query .= " AND (type = 2 OR type = 4)";            
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);    
             $limit -= count($noderows);            
@@ -1456,6 +1457,7 @@ class Report {
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                             
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+            $query.= " AND type = 1";
             $noderows = $db->loadObjectArray($query);
 
             $data = array_merge($data,$noderows);                
