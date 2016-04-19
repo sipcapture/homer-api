@@ -774,7 +774,7 @@ class Report {
 	
 	/* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
-	
+        
 	$chartData = array();	
 	$mainData = array();	
 	$statsData = array();	
@@ -789,15 +789,18 @@ class Report {
 			$d = json_decode($data[$key]["msg"], true);
 			$data[$key]["msg"] = $d;
 		}
-		
-		
+				
 		$dataArray = $data[$key]["msg"];
+		            
 		
 		$src_ip = $data[$key]["msg"]["SRC_IP"];
 		$dst_ip = $data[$key]["msg"]["DST_IP"];
 		
 		$ipkey= "RTPAGENT[".$dataArray["CORRELATION_ID"]."] ".$src_ip." -> ".$dst_ip;
-						
+            
+                /* final report */		
+		if($data[$key]["msg"]["TYPE"] == "FINAL") continue;
+		
 		if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
 		
 		if(!array_key_exists("mos",  $chartData[$ipkey])) {
@@ -821,16 +824,31 @@ class Report {
                 $tmpMos = floatval($dataArray["MOS"]);
                 $tmpJitter = floatval($dataArray["JITTER"]);
                 $tmpPacketLost = floatval($dataArray["PACKET_LOSS"]);
+                if(array_key_exists("MAX_JITTER",$dataArray)) {
+                    $maxJitter = floatval($dataArray["MAX_JITTER"]);
+                }
+                else {
+                    $maxJitter = floatval($dataArray["JITTER"]);
+                }
+                
+                if(array_key_exists("MIN_MOS",$dataArray)) {
+                    $minMos = floatval($dataArray["MIN_MOS"]);
+                }
+                else {
+                    $minMos = floatval($dataArray["MOS"]);
+                }
                 
 		$statsData[$ipkey]["mos_counter"] += 1;
+		$statsData[$ipkey]["packet_total"] += $dataArray["TOTAL_PK"];
 		$statsData[$ipkey]["mos_average"] += $tmpMos;
 		$statsData[$ipkey]["jitter_avg"] += $tmpJitter;
 		$statsData[$ipkey]["packets_lost"] += $tmpPacketLost;				
-				
-		if($tmpJitter > $statsData[$ipkey]["jitter_max"]) $statsData[$ipkey]["jitter_max"] = $tmpJitter;				
-		if(!array_key_exists("mos_worst", $statsData[$ipkey]) || $statsData[$ipkey]["mos_worst"] > $tmpMos) $statsData[$ipkey]["mos_worst"] = $tmpMos;			
+				                				
+		if($maxJitter > $statsData[$ipkey]["jitter_max"]) $statsData[$ipkey]["jitter_max"] = $maxJitter;				
+		if(!array_key_exists("mos_worst", $statsData[$ipkey]) || $statsData[$ipkey]["mos_worst"] > $minMos) $statsData[$ipkey]["mos_worst"] = $minMos;			
 		$chartData[$ipkey]["mos"][]= array($msts, $tmpMos);
 		$chartData[$ipkey]["jitter"][]=array($msts, $tmpJitter);
+		$chartData[$ipkey]["packets"][]=array($msts, $dataArray["TOTAL_PK"]);
 		$chartData[$ipkey]["packets_lost"][] = array($msts, $tmpPacketLost);				
 	}
 	
@@ -844,6 +862,8 @@ class Report {
                 $mainData["mos_average"]  += $statsData[$key]["mos_average"];
                 $mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
                 $mainData["packets_lost"] += $statsData[$key]["packets_lost"];
+                $mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
+                $mainData["total_pk"] += $statsData[$key]["packet_total"];
 
                 if(!array_key_exists("mos_worst", $mainData) || $statsData[$key]["mos_worst"] < $mainData["mos_worst"]) 
                         $mainData["mos_worst"] = $statsData[$key]["mos_worst"];			                
@@ -858,11 +878,11 @@ class Report {
 	         $mainData["mos_counter"] = 1;                
 	}	
 	
-	$mainData["jitter_max"] = $dataArray["MAX_JITTER"];
-	$mainData["jitter_min"] = $dataArray["MIN_JITTER"];
-	$mainData["total_pk"] = $dataArray["TOTAL_PK"];
-	$mainData["tl_byte"] = $dataArray["TL_BYTE"];
-	$mainData["type"] = $dataArray["TOTAL_PK"];
+	//$mainData["jitter_max"] = $dataArray["MAX_JITTER"];
+	//$mainData["jitter_min"] = $dataArray["MIN_JITTER"];
+	//$mainData["total_pk"] = $dataArray["TOTAL_PK"];
+	//$mainData["tl_byte"] = $dataArray["TL_BYTE"];
+	//$mainData["type"] = $dataArray["TOTAL_PK"];
 
         return array($chartData, $statsData, $mainData);
 
