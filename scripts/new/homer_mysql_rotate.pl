@@ -358,8 +358,9 @@ sub read_config()
                 print "ZZ: [$keyword]\n";
                 $value =~ s/(#.*)$//;
                 $value =~ s/^\s+//;  
-                $value =~ s/\s+$//;                      
-                print "V: [$value]\n";
+                $value =~ s/\s+$//; 
+                #Debug 
+                #print "V: [$value]\n";
                 $CONFIG{$section}{$keyword} = $value;
             }
         }
