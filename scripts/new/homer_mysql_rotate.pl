@@ -42,11 +42,12 @@ $newtables = $CONFIG{"MYSQL"}{"newtables"};
 $engine = $CONFIG{"MYSQL"}{"engine"};
 $compress = $CONFIG{"MYSQL"}{"compress"};
 
-foreach my $section (sort keys %CONFIG) {
-    foreach my $value (keys %{ $CONFIG{$section} }) {
-            print "$section, $value: $CONFIG{$section}{$value}\n";
-    }
-}
+# Debug only
+#foreach my $section (sort keys %CONFIG) {
+#    foreach my $value (keys %{ $CONFIG{$section} }) {
+#            print "$section, $value: $CONFIG{$section}{$value}\n";
+#    }
+#}
 
 $ORIGINAL_DATA_TABLE=<<END;
 CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
