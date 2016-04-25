@@ -24,8 +24,15 @@ use DBI;
 use POSIX;
 
 $version = "1.0.0";
-$config = $ARGV[1] // "rotation.ini";
-@stepsvalues = (86400, 3600, 1800, 900); 
+
+# Determine path and set default rotation.ini location
+$script_location = `dirname $0`;
+$script_location =~ s/^\s+|\s+$//g;
+$default_ini = $script_location."/rotation.ini";
+
+$config = $ARGV[0] // $default_ini;
+
+@stepsvalues = (86400, 3600, 1800, 900);
 $AFTER_FIX = 1;
 
 # Optionally load override configuration. perl format
