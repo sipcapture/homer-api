@@ -154,7 +154,8 @@ foreach my $table (keys %{ $CONFIG{"DATA_TABLE_ROTATION"} }) {
         $ltable = $DROP_DATA_TABLE;
         $ltable =~s/\[TRANSACTION\]/$table/ig;	
 
-        for(my $y = 0 ; $y < 2; $y++)
+        my $rotation_horizon = $CONFIG{"DATA_TABLE_ROTATION"}{$table};
+        for(my $y = $rotation_horizon ; $y < ($rotation_horizon + $newtables); $y++)
         {
             $curtstamp = time()-(86400*($maxparts[$i]+$y));    
             my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($curtstamp);
