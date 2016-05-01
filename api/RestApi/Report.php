@@ -378,6 +378,14 @@ class Report {
             }            
         }
         
+        
+        if(!array_key_exists('main', $bigReport["global"])){
+            $mainData = array();
+            $mainData["duration"] = $duration;
+            $bigReport["global"]["main"] = &$mainData;
+        }                
+        
+        
 	$answer['sid'] = session_id();
         $answer['auth'] = 'true';
         $answer['status'] = 200;
