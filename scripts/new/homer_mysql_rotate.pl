@@ -171,9 +171,9 @@ foreach my $table (keys %{ $CONFIG{"DATA_TABLE_ROTATION"} }) {
             $coof=int(86400/$mystep);
             #How much partitions
             $maxparts*=$coof;
-            $newparts*=$coof;
+            #$newparts*=$coof;
             #Now
-            new_partition_table($CONFIG{"MYSQL"}{"db_data"}, $table, $mystep, $partstep, $maxparts, $newparts);
+            new_partition_table($CONFIG{"MYSQL"}{"db_data"}, $table, $mystep, $partstep, $maxparts, $newtables);
     }
 }
 
@@ -191,12 +191,12 @@ foreach my $table (keys %{ $CONFIG{"STATS_TABLE_ROTATION"} }) {
     $coof=int(86400/$mystep);
     #How much partitions
     $maxparts*=$coof;
-    $newparts*=$coof;
+    #$newparts*=$coof;
     #$totalparts = ($maxparts+$newparts);
     
     $db = DBI->connect("DBI:mysql:".$CONFIG{"MYSQL"}{"db_stats"}.":".$CONFIG{"MYSQL"}{"host"}.":".$CONFIG{"MYSQL"}{"port"}, $CONFIG{"MYSQL"}{"user"}, $CONFIG{"MYSQL"}{"password"});
 
-    new_partition_table($CONFIG{"MYSQL"}{"db_stats"}, $table, $mystep, $partstep, $maxparts, $newparts);
+    new_partition_table($CONFIG{"MYSQL"}{"db_stats"}, $table, $mystep, $partstep, $maxparts, $newtables);
 
 }
 
@@ -270,7 +270,7 @@ sub new_data_table()
         $sqltable=~s/\[PARTITIONS\]/$val/ig;
 
         $sqltable=~s/\[TRANSACTION\]/$table/ig;        
-        $db->do($sqltable) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr);
+        $db->do($sqltable) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr) if($CONFIG{"SYSTEM"}{"exec"} == 1);
         print "create data table: $sqltable\n" if($CONFIG{"SYSTEM"}{"debug"} == 1);
         #print "$sqltable\n";        
     }
@@ -352,13 +352,15 @@ sub new_partition_table()
     if($#partsremove > 0)   
     {
           $query = "ALTER TABLE ".$table." DROP PARTITION ".join(',', @partsremove);
-          $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr);
           print "DROP Partition: [$query]\n" if($CONFIG{"SYSTEM"}{"debug"} == 1);
+          $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s\n", ,$db->errstr) if($CONFIG{"SYSTEM"}{"exec"} == 1);
           if (!$db->{Executed}) {
                 print "Couldn't drop partition: $minpart\n";
                 break;
           }
     }
+
+    print "Newparts: $newparts\n" if($CONFIG{"SYSTEM"}{"debug"} == 1);
 
     # < condition
     $curtstamp+=(86400);
@@ -380,14 +382,13 @@ sub new_partition_table()
      {
            # Fix MAXVALUE. Thanks Dorn B. <djbinter@gmail.com> for report and fix.
            $query = "ALTER TABLE ".$table." REORGANIZE PARTITION pmax INTO (".join(',', @partsadd) ."\n, PARTITION pmax VALUES LESS THAN MAXVALUE)";
-           $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr);
            print "Alter partition: [$query]\n" if($CONFIG{"SYSTEM"}{"debug"} == 1);
+           $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s\n", ,$db->errstr) if($CONFIG{"SYSTEM"}{"exec"} == 1);
            if (!$db->{Executed}) {
                  print "Couldn't drop partition: $minpart\n";
                  break;
            }
      }   
-
 }
 
 
