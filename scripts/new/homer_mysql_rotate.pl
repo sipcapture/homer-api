@@ -171,9 +171,9 @@ foreach my $table (keys %{ $CONFIG{"DATA_TABLE_ROTATION"} }) {
             $coof=int(86400/$mystep);
             #How much partitions
             $maxparts*=$coof;
-            #$newparts*=$coof;
+            $newparts*=$coof;
             #Now
-            new_partition_table($CONFIG{"MYSQL"}{"db_data"}, $table, $mystep, $partstep, $maxparts, $newtables);
+            new_partition_table($CONFIG{"MYSQL"}{"db_data"}, $table, $mystep, $partstep, $maxparts, $newparts);
     }
 }
 
@@ -191,12 +191,12 @@ foreach my $table (keys %{ $CONFIG{"STATS_TABLE_ROTATION"} }) {
     $coof=int(86400/$mystep);
     #How much partitions
     $maxparts*=$coof;
-    #$newparts*=$coof;
+    $newparts*=$coof;
     #$totalparts = ($maxparts+$newparts);
     
     $db = DBI->connect("DBI:mysql:".$CONFIG{"MYSQL"}{"db_stats"}.":".$CONFIG{"MYSQL"}{"host"}.":".$CONFIG{"MYSQL"}{"port"}, $CONFIG{"MYSQL"}{"user"}, $CONFIG{"MYSQL"}{"password"});
 
-    new_partition_table($CONFIG{"MYSQL"}{"db_stats"}, $table, $mystep, $partstep, $maxparts, $newtables);
+    new_partition_table($CONFIG{"MYSQL"}{"db_stats"}, $table, $mystep, $partstep, $maxparts, $newparts);
 
 }
 
@@ -364,6 +364,8 @@ sub new_partition_table()
 
     # < condition
     $curtstamp+=(86400);
+    $stopstamp = time() + (86400*$newtables);
+    
     for(my $i=0; $i<$newparts; $i++) 
     {
           $oldstamp = $curtstamp;
@@ -374,7 +376,12 @@ sub new_partition_table()
           if(!defined $PARTS{$newpartname."_".$curtstamp}) {
                 $query = "\nPARTITION ".$newpartname." VALUES LESS THAN (".$curtstamp.")";                
                 push(@partsadd,$query);
-          }    
+          } 
+             
+          if($curtstamp >= $stopstamp) {
+                  print "Stop partition: [$curtstamp] > [$stopstamp]. Last partition: [$newpartname]\n" if($CONFIG{"SYSTEM"}{"debug"} == 1);
+                  last;
+          }
      }
  
      my $parts_count=scalar @partsadd;
