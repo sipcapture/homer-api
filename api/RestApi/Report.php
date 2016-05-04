@@ -302,27 +302,25 @@ class Report {
 
 	    foreach($timearray as $tkey=>$tval) {
 
-                    if(count($newcorrid) > $limit) break;
+                    if(count($mapsCallid) > $limit) break;
                     $order = " LIMIT ".$limit;
                     $table = "sip_capture_call_".$tkey;
                     $query  = "SELECT DISTINCT(correlation_id) ";   
                     $query .= "FROM ".$table;
                     $query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-                    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+                    if(count($callwhere)) $query .= " AND correlation_id != '' AND ( " .implode(" AND ", $callwhere). ")";
                     $noderows = $db->loadObjectArray($query.$order);
                     foreach($noderows as $k=>$d) {
-                    	$newcorrid[$d["correlation_id"]]=$d["correlation_id"];
+                    	$mapsCallid[$d["correlation_id"]]=$d["correlation_id"];
                   	$kz = substr($d["correlation_id"], 0, -1);
-                        $newcorrid[$kz] = $kz;
+                        $mapsCallid[$kz] = $kz;
                     }
             }
         }    
                 
-        if(!empty($newcorrid))
-        {
-            $search=array();
-            $callids = $newcorrid;            
-        }
+                
+        $search=array();                
+        $callids = $mapsCallid;                
         
         /* codecs */
         list($export,$duration, $xrtpreport) =  $this->getCodecsFromMessagesForTransaction($timestamp, $param);        
@@ -614,7 +612,7 @@ class Report {
             $table = "report_capture";
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")"; 
-            $query.= " AND type = 1";                       
+            $query.= " AND type = 1";   
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);    
             $limit -= count($noderows);            
