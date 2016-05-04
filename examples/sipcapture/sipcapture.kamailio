@@ -744,19 +744,19 @@ route[CHECK_STATS] {
 #!ifdef WITH_STATISTIC_INVITE_1XX
     #100 INVITE
     if($sht(a=>response::100::invite) > 0) {
-        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '100', 'INVITE', $sht(a=>response::100::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::100::i
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '100', 'INVITE', $sht(a=>response::100::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::100::invite)");
         $sht(a=>response::100::invite) = 0;
     }
 
     #180 INVITE
     if($sht(a=>response::180::invite) > 0) {
-        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '180', 'INVITE', $sht(a=>response::180::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::180::i
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '180', 'INVITE', $sht(a=>response::180::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::180::invite)");
         $sht(a=>response::180::invite) = 0;
     }
 
     #183 INVITE
     if($sht(a=>response::183::invite) > 0) {
-        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '183', 'INVITE', $sht(a=>response::183::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::183::i
+        sql_query("cb", "INSERT INTO stats_method (from_date, to_date, method, cseq, total) VALUES($var(f_date), $var(t_date), '183', 'INVITE', $sht(a=>response::183::invite)) ON DUPLICATE KEY UPDATE total=total+$sht(a=>response::183::invite)");
         $sht(a=>response::183::invite) = 0; 
     }
 
