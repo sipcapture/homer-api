@@ -170,7 +170,7 @@ route{
 			$var(reg) = "/.*CallID:((\d|\-|\w|\@){5,120}).*$/\1/s";
                         $var(callid) = $(rb{re.subst,$var(reg)});			
 			#Local IP. Only for stats
-			report_capture("report_capture", "$var(callid)");
+			report_capture("report_capture", "$var(callid)", "1");
                         drop;
                 }
         }
