@@ -165,7 +165,9 @@ route{
         {
                 if(has_body("application/vq-rtcpxr") && $(rb{s.substr,0,1}) != "x") {
                         $var(table) = "report_capture";
-			$var(reg) = "/.*CallID:([0-9A-Za-z@-_\.]{5,120}).*$/\1/s";
+			#$var(reg) = "/.*CallID:([0-9A-Za-z@-_\.]{5,120}).*$/\1/s";
+			#Regexp ignores - ?
+			$var(reg) = "/.*CallID:((\d|\-|\w|\@){5,120}).*$/\1/s";
                         $var(callid) = $(rb{re.subst,$var(reg)});			
 			#Local IP. Only for stats
 			report_capture("report_capture", "$var(callid)");
