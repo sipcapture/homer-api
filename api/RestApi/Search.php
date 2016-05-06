@@ -368,7 +368,7 @@ class Search {
                             if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
                         }
                         else {
-                            $layerHelper['values'][] = "id, count(*) as cnt";                        
+                            $layerHelper['values'][] = "count(*) as cnt";                        
                         }
 
 			$query = $layer->querySearchMessagesData($layerHelper);			

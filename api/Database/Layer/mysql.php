@@ -48,7 +48,7 @@ class mysql {
                 $time = $layerHelper['time'];                                
                 $callwhere = $layerHelper['where']['param'];                                
                 
-                $query  = "SELECT t.".$values;
+                $query  = "SELECT ".$values;
                 $query .= " FROM ".$table." as t ";
                 $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                 if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
@@ -72,7 +72,7 @@ class mysql {
                 $time = $layerHelper['time'];                                
                 $callwhere = $layerHelper['where']['param'];                                
                 
-                $query  = "SELECT t.".$values;
+                $query  = "SELECT ".$values;
                 $query .= " FROM ".$table." as t ";
                 $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
                 if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
