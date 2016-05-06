@@ -10,8 +10,8 @@ log_facility=LOG_LOCAL0
 
 children=4
 
-listen=udp:10.0.0.1:5062
-listen=hep_udp:10.0.1:9063
+listen=udp:5.9.8.22:5062
+listen=hep_udp:5.9.8.22:9063
 
 
 ### CHANGEME path to your opensips modules here 
@@ -34,6 +34,7 @@ loadmodule "cachedb_local.so"
 loadmodule "avpops.so"
 loadmodule "mmgeoip.so"
 loadmodule "exec.so"
+loadmodule "json.so"
 
 #settings
 
@@ -68,6 +69,11 @@ modparam("uri", "use_uri_table", 0)
 modparam("sipcapture", "db_url", "mysql://homer_user:homer_password@127.0.0.1/homer_data")
 modparam("sipcapture", "capture_on", 1)
 modparam("sipcapture", "hep_capture_on", 1)
+modparam("sipcapture", "hep_route", "my_hep_route")
+
+
+### hep version here 1, 2 or 3
+#modparam("proto_hep", "hep_version", 3)
 
 #
 modparam("avpops","db_url","mysql://homer_user:homer_password@127.0.0.1/homer_statistic")
@@ -83,6 +89,7 @@ route{
 	cache_add("local", "a=>packet::size", $ml, 320);
 	
 	if(cache_fetch("local","b=>$rm::$cs::$ci",$var(tmpvar))) {
+		xlog("TEST: $var(tmpvar)\n");
 		route(STORE);
 		exit;
 	}
@@ -165,11 +172,10 @@ route{
         {
                 if(has_body("application/vq-rtcpxr") && $(rb{s.substr,0,1}) != "x") {
                         $var(table) = "report_capture";
-			#$var(reg) = "/.*CallID:([0-9A-Za-z@-_\.]{5,120}).*$/\1/s";
-			#Regexp ignores - ?
 			$var(reg) = "/.*CallID:((\d|\-|\w|\@){5,120}).*$/\1/s";
                         $var(callid) = $(rb{re.subst,$var(reg)});			
 			#Local IP. Only for stats
+			xlog("PUBLISH: $var(callid)\n");
 			report_capture("report_capture", "$var(callid)", "1");
                         drop;
                 }
@@ -193,6 +199,7 @@ onreply_route {
 	cache_add("local", "a=>method::total", 1, 320);
 
 	if(cache_fetch("local","b=>$rs::$cs::$rm::$ci",$var(tmpvar))) {
+		xlog("TEST: $var(tmpvar)\n");
 		route(STORE);
 		exit;
 	}
@@ -299,6 +306,7 @@ route[KILL_VICIOUS] {
 
 timer_route[stats_alarms_update, 60] {
 
+    #xlog("timer routine: time is $Ts\n");
     route(CHECK_ALARM);
     #Check statistics 	 
     route(CHECK_STATS);
@@ -363,13 +371,18 @@ route[CHECK_ALARM]
 
 route[CHECK_STATS] {	
 
+	#xlog("TIMER UPDATE\n");
 	#SQL STATS
 
 	$var(interval) = 5;
 	$var(tz) = $ctime(min);
 	$var(tm) = ($ctime(min) % 10);
 
+	#xlog("TIMER MIN: $var(tz) $var(tm)\n");
+
 	if($var(tm) != 0 && $var(tm) != $var(interval)) return;
+
+	#xlog("TIMER IN: $var(tz)  $var(tm)\n");
 
 	$var(t1) = $Ts;
 	$var(t2) = $var(t1) - (30*60);
@@ -432,11 +445,19 @@ route[CHECK_STATS] {
 	$var(ner) = 0;
 	if(cache_fetch("local","a=>method::invite",$var(invite)))
 	{
+		$var(invite) = $(var(invite){s.int});
+
 		if($var(invite) > 0) 
 		{
 			if(!cache_fetch("local","a=>response::407::invite",$var(invite407))) $var(invite407) = 0;
 			if(!cache_fetch("local","a=>response::200::invite",$var(invite200))) $var(invite200) = 0;
 			if(!cache_fetch("local","a=>response::bad::invite",$var(invitebad))) $var(invitebad) = 0;
+
+			$var(invite407) = $(var(invite407){s.int});
+			$var(invite200) = $(var(invite200){s.int});
+			$var(invitebad) = $(var(invitebad){s.int});
+
+
         		$var(d) = $var(invite) - $var(invite407);
 		        if($var(d) > 0) {
         		        $var(asr) =  $var(invite200) * 100 / $var(d);
@@ -622,11 +643,34 @@ route[STORE] {
             $var(table) = "sip_capture_rest";
         }
 	
-	# or sipcapture style
 	#$var(utc) = "%Y%m%d";
-
 	
 	if($var(table) == "sip_capture_call") sip_capture("sip_capture_call_%Y%m%d");
 	else if($var(table) == "sip_capture_registration") sip_capture("sip_capture_registration_%Y%m%d");
 	else sip_capture("sip_capture_rest_%Y%m%d");
+}
+
+
+route[my_hep_route] {
+
+        ### hep_get([data type,] chunk_id, vendor_id_pvar, chunk_data_pvar)
+        ### data type is optional for most of the generic chunks
+        ### Full list here: http://www.opensips.org/html/docs/modules/2.2.x/sipcapture#hep_set_id
+
+	#Protocol ID
+	hep_get("11", "$var(vid)", "$var(data)");
+
+        $var(proto) = $(var(data){s.int});
+
+	#Logs Or Stats
+	if($var(proto) == 100 || $var(proto) == 99) {
+
+		#hep_set("uint8", "2", , "1");
+		hep_get("utf8-string", "0x11", "$var(vid)", "$var(correlation_id)");
+		report_capture("logs_capture", "$var(correlation_id)", "1");
+		exit;
+	}
+
+	hep_resume_sip();
+	
 }
