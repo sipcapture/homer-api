@@ -10,8 +10,8 @@ log_facility=LOG_LOCAL0
 
 children=4
 
-listen=udp:5.9.8.22:5062
-listen=hep_udp:5.9.8.22:9063
+listen=udp:10.0.0.22:5062
+listen=hep_udp:10.0.0.22:9063
 
 
 ### CHANGEME path to your opensips modules here 
