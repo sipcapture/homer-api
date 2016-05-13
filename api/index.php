@@ -121,9 +121,11 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('rtcp', 'doRTCPReport') // => /api/session
       ->addPostRoute('qos', 'doQOSReport') // => /api/session
       ->addPostRoute('log', 'doLogReport') // => /api/session
+      ->addPostRoute('rtc', 'doRtcReport') // => /api/session/rtc
       ->addPostRoute('share/log', 'doLogReportById') // => /api/report/share/log
       ->addPostRoute('share/rtcp', 'doRTCPReportById') // => /api/report/share/log
       ->addPostRoute('share/qos', 'doQOSReportById') // => /api/report/share/log
+      ->addPostRoute('share/rtc', 'doRtcReportById') // => /api/report/share/rtc
       ->addPostRoute('share/quality/short', 'doQualityReportById') // => /api/report/share/log
       ->addPostRoute('quality/([A-Za-z]+)', 'doQualityReport') // => /api/session
       ->addPostRoute('share/rtpagent/short', 'doRtpAgentReportById') // => /api/report/share/log
