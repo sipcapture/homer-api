@@ -1322,7 +1322,7 @@ class Search {
 		$calldata['src_port'] = $data->source_port;
 		$calldata['dst_port'] = $data->destination_port;
 		$calldata['trans'] = "rtc";
-		$calldata['callid'] = "rtc:".$data->correlation_id;
+		$calldata['callid'] = $data->correlation_id;
 		$calldata['node'] = $data->node;
 		$calldata['dbnode'] = $data->dbnode;
 		$calldata['micro_ts'] = $data->micro_ts;
@@ -1403,7 +1403,8 @@ class Search {
 		else if(preg_match('/^30|SUBSCRIBE|OPTIONS|NOTIFY/', $method_text)) $msgcol = "purple";
 		else if(preg_match('/^20/', $method_text)) $msgcol = "green";
 		else if(preg_match('/^INVITE/', $method_text)) $msgcol = 'blue';
-		else $msgcol = 'blue';
+		else $msgcol = 'red';
+		
 		$calldata["msg_color"] = $msgcol;
 
 		/*IF */
