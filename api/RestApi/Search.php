@@ -808,6 +808,95 @@ class Search {
         return $data;
     }
 
+    public function getRTCForTransaction($timestamp, $param) {
+
+        /* get our DB */
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $trans = array();
+        $data = array();
+        $lnodes = array();
+        
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
+        $trans['webrtc'] = true;
+        
+        $location = $param['location'];
+
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['from_ts'] = floor($time['from']/1000);
+        $time['to_ts'] = round($time['to']/1000);
+        
+        //workaround for BYE click
+        $time['from_ts'] -=600;
+
+        $limit_orig = getVar('limit', 200, $param['search'], 'int');
+        if($limit_orig <= 0) $limit_orig = 200;
+
+        $record_id = getVar('id', 0, $param['search'], 'int');
+        $callids = getVar('callid', array(), $param['search'], 'array');
+        $b2b = getVar('b2b', true, $param['search'], 'bool');
+        $uniq = getVar('uniq', false, $param['search'], 'bool');
+
+        $callwhere = array();
+
+        $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
+        $and_or = $utils['logic_or'] ? " OR " : " AND ";
+
+        $search = array();
+        /* make array */
+        $search['callid'] = implode(";", $callids);
+        $callwhere = generateWhere($search, $and_or, $db, $b2b);
+
+        $nodes = array();
+        if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
+        else {
+            foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
+        }
+	
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
+
+        foreach($nodes as $node)
+        {
+            $db->dbconnect_node($node);
+            $limit = $limit_orig;
+            $ts = $time['from_ts']; 
+            if($limit < 1) break;
+            $order = " order by id DESC LIMIT ".$limit;
+            $table = "webrtcp_capture";
+            $query = "SELECT t.*, 'webrtc' as trans,'".$node['name']."' as dbnode";
+            if($uniq) $query .= ", MD5(msg) as md5sum";
+            $query .= " FROM ".$table." as t";
+            $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+            $noderows = $db->loadObjectArray($query.$order);
+            $data = array_merge($data,$noderows);
+            $limit -= count($noderows);
+        }
+
+        /* apply aliases */
+        $this->applyAliases($data);
+        
+        if($uniq) {            
+            $message = array();
+            foreach($data as $key=>$row)
+            {
+                if(isset($message[$row['md5sum']])) unset($data[$key]);
+                else $message[$row['md5sum']] = $row['node'];
+            }
+        }
+
+        /* sorting */
+        usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+
+        return $data;
+    }
+
+
+
     public function doSearchTransaction($timestamp, $param) {
         if(count(($adata = $this->getLoggedIn()))) return $adata;
 
@@ -827,11 +916,14 @@ class Search {
         $localdata = array();
 
         $data =  $this->getMessagesForTransaction($timestamp, $param);
-
+        
         foreach($data as $row) {
                 $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
                 if(!$min_ts) $min_ts = $row['micro_ts'];
         }
+
+        /* RTC call */
+        //$data =  $this->getRTCForTransaction($timestamp, $param);
 
 	if(!$max_ts) {
 		$max_ts_tmp = end($data);
