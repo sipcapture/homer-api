@@ -510,7 +510,9 @@ class Search {
         if(count(($adata = $this->getLoggedIn()))) return $adata;
         /* get our DB */
 
-        $data = $this->getMessagesByMethod($timestamp, $param);
+        $rtc = getVar('rtc', false, $param['transaction'], 'bool');
+        if(!$rtc) $data = $this->getMessagesByMethod($timestamp, $param);
+        else $data = $this->getMessagesRTCByMethod($timestamp, $param);
 
         $answer = array();
 
@@ -601,6 +603,68 @@ class Search {
                     }
                 }
             }
+        }
+
+        /* apply aliases */
+        $this->applyAliases($data);
+
+        return $data;
+    }
+
+    public function getMessagesRTCByMethod($timestamp, $param){
+
+        if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+        /* get our DB */
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $data = array();
+
+        $record_id = getVar('id', 0, $param['search'], 'int');
+        $callid = getVar('callid', "", $param['search'], 'string');
+
+	$location = $param['location'];
+
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['from_ts'] = floor($time['from']/1000) - 300;
+        $time['to_ts'] = round($time['to']/1000) + 300;
+
+        $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
+        $and_or = $utils['logic_or'] ? " OR " : " AND ";
+
+        $limit = 1;
+        $search['id'] = $record_id;
+        $callwhere = generateWhere($search, $and_or, $db, 0);
+
+        $nodes = array();
+        if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER);
+        else {
+            $nodes[] = $this->getNode($location['node']);
+        }
+
+        $timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
+
+        foreach($nodes as $node) {
+            $db->dbconnect_node($node);
+            if($limit < 1) break;
+            $order = " LIMIT ".$limit;
+            $table = "webrtc_capture";                            
+            $query = "SELECT *, '".$node['name']."' as dbnode, (UNIX_TIMESTAMP(date)) as unixts FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+            $noderows = $db->loadObjectArray($query.$order);
+            $data = array_merge($data,$noderows);
+            $limit -= count($noderows);            
+        }
+                
+        $y = count($data);
+        for($i=0; $i < $y; $i++) {
+            $dz = $data[$i];
+            $ts = intval(substr($dz['micro_ts'], 2, 7));
+            $data[$i]['micro_ts'] = $dz['unixts']*1000000+$ts;
+            $data[$i]['milli_ts'] = intval($data[$i]['micro_ts']/1000);
         }
 
         /* apply aliases */
