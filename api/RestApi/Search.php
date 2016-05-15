@@ -1020,8 +1020,15 @@ class Search {
         $rtpinfo = array();
         $localdata = array();
 
+        /* RTC call */
+        $data =  $this->getRTCForTransaction($timestamp, $param);
+        foreach($data as $row) {
+                $localdata[] = $this->getRTCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
+                //if(!$min_ts) $min_ts = $row['micro_ts'];
+        }
+
         $data =  $this->getMessagesForTransaction($timestamp, $param);
-        
+                    
         foreach($data as $row) {
                 $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
                 if(!$min_ts) $min_ts = $row['micro_ts'];
@@ -1030,12 +1037,7 @@ class Search {
         //print_r($localdata);
         //exit;
 
-        /* RTC call */
-        $data =  $this->getRTCForTransaction($timestamp, $param);
-        foreach($data as $row) {
-                $localdata[] = $this->getRTCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
-                //if(!$min_ts) $min_ts = $row['micro_ts'];
-        }
+
         
         //print_r($data);
         //exit;
@@ -1463,11 +1465,11 @@ class Search {
 		$calldata["method_text"] = $method_text;
 
 		// MSG Temperature
-		if(preg_match('/^40|50/', $method_text )) $msgcol = "red";
-		else if(preg_match('/^30|SUBSCRIBE|OPTIONS|NOTIFY/', $method_text)) $msgcol = "purple";
-		else if(preg_match('/^20/', $method_text)) $msgcol = "green";
-		else if(preg_match('/^INVITE/', $method_text)) $msgcol = 'blue';
-		else $msgcol = 'red';
+		if(preg_match('/^call.end/', $method_text )) $msgcol = "red";
+		else if(preg_match('/^call.accept/', $method_text)) $msgcol = "green";
+		else if(preg_match('/^call.ringing/', $method_text)) $msgcol = "purple";
+		else if(preg_match('/^call.start/', $method_text)) $msgcol = 'blue';
+		else $msgcol = 'black';
 		
 		$calldata["msg_color"] = $msgcol;
 
