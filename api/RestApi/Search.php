@@ -815,83 +815,124 @@ class Search {
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
 
-        $trans = array();
         $data = array();
+        $search = array();        
         $lnodes = array();
+        $answer = array();  
+        $callwhere = array();
         
-        if(isset($param['location'])) $lnodes = $param['location']['node'];
-                
-        $trans['webrtc'] = true;
-        
-        $location = $param['location'];
-
+        //if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        if(isset($param['location'])) $lnodes = $param['location']['node'];                
+                                                  
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
-        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
         $time['from_ts'] = floor($time['from']/1000);
         $time['to_ts'] = round($time['to']/1000);
         
-        //workaround for BYE click
-        $time['from_ts'] -=600;
+        $time['from_ts']-=600;
+        $time['to_ts']+=60;
+        
+        /* search fields */                
+        $type = getVar('uniq', -1, $param['search'], 'int');                
+        $node = getVar('node', NULL, $param['search'], 'string');
+        $proto = getVar('proto', -1, $param['search'], 'int');
+        $family = getVar('family', -1, $param['search'], 'int');
+        $and_or = getVar('orand', NULL, $param['search'], 'string');        
+        $limit_orig = getVar('limit', 100, $param, 'int');
+        $callids = getVar('callid', array(), $param['search'], 'array');         
+        
+        $mapsCallid = array();
 
-        $limit_orig = getVar('limit', 200, $param['search'], 'int');
-        if($limit_orig <= 0) $limit_orig = 200;
+        $cn = count($callids);
+        for($i=0; $i < $cn; $i++) {
+                $mapsCallid[$callids[$i]] =  $callids[$i];
 
-        $record_id = getVar('id', 0, $param['search'], 'int');
-        $callids = getVar('callid', array(), $param['search'], 'array');
-        $b2b = getVar('b2b', true, $param['search'], 'bool');
-        $uniq = getVar('uniq', false, $param['search'], 'bool');
+                if(BLEGCID == "b2b") {
+                    $length = strlen(BLEGTAIL);
+                    if(substr($callids[$i], -$length) == BLEGTAIL) {
+                         $k = substr($callids[$i], 0, -$length);
+                         $mapsCallid[$k] = $k;
+                    }                
+                    else {           
+                         $k = $callids[$i].BLEGTAIL;
+                         $mapsCallid[$k] = $k;
+                    }
+                     
+                    $s = substr($k, 0, -1);
+                    $mapsCallid[$s] =  $s; 
+                }
 
-        $callwhere = array();
+                $k = substr($callids[$i], 0, -1);
+                $mapsCallid[$k] =  $k;
+        }
 
-        $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
-        $and_or = $utils['logic_or'] ? " OR " : " AND ";
 
-        $search = array();
-        /* make array */
-        $search['callid'] = implode(";", $callids);
-        $callwhere = generateWhere($search, $and_or, $db, $b2b);
+        $answer = array();
+
+        if(empty($mapsCallid))
+        {                     
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';     
+                $answer['status'] = 200;      
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+                return $answer;                 
+        }
+                        
+        $search['correlation_id'] = implode(";",  array_keys($mapsCallid));
 
         $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
         else {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
-	
-	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
 
         foreach($nodes as $node)
-        {
-            $db->dbconnect_node($node);
+        {        
+            
+	    $db->dbconnect_node($node);                            
             $limit = $limit_orig;
-            $ts = $time['from_ts']; 
-            if($limit < 1) break;
-            $order = " order by id DESC LIMIT ".$limit;
-            $table = "webrtcp_capture";
-            $query = "SELECT t.*, 'webrtc' as trans,'".$node['name']."' as dbnode";
-            if($uniq) $query .= ", MD5(msg) as md5sum";
-            $query .= " FROM ".$table." as t";
-            $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
+
+	    $table = "webrtc_capture";                            
+            $query = "SELECT *, '".$node['name']."' as dbnode, (UNIX_TIMESTAMP(date)) as unixts FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-            $noderows = $db->loadObjectArray($query.$order);
-            $data = array_merge($data,$noderows);
-            $limit -= count($noderows);
+            $noderows = $db->loadObjectArray($query);
+            $data = array_merge($data,$noderows);                
+            $limit -= count($noderows);            
         }
-
-        /* apply aliases */
-        $this->applyAliases($data);
         
-        if($uniq) {            
-            $message = array();
-            foreach($data as $key=>$row)
-            {
-                if(isset($message[$row['md5sum']])) unset($data[$key]);
-                else $message[$row['md5sum']] = $row['node'];
-            }
+        $y = count($data);
+        for($i=0; $i < $y; $i++) {
+            $dz = $data[$i];
+            $ts = intval(substr($dz['micro_ts'], 2, 6));
+            $data[$i]['micro_ts'] = $dz['unixts']*1000000+$ts;
+            $data[$i]['milli_ts'] = intval($data[$i]['micro_ts']/1000);
         }
-
+        
         /* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 
+                
+        if(empty($data)) {
+        
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['status'] = 200;                
+                $answer['message'] = 'no data';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }                
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['message'] = 'ok';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+        
         return $data;
     }
 
@@ -921,9 +962,22 @@ class Search {
                 $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
                 if(!$min_ts) $min_ts = $row['micro_ts'];
         }
+        
+        //print_r($localdata);
+        //exit;
 
         /* RTC call */
-        //$data =  $this->getRTCForTransaction($timestamp, $param);
+        $data =  $this->getRTCForTransaction($timestamp, $param);
+        foreach($data as $row) {
+                $localdata[] = $this->getRTCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
+                //if(!$min_ts) $min_ts = $row['micro_ts'];
+        }
+        
+        //print_r($data);
+        //exit;
+
+        usort($localdata, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+                
 
 	if(!$max_ts) {
 		$max_ts_tmp = end($data);
@@ -1065,6 +1119,7 @@ class Search {
 		else if(preg_match('/[3][0-9][0-9]/',$data->method)) $statuscall = 5;
 
 		$calldata['id'] = $data->id;
+		$calldata['protocol'] = "sip";
 		$calldata['method'] = $data->method;
 		$calldata['src_port'] = $data->source_port;
 		$calldata['dst_port'] = $data->destination_port;
@@ -1219,6 +1274,122 @@ class Search {
 		//$tstamp =  date("Y-m-d H:i:s.".$milliseconds." T",$data->micro_ts / 1000000);
 		$calldata['milli_ts'] = floor($data->micro_ts / 1000);
 		$method_text = $data->method." ".$data->reply_reason;
+		if(strlen($method_text) > 15) $method_text = substr($data->method." ".$data->reply_reason, 0, 22)."...";
+
+		//SDP ?
+		$val = "content_type";
+		if(preg_match('/sdp/i', $data->content_type)) $method_text .= " (SDP) ";
+		if(preg_match('/[0-9A-Za-z_-]/i', $data->auth_user)) $method_text .= " (AUTH)";
+		$calldata["method_text"] = $method_text;
+
+		// MSG Temperature
+		if(preg_match('/^40|50/', $method_text )) $msgcol = "red";
+		else if(preg_match('/^30|SUBSCRIBE|OPTIONS|NOTIFY/', $method_text)) $msgcol = "purple";
+		else if(preg_match('/^20/', $method_text)) $msgcol = "green";
+		else if(preg_match('/^INVITE/', $method_text)) $msgcol = 'blue';
+		else $msgcol = 'blue';
+		$calldata["msg_color"] = $msgcol;
+
+		/*IF */
+		if($hosts[$src_id] > $hosts[$dst_id]) $calldata["destination"] = 2;
+		else $calldata["destination"] = 1;
+
+		return $calldata;
+    }
+    
+    function getRTCflow($data, &$hosts, &$info, &$uac, &$hostcount, &$rtpinfo, $message_include) {
+		$calldata = array();
+		$arrow_step=1;
+		$host_step=1;
+
+		$msg = json_decode($data->msg);
+
+		$IPv6 = (strpos($data->source_ip, '::') === 0);
+
+		// compress IPv6 addresses for UI
+		if ($IPv6) {
+		    $data->source_ip = inet_ntop(inet_pton($data->source_ip));
+		    $data->destination_ip = inet_ntop(inet_pton($data->destination_ip));
+		}
+
+		if($msg->method == "call.start") $statuscall = 1;
+		else if($msg->method == "call.end") $statuscall = 3;
+		else if($msg->method == "call.accept") $statuscall = 4;
+
+		$calldata['id'] = $data->id;
+		$calldata['protocol'] = "rtc";
+		$calldata['method'] = $msg->method;
+		$calldata['src_port'] = $data->source_port;
+		$calldata['dst_port'] = $data->destination_port;
+		$calldata['trans'] = "rtc";
+		$calldata['callid'] = $data->correlation_id;
+		$calldata['node'] = $data->node;
+		$calldata['dbnode'] = $data->dbnode;
+		$calldata['micro_ts'] = $data->micro_ts;
+		$calldata['ruri_user'] = $msg->body->target;
+		if(!empty($data->source_alias)) { $calldata['source_alias'] = $data->source_alias;}
+		if(!empty($data->destination_alias)) { $calldata['destination_alias'] = $data->destination_alias;}
+		$calldata['source_ip'] = $data->source_ip;
+		$calldata['destination_ip'] = $data->destination_ip;
+
+		if($message_include) {
+		    $calldata['msg'] = $msg;
+		}
+
+		if(!array_key_exists('callid', $info)) $info['callid'] = array();
+
+		//array_push($info['callid'], $data->callid);
+		if(!in_array($data->callid, $info['callid'])) {
+		        array_push($info['callid'], $data->callid);
+                }
+
+		if (CFLOW_HPORT == true) {
+
+                        $src_id = $data->source_ip.":".$data->source_port;
+                        $dst_id = $data->destination_ip.":".$data->destination_port;
+
+		        if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step; }
+		        if(!isset($hosts[$dst_id])) { $hosts[$dst_id] = $hostcount; $hostcount+=$host_step; }
+
+		        $ssrc = ":".$data->source_port;
+
+		} else {
+		
+		        $src_id = $data->source_ip;
+		        $dst_id = $data->destination_ip;
+
+		        if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step;}
+		        if(!isset($hosts[$dst_id])) { $hosts[$dst_id] = $hostcount; $hostcount+=$host_step;}
+
+		        $ssrc = "";
+		}
+
+		$calldata['src_id'] = $src_id;
+		$calldata['dst_id'] = $dst_id;
+
+		// SIP SWITCHES
+
+		if(preg_match('/asterisk/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "asterisk", "agent" => $data->user_agent);
+		}
+		else if(preg_match('/FreeSWITCH/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "freeswitch", "agent" => $data->user_agent);
+		}
+		else if(preg_match('/kamailio|openser|opensip|sip-router/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "openser", "agent" => $data->user_agent);
+		}
+		else if(preg_match('/softx/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "sipgateway", "agent" => $data->user_agent);
+		}
+		else if(preg_match('/sipXecs/i', $data->user_agent)) {
+		     $uac[$src_id] = array("image" => "sipxecs", "agent" => $data->user_agent);
+		}
+
+		//$timestamp = floor($data->micro_ts / 1000000);
+		//$milliseconds = round( $data->micro_ts  - ($timestamp * 1000000) );
+		//$tstamp =  date("Y-m-d H:i:s.".$milliseconds." T",$data->micro_ts / 1000000);
+		$calldata['milli_ts'] = floor($data->micro_ts / 1000);
+		$method_text = $msg->method;
 		if(strlen($method_text) > 15) $method_text = substr($data->method." ".$data->reply_reason, 0, 22)."...";
 
 		//SDP ?
