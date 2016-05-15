@@ -906,7 +906,7 @@ class Search {
         $y = count($data);
         for($i=0; $i < $y; $i++) {
             $dz = $data[$i];
-            $ts = intval(substr($dz['micro_ts'], 2, 6));
+            $ts = intval(substr($dz['micro_ts'], 2, 7));
             $data[$i]['micro_ts'] = $dz['unixts']*1000000+$ts;
             $data[$i]['milli_ts'] = intval($data[$i]['micro_ts']/1000);
         }
@@ -1322,7 +1322,7 @@ class Search {
 		$calldata['src_port'] = $data->source_port;
 		$calldata['dst_port'] = $data->destination_port;
 		$calldata['trans'] = "rtc";
-		$calldata['callid'] = $data->correlation_id;
+		$calldata['callid'] = "rtc:".$data->correlation_id;
 		$calldata['node'] = $data->node;
 		$calldata['dbnode'] = $data->dbnode;
 		$calldata['micro_ts'] = $data->micro_ts;
