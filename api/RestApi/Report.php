@@ -302,27 +302,25 @@ class Report {
 
 	    foreach($timearray as $tkey=>$tval) {
 
-                    if(count($newcorrid) > $limit) break;
+                    if(count($mapsCallid) > $limit) break;
                     $order = " LIMIT ".$limit;
                     $table = "sip_capture_call_".$tkey;
                     $query  = "SELECT DISTINCT(correlation_id) ";   
                     $query .= "FROM ".$table;
                     $query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-                    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+                    if(count($callwhere)) $query .= " AND correlation_id != '' AND ( " .implode(" AND ", $callwhere). ")";
                     $noderows = $db->loadObjectArray($query.$order);
                     foreach($noderows as $k=>$d) {
-                    	$newcorrid[$d["correlation_id"]]=$d["correlation_id"];
+                    	$mapsCallid[$d["correlation_id"]]=$d["correlation_id"];
                   	$kz = substr($d["correlation_id"], 0, -1);
-                        $newcorrid[$kz] = $kz;
+                        $mapsCallid[$kz] = $kz;
                     }
             }
         }    
                 
-        if(!empty($newcorrid))
-        {
-            $search=array();
-            $callids = $newcorrid;            
-        }
+                
+        $search=array();                
+        $callids = $mapsCallid;                
         
         /* codecs */
         list($export,$duration, $xrtpreport) =  $this->getCodecsFromMessagesForTransaction($timestamp, $param);        
@@ -377,6 +375,14 @@ class Report {
                 $bigReport["global"]["main"] = &$mainData;                                            
             }            
         }
+        
+        
+        if(!array_key_exists('main', $bigReport["global"])){
+            $mainData = array();
+            $mainData["duration"] = $duration;
+            $bigReport["global"]["main"] = &$mainData;
+        }                
+        
         
 	$answer['sid'] = session_id();
         $answer['auth'] = 'true';
@@ -606,7 +612,7 @@ class Report {
             $table = "report_capture";
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")"; 
-            $query.= " AND type = 1";                       
+            $query.= " AND type = 1";   
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);    
             $limit -= count($noderows);            
@@ -1412,6 +1418,125 @@ class Report {
         return $answer;
         
     }
+    
+    public function doRtcReport($timestamp, $param){
+    
+        /* get our DB */
+        $db = $this->getContainer('db');
+        
+        $data = array();
+        $search = array();        
+        $lnodes = array();
+        $answer = array();  
+        $callwhere = array();
+        
+        //if(array_key_exists('node', $param)) $lnodes = $param['node'];
+        if(isset($param['location'])) $lnodes = $param['location']['node'];                
+                                                  
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
+        $time['from_ts'] = floor($time['from']/1000);
+        $time['to_ts'] = round($time['to']/1000);
+        
+        $time['from_ts']-=600;
+        $time['to_ts']+=60;
+        
+        /* search fields */                
+        $type = getVar('uniq', -1, $param['search'], 'int');                
+        $node = getVar('node', NULL, $param['search'], 'string');
+        $proto = getVar('proto', -1, $param['search'], 'int');
+        $family = getVar('family', -1, $param['search'], 'int');
+        $and_or = getVar('orand', NULL, $param['search'], 'string');        
+        $limit_orig = getVar('limit', 100, $param, 'int');
+        $callids = getVar('callid', array(), $param['search'], 'array');         
+        
+        $mapsCallid = array();
+
+        $cn = count($callids);
+        for($i=0; $i < $cn; $i++) {
+                $mapsCallid[$callids[$i]] =  $callids[$i];
+
+                if(BLEGCID == "b2b") {
+                    $length = strlen(BLEGTAIL);
+                    if(substr($callids[$i], -$length) == BLEGTAIL) {
+                         $k = substr($callids[$i], 0, -$length);
+                         $mapsCallid[$k] = $k;
+                    }                
+                    else {           
+                         $k = $callids[$i].BLEGTAIL;
+                         $mapsCallid[$k] = $k;
+                    }
+                     
+                    $s = substr($k, 0, -1);
+                    $mapsCallid[$s] =  $s; 
+                }
+
+                $k = substr($callids[$i], 0, -1);
+                $mapsCallid[$k] =  $k;
+        }
+
+
+        $answer = array();
+
+        if(empty($mapsCallid))
+        {                     
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';     
+                $answer['status'] = 200;      
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+                return $answer;                 
+        }
+                        
+        $search['correlation_id'] = implode(";",  array_keys($mapsCallid));
+
+        $nodes = array();
+        if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
+        else {
+            foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
+        }
+
+        foreach($nodes as $node)
+        {        
+            
+	    $db->dbconnect_node($node);                            
+            $limit = $limit_orig;
+            if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
+
+	    $table = "webrtc_capture";                            
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+            $noderows = $db->loadObjectArray($query);
+            $data = array_merge($data,$noderows);                
+            $limit -= count($noderows);            
+        }
+
+        /* sorting */
+        usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
+
+                
+        if(empty($data)) {
+        
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['status'] = 200;                
+                $answer['message'] = 'no data';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }                
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['message'] = 'ok';                             
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+        
+        return $answer;
+        
+    }
 
 
     public function doQualityReport($id, $timestamp, $param){
@@ -1574,6 +1699,45 @@ class Report {
             $param = $djson['param'];
 
             $data =  $this->doLogReport($timestamp, $param);
+
+        }
+
+        if(empty($data)) {
+
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+                return $answer;
+        } else {
+                return $data;
+        }
+    }
+    
+    /*share */
+    public function doRtcReportById($param){
+
+        $data = array();
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $uuid = getVar('transaction_id', "", $param, 'string');
+
+        $query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
+        $query  = $db->makeQuery($query, $uuid );
+        $json = $db->loadObjectArray($query);
+
+        if(!empty($json)) {
+
+            $djson = json_decode($json[0]['data'], true);
+
+            $timestamp = $djson['timestamp'];
+            $param = $djson['param'];
+
+            $data =  $this->doRtcReport($timestamp, $param);
 
         }
 
