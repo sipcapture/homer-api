@@ -11,6 +11,7 @@
 %define webuser apache
 %define webgroup apache
 %endif
+%define DBDIR %{_localstatedir}/sipcapture/mysql
 
 Name:           @PACKAGE_NAME@
 Version:        @PACKAGE_VERSION@
@@ -22,13 +23,16 @@ License:        GPLv3
 URL:            @PACKAGE_URL@
 Source0:        %name-%version.tar.gz
 
+%{?el6:Requires:       initscripts}
+%{?el7:Requires:       systemd}
+Requires:       util-linux
 Requires:       kamailio >= 4.3, kamailio-mysql >= 4.3
 Requires:       ntp
 Requires:       php >= 5
 Requires:       php-mysql
 Requires:       perl-DBD-MySQL
-Requires:       mysql-community-server >= 5.5
-Requires:       mysql-community-client >= 5.5
+Requires:       mysql-community-server >= 5.6
+Requires:       mysql-community-client >= 5.6
 Requires:       selinux-policy
 
 %description
@@ -57,12 +61,14 @@ HOMER API nginx configuration
 %dir %{webroot}/api
 %{webroot}/api/*
 %{webroot}/apidoc/*
+%dir %{DBDIR}
 %attr(0664,root,root)%{_datadir}/sipcapture/sql/*
 %attr(0664,root,root)%{_sysconfdir}/my.cnf.d/sipcapture.cnf
 %attr(0664,root,root)%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
 %attr(0664,root,root)%{_sysconfdir}/sysconfig/sipcapture
 %{?el6:%attr(0775,root,root)%{_sysconfdir}/init.d/sipcapture}
 %{?el7:%attr(0664,root,root)/usr/lib/systemd/system/sipcapture.service}
+%{?el7:%attr(0664,root,root)%{_sysconfdir}/systemd/system/mysqld.service}
 %attr(0664,root,root)%{_sysconfdir}/rsyslog.d/sipcapture.conf
 %attr(0664,root,root)%{_sysconfdir}/logrotate.d/sipcapture
 %attr(0644,root,root)%{_sysconfdir}/cron.d/sipcapture
@@ -123,8 +129,13 @@ install -p -m 644 examples/web/homer5.apache %{buildroot}%{_sysconfdir}/httpd/co
 install -p -m 644 examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/conf.d/sipcapture.conf
 install -p -m 644 examples/web/homer5.php-fpm %{buildroot}%{_sysconfdir}/php-fpm.d/sipcapture.conf
 # MySQL configuration
+install -d %{buildroot}%{DBDIR}
 install -d %{buildroot}%{_datadir}/sipcapture/sql/
 install -p -m 644 sql/* %{buildroot}%{_datadir}/sipcapture/sql/
+install -d %{buildroot}%{_sysconfdir}/my.cnf.d
+install -d %{buildroot}%{_sysconfdir}/systemd/system
+install -p -m 644 examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
+install -p -m 644 examples/mysql/mysqld.service %{buildroot}%{_sysconfdir}/systemd/system/mysqld.service
 # UI and API directories and files
 install -d %{buildroot}%{webroot}
 install -d %{buildroot}%{webroot}/api
@@ -135,46 +146,43 @@ install -d %{buildroot}%{webroot}/api
 %{__cp} -r api/Statistic %{buildroot}%{webroot}/api
 %{__cp} -r api/*.php %{buildroot}%{webroot}/api
 install -p -m 644 api/.htaccess %{buildroot}%{webroot}/api
-install -d %{buildroot}%{_sysconfdir}/my.cnf.d
 install -d %{buildroot}%{_sysconfdir}/cron.d
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_bindir}
-install -p -m 644 examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
 install -p -m 644 scripts/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
 install -p -m 644 scripts/homer_rotate %{buildroot}%{_bindir}/homer_rotate
 install -p -m 644 scripts/homer_mysql_new_table.pl %{buildroot}%{_bindir}/homer_mysql_new_table.pl
 install -p -m 644 scripts/homer_mysql_partrotate_unixtimestamp.pl %{buildroot}%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
 
 %post
-/bin/echo "Initializing local MySQL server data directory in standard location"
-/bin/echo "MYSQLD_OPTS=\"--explicit_defaults_for_timestamp\"" > %{_sysconfdir}/sysconfig/mysql
-%{?el6:/usr/sbin/mysqld --initialize-insecure --user=mysql}
-%{?el7:/sbin/mysqld --initialize-insecure --user=mysql}
-%{?el6:/bin/mv /var/log/mysqld.log /root/mysqld.initialize1}
-%{?el7:/usr/bin/mv /var/log/mysqld.log /root/mysqld.initialize1}
-if [ -e /bin/systemctl ]; then /bin/echo "Reloading systemctl"; /bin/systemctl daemon-reload; fi
-/bin/echo "Starting local MySQL server"
-/sbin/service mysqld start
-/bin/echo "Stopping local MySQL server"
-/sbin/service mysqld stop
-/bin/echo "Initializing local MySQL server data directory in standard location(again)"
-/bin/rm -rf /var/lib/mysql/*
-%{?el6:/usr/sbin/mysqld --initialize-insecure --user=mysql}
-%{?el7:/sbin/mysqld --initialize-insecure --user=mysql}
-%{?el6:/bin/mv /var/log/mysqld.log /root/mysqld.initialize2}
-%{?el7:/usr/bin/mv /var/log/mysqld.log /root/mysqld.initialize2}
-/bin/echo "Starting local MySQL server(again)"
-/sbin/service mysqld start || (%{?el7:/usr}/bin/mv /var/log/mysqld.log /root/mysqld.start ; exit 1) && (/bin/echo "Installing MySQL schemas to local MySQL server" ; %{?el6:/usr}/bin/mysql -u root --skip-password -h localhost --skip-password -e "CREATE USER 'homer_user'@'localhost' IDENTIFIED BY 'homer_password'"; for DB in data configuration statistic; do %{?el6:/usr}/bin/mysql -u root -h localhost --skip-password -e "create database homer_$DB" &&  %{?el6:/usr}/bin/mysql -u root --skip-password -h localhost --skip-password -D homer_$DB < %{_datadir}/sipcapture/sql/schema_$DB.sql; %{?el6:/usr}/bin/mysql -u root --skip-password -h localhost --skip-password -e "GRANT ALL ON homer_$DB.* TO 'homer_user'@'localhost';"; done; /bin/echo "Running rotate script to actualize DB tables"; %{_bindir}/homer_rotate );
-/bin/echo "Enable MySQL server";
-if [ -e /bin/systemctl ]; then /bin/systemctl enable mysqld; else /sbin/chkconfig mysqld on; fi
-/bin/echo "Disable native Kamailio server";
-if [ -e /sbin/chkconfig ]; then /sbin/chkconfig kamailio off; else /bin/echo "WARNING: Please, manully diable kamailio service!!!"; fi
-/bin/echo "Enable SIPCAPTURE Kamailio server";
-if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkconfig sipcapture on; fi
-/sbin/service sipcapture start
+# MySQL stuff
+/usr/bin/logger -t "INSTALLER" "=========== Initializing local MySQL server data directory in %{DBDIR}"
+#/bin/echo "MYSQLD_OPTS=\"--explicit_defaults_for_timestamp\"" > %{_sysconfdir}/sysconfig/mysql | /usr/bin/logger -t "INSTALLER"
+/usr/bin/mysql_install_db --user=mysql --datadir=%{DBDIR} | /usr/bin/logger -t "INSTALLER"
+#if [ -e /bin/systemctl ]; then /usr/bin/logger -t "INSTALLER" "=========== Reloading systemd"; /bin/systemctl daemon-reload; fi | /usr/bin/logger -t "INSTALLER"
+/usr/bin/logger -t "INSTALLER" "=========== Installing HOMER DB: users and permissions";
+(cat %{_datadir}/sipcapture/sql/homer_user_bootstrap.sql | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER";
+/usr/bin/logger -t "INSTALLER" "=========== Enable MySQL server";
+if [ -e /bin/systemctl ]; then /bin/systemctl enable mysqld; else /sbin/chkconfig mysqld on; fi | /usr/bin/logger -t "INSTALLER"
+/usr/bin/logger -t "INSTALLER" "=========== Installing HOMER DB: databases";
+(cat %{_datadir}/sipcapture/sql/homer_databases.sql | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER";
+for s in configuration data statistic; do ((echo "use homer_$s;" ; cat %{_datadir}/sipcapture/sql/schema_$s.sql) | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER"; done;
+if [ "$(stat -c %d:%i /)" == "$(stat -c %d:%i /proc/1/root/.)" ]; then
+    /usr/bin/logger -t "INSTALLER" "=========== Starting local MySQL server"
+    %{?el6:/sbin/service mysqld start}%{?el7:/bin/systemctl start mysqld} | /usr/bin/logger -t "INSTALLER"
+fi
+# Kamailio stuff
+/usr/bin/logger -t "INSTALLER" "=========== Disable native Kamailio server";
+if [ -e /sbin/chkconfig ]; then /sbin/chkconfig kamailio off; else /usr/bin/logger -t "INSTALLER" "WARNING: Please, manually diable kamailio service!!!"; fi 2>&1 | /usr/bin/logger -t "INSTALLER"
+/usr/bin/logger -t "INSTALLER" "=========== Enable SIPCAPTURE Kamailio server";
+if [ -e /bin/systemctl ]; then /bin/systemctl enable sipcapture; else /sbin/chkconfig sipcapture on; fi 2>&1 | /usr/bin/logger -t "INSTALLER"
+if [ "$(stat -c %d:%i /)" == "$(stat -c %d:%i /proc/1/root/.)" ]; then
+    /usr/bin/logger -t "INSTALLER" "=========== Start SIPCAPTURE Kamailio server";
+    %{?el6:/sbin/service sipcapture start}%{?el7:/bin/systemctl start sipcapture} | /usr/bin/logger -t "INSTALLER"
+fi
 
 %post httpd
-/bin/echo "installing SELinux policies"
+/usr/bin/logger -t "INSTALLER" "=========== Installing SELinux policies"
 for selinuxvariant in %{selinux_variants}
 do
 	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/sipcapture-dashboards.pp &> /dev/null || :
@@ -183,13 +191,14 @@ done
 /sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
 
 
-/bin/echo "Enable HTTP server";
+/usr/bin/logger -t "INSTALLER" "=========== Enable HTTP server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable httpd; else /sbin/chkconfig httpd on; fi
-/bin/echo "Starting local HTTP server"
-/sbin/service httpd start
+/usr/bin/logger -t "INSTALLER" "Starting local HTTP server"
+%{?el6:/sbin/service httpd start}
+%{?el7:/bin/systemctl start httpd}
 
 %post nginx
-/bin/echo "installing SELinux policies"
+/usr/bin/logger -t "INSTALLER" "=========== Installing SELinux policies"
 for selinuxvariant in %{selinux_variants}
 do
 	/usr/sbin/semodule -s ${selinuxvariant} -i %{_datadir}/selinux/${selinuxvariant}/sipcapture-dashboards.pp &> /dev/null || :
@@ -200,18 +209,19 @@ done
 /sbin/restorecon -R %{_localstatedir}/cache/sipcapture || :
 
 HOSTNAME=`/bin/hostname`
-/bin/echo "Virtual HTTP host set to : $HOSTNAME"
+/usr/bin/logger -t "INSTALLER" "=========== Virtual HTTP host set to : $HOSTNAME"
 /bin/sed -i "s/<HOSTNAME>/$HOSTNAME/g" %{_sysconfdir}/nginx/conf.d/sipcapture.conf 
 /bin/chown -R nginx:nginx %{webroot}
-/bin/echo "Enable HTTP server";
+/usr/bin/logger -t "INSTALLER" "=========== Enable HTTP server";
 if [ -e /bin/systemctl ]; then /bin/systemctl enable nginx; else /sbin/chkconfig nginx on; fi
 if [ -e /bin/systemctl ]; then /bin/systemctl enable php-fpm; else /sbin/chkconfig php-fpm on; fi
-/bin/echo "Starting local HTTP server"
+/usr/bin/logger -t "INSTALLER" "=========== Starting local HTTP server"
 /sbin/service nginx start
 /sbin/service php-fpm start
 
 %postun nginx
 if [ $1 -eq 0 ] ; then
+  /usr/bin/logger -t "INSTALLER" "=========== Installing SELinux policies"
   for selinuxvariant in %{selinux_variants}
   do
     /usr/sbin/semodule -s ${selinuxvariant} -r mymodule &> /dev/null || :
@@ -223,6 +233,7 @@ fi
 
 %postun httpd
 if [ $1 -eq 0 ] ; then
+  /usr/bin/logger -t "INSTALLER" "=========== Installing SELinux policies"
   for selinuxvariant in %{selinux_variants}
   do
     /usr/sbin/semodule -s ${selinuxvariant} -r mymodule &> /dev/null || :

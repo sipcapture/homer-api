@@ -1,0 +1,3 @@
+USE mysql;
+INSERT INTO `user` VALUES ('localhost','homer_user','*D0F60D1E3C6C124FEEB76527E00A9380C37643EE','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','','N');
+INSERT INTO `db` VALUES ('localhost','homer_configuration','homer_user','Y','Y','Y','Y','Y','Y','N','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y'),('localhost','homer_statistic','homer_user','Y','Y','Y','Y','Y','Y','N','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y'),('localhost','homer_data','homer_user','Y','Y','Y','Y','Y','Y','N','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y');
