@@ -659,14 +659,6 @@ class Search {
             $limit -= count($noderows);            
         }
                 
-        $y = count($data);
-        for($i=0; $i < $y; $i++) {
-            $dz = $data[$i];
-            $ts = intval(substr($dz['micro_ts'], 2, 7));
-            $data[$i]['micro_ts'] = $dz['unixts']*1000000+$ts;
-            $data[$i]['milli_ts'] = intval($data[$i]['micro_ts']/1000);
-        }
-
         /* apply aliases */
         $this->applyAliases($data);
 
@@ -965,14 +957,6 @@ class Search {
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);                
             $limit -= count($noderows);            
-        }
-        
-        $y = count($data);
-        for($i=0; $i < $y; $i++) {
-            $dz = $data[$i];
-            $ts = intval(substr($dz['micro_ts'], 2, 7));
-            $data[$i]['micro_ts'] = $dz['unixts']*1000000+$ts;
-            $data[$i]['milli_ts'] = intval($data[$i]['micro_ts']/1000);
         }
         
         /* sorting */
