@@ -517,7 +517,6 @@ class Report {
 				$statsData[$ipkey]["jitter_avg"] += $block["ia_jitter"];
 				$statsData[$ipkey]["packets_lost"] += $block["packets_lost"];				
 				
-				
 				if($block["ia_jitter"] > $statsData[$ipkey]["jitter_max"]) $statsData[$ipkey]["jitter_max"] = $block["ia_jitter"];				
 				if(!array_key_exists("mos_worst", $statsData[$ipkey]) || $statsData[$ipkey]["mos_worst"] > $tmpMos) $statsData[$ipkey]["mos_worst"] = $tmpMos;			
 				
@@ -543,20 +542,29 @@ class Report {
 	
 	foreach($chartData as $key=>$value) {
 	
-	        $statsData[$key]["mos_average"] = round($statsData[$key]["mos_average"]/$statsData[$key]["mos_counter"],2);	                    	        
-	        $statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
-	        $statsData[$key]["mos_counter"] = 1;	
 	        
-	        $mainData["mos_counter"]  += 1;	        
-                $mainData["mos_average"]  += $statsData[$key]["mos_average"];
-                $mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
+	        if($statsData[$key]["mos_average"] > 0)
+	        {
+	            $statsData[$key]["mos_average"] = round($statsData[$key]["mos_average"]/$statsData[$key]["mos_counter"],2);	                    	        
+	            $mainData["mos_counter"]  += 1;	        
+                    $mainData["mos_average"]  += $statsData[$key]["mos_average"];
+                    
+                    if(!array_key_exists("mos_worst", $mainData) || $statsData[$key]["mos_worst"] < $mainData["mos_worst"]) 
+                        $mainData["mos_worst"] = $statsData[$key]["mos_worst"];			                	                        
+	        }
+	        
+	        if($statsData[$key]["jitter_avg"] > 0)
+	        {	        
+                    $statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
+        	    $mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
+        	    if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];	        
+                }
+
+	        $statsData[$key]["mos_counter"] = 1;	
+
                 $mainData["packets_lost"] += $statsData[$key]["packets_lost"];
                 $mainData["packets_sent"] += $statsData[$key]["packets_sent"];
                 $mainData["packets_recv"] += $statsData[$key]["packets_recv"];
-
-                if(!array_key_exists("mos_worst", $mainData) || $statsData[$key]["mos_worst"] < $mainData["mos_worst"]) 
-                        $mainData["mos_worst"] = $statsData[$key]["mos_worst"];			                
-                if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];	        
 	}	
 	
 	
