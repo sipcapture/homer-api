@@ -362,6 +362,7 @@ class Report {
             }            
         }
         
+        
         /* check RTCP */        
         list ($rtcpData, $statsData, $mainData) = $this->doRTCPServerReport($timestamp, $param, $callids);
         if(count($rtcpData)) {
@@ -446,6 +447,14 @@ class Report {
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";            
             $noderows = $db->loadObjectArray($query);
+
+            /*
+            openlog("myhomerapilog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+            $access = date("Y/m/d H:i:s");
+            syslog(LOG_WARNING, "RTCP Query: $access : Query: $query");
+            closelog();
+            */
+
             $data = array_merge($data,$noderows);    
             $limit -= count($noderows);            
         }
@@ -1388,7 +1397,7 @@ class Report {
 	    $table = "logs_capture";                            
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-            $noderows = $db->loadObjectArray($query);
+            $noderows = $db->loadObjectArray($query);            
             $data = array_merge($data,$noderows);                
             $limit -= count($noderows);            
         }
@@ -1508,6 +1517,7 @@ class Report {
             $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
             $noderows = $db->loadObjectArray($query);
+
             $data = array_merge($data,$noderows);                
             $limit -= count($noderows);            
         }
