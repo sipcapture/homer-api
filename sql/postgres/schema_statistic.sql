@@ -210,7 +210,7 @@ CREATE TABLE IF NOT EXISTS stats_generic (
 CREATE UNIQUE INDEX stats_generic_datemethod ON "stats_generic" (from_date,to_date,type,tag);
 CREATE INDEX stats_generic_from_date ON "stats_generic" (from_date);
 CREATE INDEX stats_generic_to_date ON "stats_generic" (to_date);
-CREATE INDEX stats_generic_method ON "stats_generic" (method);
+CREATE INDEX stats_generic_tag ON "stats_generic" (tag);
 CREATE TABLE stats_generic_p2013082901() INHERITS (stats_generic);
 ALTER TABLE stats_generic_p2013082901 ADD CONSTRAINT chk_stats_generic_p2013082901 CHECK (from_date < to_timestamp(1377734400)); 
 
