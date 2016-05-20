@@ -101,4 +101,12 @@ define('CLOUD_STORAGE', 0);
 define('CLOUD_STORAGE_API', "");
 define('CLOUD_STORAGE_URI', "https://www.cloudshark.org");
 
+
+define('REMOTE_LOG', 0);
+define('REMOTE_LOG_INDEX', "homer");
+define('REMOTE_LOG_URL', "http://10.0.0.1:9200");
+define('REMOTE_LOG_DOC_TYPE', "sipcapture");
+define('REMOTE_LOG_USERNAME', "root");
+define('REMOTE_LOG_PASSWORD', "root"); 
+
 ?>
