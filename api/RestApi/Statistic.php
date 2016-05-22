@@ -565,7 +565,7 @@ class Statistic {
 
         if($total) {
            $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, country, lat, lon, method, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY country";       
+           $order .= " GROUP BY id,from_ts,to_ts,country,lat,lon,method";       
         }
         else {
            $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, country, lat, lon, method, total";                                            
