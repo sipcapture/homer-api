@@ -101,19 +101,18 @@ class Statistic {
         $total = getVar('total', false, $param, 'bool');
         
         $order = "";
-
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, method, REPLACE(REPLACE(auth, 0,'N'),1,'A') AS auth, cseq, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, method, auth, cseq, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY method, cseq, auth, totag";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, method, REPLACE(REPLACE(auth, 0,'N'),1,'A') AS auth, cseq, totag, total";                                            
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, method, auth, cseq, totag, total";                                            
         }
 
          $order .= " order by id DESC";
         
         $table = "stats_method";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
         $query.= $arrwhere;
         $query.= $order;
         $data = $db->loadObjectArray($query);
@@ -192,17 +191,17 @@ class Statistic {
         $order = "";
         
         if($total) {
-           $fields = "id, source_ip, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, source_ip, extract(epoch from create_date) as from_ts, extract(epoch from create_date) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY type";       
         }
         else {
-           $fields = "id, source_ip, description, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, total";                                            
+           $fields = "id, source_ip, description, extract(epoch from create_date) as from_ts, extract(epoch from create_date) as to_ts, type, total";                                            
         }
 
         $order .= " order by id DESC";
         
         $table = "alarm_data";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`create_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`create_date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
         
         $query.= $arrwhere;
         $query.= $order;
@@ -281,17 +280,17 @@ class Statistic {
         $order = "";
 
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY type";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, type, total";                                            
         }
 
          $order .= " order by id DESC";
         
         $table = "stats_data";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
         $query.= $arrwhere;
         $query.= $order;
         $data = $db->loadObjectArray($query);
@@ -379,17 +378,17 @@ class Statistic {
         $order = "";
 
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY type";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, type, total";                                            
         }
 
          $order .= " order by id DESC";
         
         $table = "stats_generic";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
         $query.= $arrwhere;
         $query.= $order;
         $data = $db->loadObjectArray($query);
@@ -468,17 +467,17 @@ class Statistic {
         $order = "";
 
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, source_ip, method, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, source_ip, method, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY source_ip";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, source_ip, method, total";                                            
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, source_ip, method, total";                                            
         }
 
         $order .= " order by id DESC";
         
         $table = "stats_ip";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
         $query.= $arrwhere;
         $query.= $order;
         $data = $db->loadObjectArray($query);
@@ -564,17 +563,17 @@ class Statistic {
         $order = "";
 
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, country, lat, lon, method, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY id,from_ts,to_ts,country,lat,lon,method";       
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, country, lat, lon, method, COUNT(id) as cnt, SUM(total) as total";
+           $order .= " GROUP BY country";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, country, lat, lon, method, total";                                            
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, country, lat, lon, method, total";                                            
         }
 
         $order .= " order by id DESC";
         
         $table = "stats_geo";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
         $query.= $arrwhere;
         $query.= $order;
         $data = $db->loadObjectArray($query);
@@ -658,17 +657,17 @@ class Statistic {
         $order = "";
 
         if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, useragent, method, COUNT(id) as cnt, SUM(total) as total";
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, useragent, method, COUNT(id) as cnt, SUM(total) as total";
            $order .= " GROUP BY useragent";       
         }
         else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, useragent, method, total";                                            
+           $fields = "id, extract(epoch from from_date) as from_ts, extract(epoch from to_date) as to_ts, useragent, method, total";                                            
         }
 
         $order .= " order by id DESC";
         
         $table = "stats_useragent";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
         $query.= $arrwhere;
         $query.= $order;
         $data = $db->loadObjectArray($query);

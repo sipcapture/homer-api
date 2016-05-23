@@ -593,9 +593,9 @@ class Search {
                         if($limit < 1) break;
                         $order = " LIMIT ".$limit;
                         $table = "sip_capture_".$query_type."_".$tkey;
-                        $query  = "SELECT t.*, '".$query_type."' as trans ";
+                        $query  = "SELECT t.*, convert_from(msg::bytea, 'UTF8'::name) AS msg, '".$query_type."' as trans ";
                         $query .= "FROM ".$table." as t";
-                        $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                        $query .= " WHERE (t.date BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
                         if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
                         $noderows = $db->loadObjectArray($query.$order);
                         $data = array_merge($data,$noderows);
@@ -652,7 +652,7 @@ class Search {
             if($limit < 1) break;
             $order = " LIMIT ".$limit;
             $table = "webrtc_capture";                            
-            $query = "SELECT *, '".$node['name']."' as dbnode, (UNIX_TIMESTAMP(date)) as unixts FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode, (extract(epoch from to_date date)) as unixts FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
             $noderows = $db->loadObjectArray($query.$order);
             $data = array_merge($data,$noderows);
@@ -724,7 +724,7 @@ class Search {
 		    $table = "sip_capture_".$query_type."_".$tkey;
 		    $query  = "SELECT t.*, '".$query_type."' as trans";
 		    $query .= " FROM ".$table." as t";
-		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+		    $query .= " WHERE (t.date BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
 		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		    $noderows = $db->loadObjectArray($query.$order);
 		    $data = array_merge($data,$noderows);
@@ -836,7 +836,7 @@ class Search {
 			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode";
 			if($uniq) $query .= ", MD5(msg) as md5sum";
 			$query .= " FROM ".$table." as t";
-			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+			$query .= " WHERE (t.date BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 			$noderows = $db->loadObjectArray($query.$order);
 			$data = array_merge($data,$noderows);
@@ -952,7 +952,7 @@ class Search {
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
 	    $table = "webrtc_capture";                            
-            $query = "SELECT *, '".$node['name']."' as dbnode, (UNIX_TIMESTAMP(date)) as unixts FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode, (extract(epoch from to_date)) as unixts FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);                

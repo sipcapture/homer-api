@@ -137,7 +137,7 @@ class Report {
                     $table = "sip_capture_call_".$tkey;
                     $query  = "SELECT DISTINCT(correlation_id) ";   
                     $query .= "FROM ".$table;
-                    $query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                    $query .= " WHERE (date BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
                     if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
                     $noderows = $db->loadObjectArray($query.$order);
                     foreach($noderows as $k=>$d) {
@@ -168,7 +168,7 @@ class Report {
             $limit = $limit_orig;
             $callwhere = generateWhere($search, $and_or, $db, 0);
             $table = "rtcp_capture";
-            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);    
@@ -307,7 +307,7 @@ class Report {
                     $table = "sip_capture_call_".$tkey;
                     $query  = "SELECT DISTINCT(correlation_id) ";   
                     $query .= "FROM ".$table;
-                    $query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                    $query .= " WHERE (date BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
                     if(count($callwhere)) $query .= " AND correlation_id != '' AND ( " .implode(" AND ", $callwhere). ")";
                     $noderows = $db->loadObjectArray($query.$order);
                     foreach($noderows as $k=>$d) {
@@ -444,7 +444,7 @@ class Report {
             $limit = $limit_orig;
             $callwhere = generateWhere($search, $and_or, $db, 0);
             $table = "rtcp_capture";
-            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";            
             $noderows = $db->loadObjectArray($query);
 
@@ -627,7 +627,7 @@ class Report {
             $limit = $limit_orig;
             $callwhere = generateWhere($search, $and_or, $db, 0);
             $table = "report_capture";
-            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")"; 
             $query.= " AND type = 1";   
             $noderows = $db->loadObjectArray($query);
@@ -787,7 +787,7 @@ class Report {
             $limit = $limit_orig;
             $callwhere = generateWhere($search, $and_or, $db, 0);
             $table = "report_capture";
-            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";            
             $query .= " AND (type = 2 OR type = 4)";            
             $noderows = $db->loadObjectArray($query);
@@ -1018,7 +1018,7 @@ class Report {
 			$query  = "SELECT t.* ";
 			if($uniq) $query .= ", MD5(msg) as md5sum";
 			$query .= " FROM ".$table." as t";
-			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+			$query .= " WHERE (t.date BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
 			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";			
 			$noderows = $db->loadObjectArray($query.$order);
 			$data = array_merge($data,$noderows);
@@ -1403,7 +1403,7 @@ class Report {
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
 	    $table = "logs_capture";                            
-            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
             $noderows = $db->loadObjectArray($query);            
             $data = array_merge($data,$noderows);                
@@ -1522,7 +1522,7 @@ class Report {
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
 	    $table = "webrtc_capture";                            
-            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
             $noderows = $db->loadObjectArray($query);
 
@@ -1555,130 +1555,6 @@ class Report {
         return $answer;
         
     }
-
-    public function doRemoteLog($timestamp, $param){
-
-        $data = array();
-        $search = array();        
-        $lnodes = array();
-        $answer = array();  
-        $callwhere = array();
-
-        if(REMOTE_LOG == 0) {
-            $answer['sid'] = session_id();
-            $answer['auth'] = 'true';             
-            $answer['status'] = 404;                
-            $answer['message'] = 'Not enabled';                             
-            $answer['data'] = array();
-            return $answer;
-        }
-    
-        /* get our DB */
-        $db = $this->getContainer('db');
-        
-        //if(array_key_exists('node', $param)) $lnodes = $param['node'];
-        if(isset($param['location'])) $lnodes = $param['location']['node'];                
-                                                  
-        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
-        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
-        $time['from_ts'] = floor($time['from']/1000);
-        $time['to_ts'] = round($time['to']/1000);
-        
-        $time['from_ts']-=600;
-        $time['to_ts']+=60;
-        
-        /* search fields */                
-        $type = getVar('uniq', -1, $param['search'], 'int');                
-        $node = getVar('node', NULL, $param['search'], 'string');
-        $proto = getVar('proto', -1, $param['search'], 'int');
-        $family = getVar('family', -1, $param['search'], 'int');
-        $and_or = getVar('orand', NULL, $param['search'], 'string');        
-        $limit_orig = getVar('limit', 100, $param, 'int');
-        $callids = getVar('callid', array(), $param['search'], 'array');         
-        
-        $mapsCallid = array();
-
-        $cn = count($callids);
-        for($i=0; $i < $cn; $i++) {
-                $mapsCallid[$callids[$i]] =  $callids[$i];
-
-                if(BLEGCID == "b2b") {
-                    $length = strlen(BLEGTAIL);
-                    if(substr($callids[$i], -$length) == BLEGTAIL) {
-                         $k = substr($callids[$i], 0, -$length);
-                         $mapsCallid[$k] = $k;
-                    }                
-                    else {           
-                         $k = $callids[$i].BLEGTAIL;
-                         $mapsCallid[$k] = $k;
-                    }
-                     
-                    $s = substr($k, 0, -1);
-                    $mapsCallid[$s] =  $s; 
-                }
-
-                $k = substr($callids[$i], 0, -1);
-                $mapsCallid[$k] =  $k;
-        }
-
-
-        $answer = array();
-
-        if(empty($mapsCallid))
-        {                     
-                $answer['sid'] = session_id();
-                $answer['auth'] = 'true';     
-                $answer['status'] = 200;      
-                $answer['message'] = 'no data';
-                $answer['data'] = $data;
-                $answer['count'] = count($data);
-                return $answer;                 
-        }
-                        
-        $search['correlation_id'] = implode(";",  array_keys($mapsCallid));
-
-        /* remote log */
-        
-        $method = "GET";
-        $queryData = array('q' => 'other','from' => 0,'size'=> 100, 'sort' => 'postDate:desc' ) ;
-        //$url = REMOTE_LOG_URL.'/'.REMOTE_LOG_INDEX.'/'.REMOTE_LOG_DOC_TYPE.'/_search?'.http_build_query($queryData) ;
-        $url = REMOTE_LOG_URL.'/'.REMOTE_LOG_INDEX.'/_search';
-        $ch = curl_init();                    
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_PORT, 9200);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_USERPWD, REMOTE_LOG_USERNAME . ":" . REMOTE_LOG_PASSWORD);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        $result = curl_exec($ch);
-        curl_close($ch);
-        $data = json_decode($result);
-
-                
-        if(empty($data)) {
-        
-                $answer['sid'] = session_id();
-                $answer['auth'] = 'true';             
-                $answer['status'] = 200;                
-                $answer['message'] = 'no data';                             
-                $answer['data'] = $data;
-                $answer['count'] = count($data);
-        }                
-        else {
-                $answer['status'] = 200;
-                $answer['sid'] = session_id();
-                $answer['auth'] = 'true';             
-                $answer['message'] = 'ok';                             
-                $answer['data'] = $data;
-                $answer['count'] = count($data);
-        }
-        
-        return $answer;
-        
-    }
-
 
 
     public function doQualityReport($id, $timestamp, $param){
@@ -1741,7 +1617,7 @@ class Report {
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
 	    $table = "report_capture";                            
-            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+            $query = "SELECT *, '".$node['name']."' as dbnode FROM ".$table." WHERE (`date` BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
                             
             if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
             $query.= " AND type = 1";

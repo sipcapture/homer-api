@@ -38,6 +38,7 @@ $| =1;
 
 @stepsvalues = (86400, 3600, 1800, 900);
 $AFTER_FIX = 1;
+$msgsize = 1400;
 
 # Optionally load override configuration. perl format
 $rc = "/etc/sysconfig/partrotaterc";
@@ -109,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
   `rtp_stat` varchar(256) NOT NULL DEFAULT '',
   `type` int(2) NOT NULL DEFAULT 0,
   `node` varchar(125) NOT NULL DEFAULT '',
-  `msg` varchar(1500) NOT NULL DEFAULT '',
+  `msg` varchar([MSG_SIZE]) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`,`date`),
   KEY `ruri_user` (`ruri_user`),
   KEY `from_user` (`from_user`),
@@ -248,6 +249,17 @@ sub new_data_table()
 
     my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
 
+    #msg size dynamicly
+    if(!exists $CONFIG{'MSG_TABLE_SIZE'} || !exists $CONFIG{'MSG_TABLE_SIZE'}{$table}) 
+    {
+        $newmsgsize = $msgsize;                   
+    }
+    else {
+        $newmsgsize = $CONFIG{'MSG_TABLE_SIZE'}{$table};
+    }
+        
+    $sqltable=~s/\[MSG_SIZE\]/$newmsgsize/ig;        
+
     $sqltable=~s/\[TIMESTAMP\]/$table_timestamp/ig;
     
     # < condition
@@ -268,8 +280,9 @@ sub new_data_table()
     {
         $val = join(','."\n", @partsadd).",";
         $sqltable=~s/\[PARTITIONS\]/$val/ig;
-
+                        
         $sqltable=~s/\[TRANSACTION\]/$table/ig;        
+        
         $db->do($sqltable) or printf(STDERR "Failed to execute query [%s] with error: %s", ,$db->errstr) if($CONFIG{"SYSTEM"}{"exec"} == 1);
         print "create data table: $sqltable\n" if($CONFIG{"SYSTEM"}{"debug"} == 1);
         #print "$sqltable\n";        
