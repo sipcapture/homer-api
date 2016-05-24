@@ -109,4 +109,16 @@ define('REMOTE_LOG_DOC_TYPE', "sipcapture");
 define('REMOTE_LOG_USERNAME', "root");
 define('REMOTE_LOG_PASSWORD', "root"); 
 
+/*********[EXTERNAL AUTH ]********/
+define('EXTERNAL_AUTH_URI', "http://10.0.0.1/api/request");
+define('EXTERNAL_AUTH_METHOD', "GET");
+define('EXTERNAL_AUTH_PARAM', "param=[KEY]");
+define('EXTERNAL_AUTH_USERNAME', "test");
+define('EXTERNAL_AUTH_PASSWORD', "test");
+define('EXTERNAL_AUTH_REQUEST_TYPE', "cookie");
+define('EXTERNAL_AUTH_REQUEST_KEY', "extenalid");
+define('EXTERNAL_AUTH_POSITIVE_REPLY', "200");
+define('EXTERNAL_AUTH_REPLY_USER_INFO', "json");
+
+
 ?>
