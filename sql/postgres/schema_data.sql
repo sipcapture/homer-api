@@ -43,6 +43,29 @@ CREATE TABLE report_capture_p2013082901() INHERITS (report_capture);
 ALTER TABLE report_capture_p2013082901 ADD CONSTRAINT chk_report_capture_p2013082901 CHECK (date < to_timestamp(1377734400)); 
 
 
+CREATE TABLE IF NOT EXISTS webrtc_capture (
+  id BIGSERIAL NOT NULL,
+  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  micro_ts bigint NOT NULL DEFAULT '0',
+  correlation_id varchar(256) NOT NULL DEFAULT '',
+  source_ip varchar(60) NOT NULL DEFAULT '',
+  source_port integer NOT NULL DEFAULT 0,
+  destination_ip varchar(60) NOT NULL DEFAULT '',
+  destination_port integer NOT NULL DEFAULT 0,
+  proto integer NOT NULL DEFAULT 0,
+  family smallint DEFAULT NULL,
+  type integer NOT NULL DEFAULT 0,
+  node varchar(125) NOT NULL DEFAULT '',
+  msg varchar(1500) NOT NULL DEFAULT '',
+  PRIMARY KEY (id,date)
+);
+
+CREATE INDEX webrtc_capture_date ON "webrtc_capture" (date);
+CREATE INDEX webrtc_capture_correlation ON "webrtc_capture" (correlation_id);
+CREATE TABLE webrtc_capture_p2013082901() INHERITS (webrtc_capture);
+ALTER TABLE webrtc_capture_p2013082901 ADD CONSTRAINT chk_webrtc_capture_p2013082901 CHECK (date < to_timestamp(1377734400)); 
+
+
 CREATE TABLE IF NOT EXISTS rtcp_capture (
   id BIGSERIAL NOT NULL,
   date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
