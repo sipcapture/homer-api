@@ -262,7 +262,7 @@ route {
 	
 	else if(is_method("PUBLISH"))
         {
-                if(has_body("application/vq-rtcpxr") && $(rb{s.substr,0,1}) != "x") {
+                if($cT == "application/vq-rtcpxr" && $(rb{s.substr,0,1}) != "x") {
                         $var(table) = "report_capture";
                         $var(callid) = $(rb{re.subst,/.*CallID:([0-9A-Za-z@-_\.]{5,120}).*$/\1/s});
 			
