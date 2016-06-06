@@ -93,6 +93,7 @@ class External extends Authentication {
 	                $_SESSION['uid']        = $data->uid;
         	        $_SESSION['username']   = $data->username;
 	                $_SESSION['gid']        = $data->gid;
+	                $_SESSION['grp']        = $data->grp;
 	                                                
 	                $user['uid']     = $data->uid;
         	        $user['username'] = $data->username;
@@ -122,6 +123,7 @@ class External extends Authentication {
 	}
 
 	function checkSession () {
+	
         	if(!isset($_SESSION['loggedin'])) $_SESSION['loggedin'] = '-1';
 		if($_SESSION['loggedin'] == "-1") 
 		{
