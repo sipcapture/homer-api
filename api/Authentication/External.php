@@ -55,7 +55,7 @@ class External extends Authentication {
 			$key = $_COOKIE[EXTERNAL_AUTH_REQUEST_KEY];
         	}
         	
-        	$param = preg_replace('/[KEY]/', $key, EXTERNAL_AUTH_PARAM);        	
+        	$param = preg_replace('[KEY]', $key, EXTERNAL_AUTH_PARAM);        	
         	$ch = curl_init();
         	
         	if(EXTERNAL_AUTH_METHOD == "POST") 
