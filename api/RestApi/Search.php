@@ -466,6 +466,8 @@ class Search {
     
     public function doExportMessagesData($timestamp, $param, $full = false, $count = false){
 
+        if(!defined('ARCHIVE_DATABASE')) return false;
+
         /* get our DB */
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
@@ -578,7 +580,7 @@ class Search {
                         
                         $callwhere = $layerHelper['where']['param'];                                
                  
-                        if(!defined(ARCHIVE_DATABASE)) return false;
+
                  
 	                $query  = "INSERT INTO ".ARCHIVE_DATABASE.".".$table." SELECT * ";
         	        $query .= " FROM ".$table;
