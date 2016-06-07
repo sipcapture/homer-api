@@ -120,5 +120,8 @@ define('EXTERNAL_AUTH_REQUEST_KEY', "extenalid");
 define('EXTERNAL_AUTH_POSITIVE_REPLY', "200");
 define('EXTERNAL_AUTH_REPLY_USER_INFO', "json");
 
+/*** ARCHIVE DB ***/
+define('ARCHIVE_DATABASE', "archive_homer_data");
+
 
 ?>

@@ -64,6 +64,7 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
     
     ->addSubController('search', 'RestApi\Search') //adds a new sub entry point 'tools' => admin/tools
       ->addPostRoute('data', 'doSearchData') // => /api/session
+      ->addPostRoute('export/data/archive', 'doArchiveExportData') // => /api/session
       ->addPostRoute('method', 'doSearchMethod') // => /api/session
       ->addPostRoute('message', 'doSearchMessage') // => /api/session
       ->addPostRoute('transaction', 'doSearchTransaction') // => /api/session

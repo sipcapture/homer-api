@@ -115,6 +115,60 @@ class Search {
 
         return $answer;
     }
+    
+    
+    public function doArchiveExportData($timestamp, $param){
+
+	/* auth */
+        if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+	$data = array();
+
+	$return = $this->doExportMessagesData($timestamp, $param, false);
+
+        $answer = array();
+
+        if($return) {
+
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['message'] = 'ok';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+
+        return $answer;
+
+
+        $answer = array();
+
+        if(empty($data)) {
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        } else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['message'] = 'ok';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+
+        return $answer;
+    }
 
 
     public function getSearchData($raw_get_data){
@@ -409,6 +463,137 @@ class Search {
         
         return $data;
     }
+    
+    public function doExportMessagesData($timestamp, $param, $full = false, $count = false){
+
+        /* get our DB */
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+                     
+
+        $data = array();
+        $lnodes = array();
+
+        $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
+        $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
+        $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
+
+	/* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
+
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['from_ts'] = floor($time['from']/1000);
+        $time['to_ts'] = round($time['to']/1000);
+
+        /* search fields */
+        $search['from_user'] = getVar('from_user', NULL, $param['search'], 'string');
+        $search['from_domain'] = getVar('from_domain', NULL, $param['search'], 'string');
+        $search['to_user'] = getVar('to_user', NULL, $param['search'], 'string');
+        $search['to_domain'] = getVar('to_domain', NULL, $param['search'], 'string');
+        $search['ruri_user'] = getVar('ruri_user', NULL, $param['search'], 'string');
+        $search['ruri_domain'] = getVar('ruri_domain', NULL, $param['search'], 'string');
+        $search['callid'] = getVar('callid', NULL, $param['search'], 'string');
+        $search['callid_aleg'] = getVar('callid_aleg', NULL, $param['search'], 'string');
+        $search['contact_user'] = getVar('contact_user', NULL, $param['search'], 'string');
+        $search['pid_user'] = getVar('pid_user', NULL, $param['search'], 'string');
+        $search['auth_user'] = getVar('auth_user', NULL, $param['search'], 'string');
+        $search['user_agent'] = getVar('user_agent', NULL, $param['search'], 'string');
+        $search['method'] = getVar('method', NULL, $param['search'], 'string');
+        $search['cseq'] = getVar('cseq', NULL, $param['search'], 'string');
+        $search['reason'] = getVar('reason', NULL, $param['search'], 'string');
+        $search['msg'] = getVar('msg', NULL, $param['search'], 'string');
+        $search['diversion'] = getVar('diversion', NULL, $param['search'], 'string');
+        $search['via_1'] = getVar('via_1', NULL, $param['search'], 'string');
+        $search['source_ip'] = getVar('source_ip', NULL, $param['search'], 'string');
+        $search['source_port'] = getVar('source_port', NULL, $param['search'], 'string');
+        $search['destination_ip'] = getVar('destination_ip', NULL, $param['search'], 'string');
+        $search['destination_port'] = getVar('destination_port', NULL, $param['search'], 'string');
+        $search['node'] = getVar('node', NULL, $param['search'], 'string');
+        $search['proto'] = getVar('proto', NULL, $param['search'], 'string');
+        $search['family'] = getVar('family', NULL, $param['search'], 'string');
+
+        $and_or = getVar('orand', NULL, $param['search'], 'string');
+        $b2b = getVar('b2b', false, $param['search'], 'bool');
+        $uniq = getVar('uniq', false, $param['search'], 'bool');
+        #$limit_orig = getVar('limit', 100, $param, 'int');
+        $limit_orig = getVar('limit', 100, $param['search'], 'int');
+	if($limit_orig <= 0) $limit_orig = 100;
+	
+        /* callid correlation */
+
+        $callwhere = array();
+        $callwhere = generateWhere($search, $and_or, $db, $b2b);
+        
+        $fields = FIELDS_CAPTURE;
+        if($full) $fields.=", msg ";
+
+        $nodes = array();
+        if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
+        else {
+            foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
+        }
+        
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['table']['base'] = "sip_capture";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $callwhere;
+                                                                                
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
+
+        foreach($nodes as $node) {
+	    $db->dbconnect_node($node);
+	    $limit = $limit_orig;
+
+	    foreach($timearray as $tkey=>$tval) {
+		foreach($this->query_types as $query_type) {
+		    if($trans[$query_type]) {
+			if($limit < 1) break;
+
+			$layerHelper['table']['type'] = $query_type;
+                        $layerHelper['table']['timestamp'] = $tkey;
+                        $layerHelper['order']['limit'] = $limit;                        
+
+			$table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];
+			
+			if(isset($layerHelper['order']['by'])) {
+                                $order = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];
+                        }
+                        else {
+                                $order = " LIMIT ".$layerHelper['order']['limit'];
+                        }
+                        
+                        $callwhere = $layerHelper['where']['param'];                                
+                 
+                        if(!defined(ARCHIVE_DATABASE)) return false;
+                 
+	                $query  = "INSERT INTO ".ARCHIVE_DATABASE.".".$table." SELECT * ";
+        	        $query .= " FROM ".$table;
+                	$query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+	                if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
+        	        $query .= $order;
+                        $db->executeQuery($query);									
+		    }
+		}
+            }
+        }
+
+        return true;
+    }
+            
 
     public function doPcapExportData($timestamp, $param){
 
