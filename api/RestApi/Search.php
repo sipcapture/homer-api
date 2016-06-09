@@ -169,6 +169,59 @@ class Search {
 
         return $answer;
     }
+    
+    public function doTransactionArchiveExportData($timestamp, $param){
+
+	/* auth */
+        if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+	$data = array();
+
+	$return = $this->doExportTransactionMessagesData($timestamp, $param, false);
+
+        $answer = array();
+
+        if($return) {
+
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['message'] = 'ok';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+
+        return $answer;
+
+
+        $answer = array();
+
+        if(empty($data)) {
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        } else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['message'] = 'ok';
+                $answer['data'] = $data;
+                $answer['count'] = count($data);
+        }
+
+        return $answer;
+    }
 
 
     public function getSearchData($raw_get_data){
@@ -595,6 +648,95 @@ class Search {
 
         return true;
     }
+    
+    public function doExportTransactionMessagesData($timestamp, $param){
+
+        if(!defined('ARCHIVE_DATABASE')) return false;
+
+        /* get our DB */
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+
+        $trans = array();
+        $data = array();
+        $lnodes = array();
+        
+        if(isset($param['location'])) $lnodes = $param['location']['node'];
+                
+        $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
+        $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
+        $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
+        
+        /* default transaction */
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
+		$trans['rest'] = true;
+		$trans['registration'] = true;
+		$trans['call'] = true;
+	}
+
+        $location = $param['location'];
+
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['from_ts'] = floor($time['from']/1000);
+        $time['to_ts'] = round($time['to']/1000);
+        
+        //workaround for BYE click
+        $time['from_ts'] -=600;
+
+        $limit_orig = getVar('limit', 200, $param['search'], 'int');
+        if($limit_orig <= 0) $limit_orig = 200;
+
+        $record_id = getVar('id', 0, $param['search'], 'int');
+        $callids = getVar('callid', array(), $param['search'], 'array');
+        $b2b = getVar('b2b', true, $param['search'], 'bool');
+        $uniq = getVar('uniq', false, $param['search'], 'bool');
+
+        $callwhere = array();
+
+        $utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
+        $and_or = $utils['logic_or'] ? " OR " : " AND ";
+
+        $search = array();
+        /* make array */
+        $search['callid'] = implode(";", $callids);
+        $callwhere = generateWhere($search, $and_or, $db, $b2b);
+
+        $nodes = array();
+        if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
+        else {
+            foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
+        }
+	
+	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
+
+        foreach($nodes as $node)
+        {
+            $db->dbconnect_node($node);
+            $limit = $limit_orig;
+            $ts = $time['from_ts']; 
+
+	    foreach($timearray as $tkey=>$tval) {
+
+		foreach($this->query_types as $query_type) {
+		    if($trans[$query_type]) {
+			if($limit < 1) break;
+			$order = " LIMIT ".$limit;
+			$table = "sip_capture_".$query_type."_".$tkey;
+			$query  = "INSERT INTO ".ARCHIVE_DATABASE.".".$table." SELECT * ";
+			$query .= " FROM ".$table;
+			$query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+        	        $query .= $order;
+                        $db->executeQuery($query);									
+		    }
+		}
+            }
+        }
+
+        return true;
+    }
             
 
     public function doPcapExportData($timestamp, $param){
@@ -691,6 +833,7 @@ class Search {
 
         return $data;        
     }
+
 
     public function doSearchMethod($timestamp, $param){
 
