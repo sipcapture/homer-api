@@ -40,15 +40,16 @@ $| =1;
 $AFTER_FIX = 1;
 $msgsize = 1400;
 
+%CONFIG = {};
+
+read_config($config);
+
 # Optionally load override configuration. perl format
 $rc = "/etc/sysconfig/partrotaterc";
 if (-e $rc) {
   do $rc;
 }
 
-%CONFIG = {};
-
-read_config($config);
 
 $newtables = $CONFIG{"MYSQL"}{"newtables"};
 $engine = $CONFIG{"MYSQL"}{"engine"};
