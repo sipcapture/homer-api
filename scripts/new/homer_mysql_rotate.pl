@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
   `rtp_stat` varchar(256) NOT NULL DEFAULT '',
   `type` int(2) NOT NULL DEFAULT 0,
   `node` varchar(125) NOT NULL DEFAULT '',
-  `msg` varchar(1500) NOT NULL DEFAULT '',
+  `msg` varchar([MSG_SIZE]) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`,`date`),
   KEY `ruri_user` (`ruri_user`),
   KEY `from_user` (`from_user`),
