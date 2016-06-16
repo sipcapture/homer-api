@@ -38,6 +38,7 @@ my $conf_file = $ARGV[0] // $default_ini;
 
 my @stepsvalues = (86400, 3600, 1800, 900);
 my $AFTER_FIX = 1;
+my $msgsize = 1400;
 our $CONFIG = read_config($conf_file);
 
 # Optionally load override configuration. perl format
@@ -236,18 +237,27 @@ sub new_data_table {
     my $newparts=int(86400/$mystep);
 
     my @partsadd;
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($cstamp);
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = gmtime($cstamp);
     my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
 
     my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
-
     $sqltable=~s/\[TIMESTAMP\]/$table_timestamp/ig;
+
+    #msg size dynamicly
+    my $newmsgsize;
+    if(!exists $CONFIG->{'MSG_TABLE_SIZE'} || !exists $CONFIG->{'MSG_TABLE_SIZE'}{$table}) {
+        $newmsgsize = $msgsize;
+    }
+    else {
+        $newmsgsize = $CONFIG->{'MSG_TABLE_SIZE'}{$table};
+    }
+    $sqltable=~s/\[MSG_SIZE\]/$newmsgsize/ig;
 
     # < condition
     for(my $i=0; $i<$newparts; $i++) {
         my $oldstamp = $kstamp;
         $kstamp+=$mystep;
-        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($oldstamp);
+        my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = gmtime($oldstamp);
 
         my $newpartname = sprintf("p%04d%02d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
         $newpartname.= sprintf("%02d", $min) if($partstep > 1);
