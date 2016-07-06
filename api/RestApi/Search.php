@@ -228,7 +228,9 @@ class Search {
 
 	/* auth */
         if(count(($adata = $this->getLoggedIn()))) return $adata;
-
+        
+        openlog("homer", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+        
         /* get our DB */
         $db = $this->getContainer('db');
         
@@ -358,6 +360,8 @@ class Search {
                 $answer['count'] = count($data);
         }
 
+        closelog();
+        
         return $answer;
     }
 
@@ -368,6 +372,8 @@ class Search {
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
 
+        if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+        
         /* get our DB Abstract Layer */
         $layer = $this->getContainer('layer');
                      
@@ -427,6 +433,33 @@ class Search {
         $limit_orig = getVar('limit', 100, $param['search'], 'int');
 	if($limit_orig <= 0) $limit_orig = 100;
 	
+	$mapsCheck = array('from_user', 'to_user', 'ruri_user', 'pid_user');
+
+	if(NORMALIZE_NUMBER == 1)
+	{	
+
+        	foreach($mapsCheck as $mpc=>$val) {		
+	        	if($search[$val] != NULL)
+	        	{
+	        	        $mapsFrom = array();	   
+        			$k = $search[$val];      
+    	        	        $mapsFrom[$k] = $k;
+                                $m = preg_replace('/^0/', '+'.MY_COUNTRY_CODE, $k);
+                                $mapsFrom[$m] = $m;
+                                $m = preg_replace('/^0/', '00'.MY_COUNTRY_CODE, $k);
+                                $mapsFrom[$m] = $m;
+                                $m = preg_replace('/^\+'.MY_COUNTRY_CODE.'/', '0', $k);
+                                $mapsFrom[$m] = $m;
+                                $m = preg_replace('/^\+'.MY_COUNTRY_CODE.'/', '00'.MY_COUNTRY_CODE, $k);
+                                $mapsFrom[$m] = $m;
+                                //syslog(LOG_WARNING,"Search $mpc => $val: ".$search[$val]);
+                                $search[$val] = implode(";",  array_keys($mapsFrom));        	
+                        }
+                }
+        }
+
+	//$search['correlation_id'] = implode(";",  array_keys($mapsCallid));	
+	
         /* callid correlation */
 
         $callwhere = array();
@@ -480,6 +513,7 @@ class Search {
 
 			$query = $layer->querySearchMessagesData($layerHelper);			
 			$noderows = $db->loadObjectArray($query);
+			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"Search query: ".$query);
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
 		    }
@@ -513,6 +547,8 @@ class Search {
             /* sorting */
             usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
         }
+
+        if(SYSLOG_ENABLE == 1) closelog();        
         
         return $data;
     }

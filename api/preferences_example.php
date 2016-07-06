@@ -123,5 +123,12 @@ define('EXTERNAL_AUTH_REPLY_USER_INFO', "json");
 /*** ARCHIVE DB ***/
 define('ARCHIVE_DATABASE', "archive_homer_data");
 
+/* number normalization */
+define('NORMALIZE_NUMBER', 0);
+define('MY_COUNTRY_CODE', '49');
+
+/*syslog*/
+define('SYSLOG_ENABLE', 0);
+define('SYSLOG_LEVEL', 'ERROR');
 
 ?>
