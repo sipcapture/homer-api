@@ -1726,7 +1726,7 @@ class Search {
 			$part ['body'] = $lines [1];
 			
 			$method = $this->decodeIsupData($part ['body'],'method_name');
-			$method_text .= ' (ISUP-'.( ($method)?$method:'' ).') ';
+			$method_text .= ' (ISUP'.( ($method)?'-'.$method:'' ).') ';
 			
 		}
 		if(preg_match('/[0-9A-Za-z_-]/i', $data->auth_user)) $method_text .= " (AUTH)";
@@ -1741,7 +1741,7 @@ class Search {
 					
 					
 					$method = $this->decodeIsupData($part['body'],'method_name');
-					$ctype_names[] = 'ISUP-'.( ($method)?$method:'' );
+					$ctype_names[] = 'ISUP'.( ($method)?'-'.$method:'' );
 					
 				}
 			}
@@ -2535,11 +2535,8 @@ class Search {
 				/* tskark */
 				$command = TSHARK_PATH.' -V -r ' . $pcap_file . ' -O isup | '.EGREP.' \'^\s(.*)\'';
 				$output = exec($command,$arr_output);
-					
-				debug($command);
 				array_shift($arr_output);
-				debug(print_r($arr_output,true));
-				
+			
 				$retour = array(
 					'file' => $pcap_file,
 					'content' => implode("\r\n",$arr_output)
@@ -2557,7 +2554,6 @@ class Search {
 			case 'method_name':
 
 				$hex_method = sprintf("%02X",ord( $isup[0] ));
-				debug('hex method = "'.$hex_method.'"');
 				
 				if(isset($isup_method_name[$hex_method]))
 					$retour = $isup_method_name[$hex_method];			
@@ -2570,13 +2566,6 @@ class Search {
 		
 	}
     
-}
-    
-function debug($msg){
-			
-	$fd=fopen('/tmp/homer.log','a+');
-	fwrite($fd,$msg."\n");
-	fclose($fd);
 }
 
 ?>
