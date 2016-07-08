@@ -23,6 +23,11 @@ define('SINGLE_NODE', 1);
 define('PCAPDIR', ROOT."/tmp/");
 define('WEBPCAPLOC',"/tmp/");
 
+/* Tshark settings for ISUP analyse */
+define('TSHARK_ENABLED',1);
+define('TSHARK_PATH','/usr/bin/tshark');
+define('EGREP','/bin/egrep');
+
 /* INCLUDE preferences */
 
 include_once("preferences.php");
