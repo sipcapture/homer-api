@@ -37,7 +37,6 @@ my $default_ini = $script_location."/rotation.ini";
 my $conf_file = $ARGV[0] // $default_ini;
 
 my @stepsvalues = (86400, 3600, 1800, 900);
-my $AFTER_FIX = 1;
 my $msgsize = 1400;
 our $CONFIG = read_config($conf_file);
 
@@ -121,8 +120,6 @@ CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
 PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
 END
 
-my $DROP_DATA_TABLE="DROP TABLE IF EXISTS `[TRANSACTION]_[TIMESTAMP]`;";
-
 #Check DATA tables
 my $db = db_connect($CONFIG, "db_data");
 my $maxparts = 1;
@@ -145,18 +142,26 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
         }
 
         #And remove
-        my $ltable = $DROP_DATA_TABLE;
-        $ltable =~s/\[TRANSACTION\]/$table/ig;
+        say "Now removing old tables" if($CONFIG->{"SYSTEM"}{"debug"} == 1);
         my $rotation_horizon = $CONFIG->{"DATA_TABLE_ROTATION"}{$table};
-        for(my $y = $rotation_horizon; $y < ($rotation_horizon + $newtables); $y++) {
-            #$curtstamp = time()-(86400*($maxparts[$i]+$y));
-            $curtstamp = time()-(86400*$y);
-            my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($curtstamp);
-            my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
-            my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
-            my $query = $ltable;
-            $query=~s/\[TIMESTAMP\]/$table_timestamp/ig;
-            $db->do($query);
+        my $query = sprintf("SHOW TABLES LIKE '%s_%%';",$table);
+        my $sth = $db->prepare($query);
+        $sth->execute();
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time() - 86400*$rotation_horizon);
+        my $oldest = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
+        $oldest+=0;
+        while(my @ref = $sth->fetchrow_array()) {
+           my $table_name = $ref[0];
+           my($proto, $cap, $type, $ts) = split(/_/, $table_name, 4);
+           $ts+=0;
+           if($ts < $oldest) {
+               say "Removing table: $table_name" if($CONFIG->{"SYSTEM"}{"debug"} == 1);
+               my $drop = "DROP TABLE $table_name;";
+               my $drh = $db->prepare($drop);
+               $drh->execute();
+           } else {
+               say "Table $table_name is too young, leaving." if($CONFIG->{"SYSTEM"}{"debug"} == 1);
+           }
         }
     }
     #Rtcp, Logs, Reports tables
@@ -192,28 +197,6 @@ foreach my $table (keys %{ $CONFIG->{"STATS_TABLE_ROTATION"} }) {
     #$totalparts = ($maxparts+$newparts);
 
     new_partition_table($db, $CONFIG->{"MYSQL"}{"db_stats"}, $table, $mystep, $partstep, $maxparts, $newparts);
-}
-
-if($AFTER_FIX) {
-    my $db = db_connect($CONFIG, "db_data");
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time() - 24*60*60*30);
-    my $oldest = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
-    $oldest+=0;
-
-    my $query = "SHOW TABLES LIKE 'sip_capture_%';";
-    my $sth = $db->prepare($query);
-    $sth->execute();
-
-    while(my @ref = $sth->fetchrow_array()) {
-         my $table_name = $ref[0];
-         my($proto, $cap, $type, $ts) = split(/_/, $table_name, 4);
-         $ts+=0;
-         if($ts < $oldest) {
-             my $drop = "DROP TABLE $table_name;";
-             my $drh = $db->prepare($drop);
-             $drh->execute();
-         }
-    }
 }
 
 exit;
