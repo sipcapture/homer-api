@@ -210,6 +210,14 @@ sub db_connect {
 
 }
 
+sub calculate_gmt_offset {
+	my $timestamp = shift;
+	my @utc = gmtime($timestamp);
+	my @local = localtime($timestamp);
+	my $timezone_offset = mktime(@local) - mktime(@utc);
+	return $timezone_offset;
+}
+
 sub new_data_table {
 
     my $cstamp = shift;
@@ -221,8 +229,10 @@ sub new_data_table {
     my $newparts=int(86400/$mystep);
 
     my @partsadd;
+    my $tz_offset = calculate_gmt_offset($cstamp);
     my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = gmtime($cstamp);
-    my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
+    # mktime generates timestamp based on local timestamps, so we have to add our timezone offset
+    my $kstamp = mktime (0+$tz_offset, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
 
     my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
     $sqltable=~s/\[TIMESTAMP\]/$table_timestamp/ig;
