@@ -129,6 +129,8 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
 
     my $rotate = $CONFIG->{'DATA_TABLE_ROTATION'}{$table};
     my $partstep = $CONFIG->{'DATA_TABLE_STEP'}{$table};
+    $newparts = $CONFIG->{'MYSQL'}{'newtables'};
+    $maxparts = $CONFIG->{'DATA_TABLE_ROTATION'}{$table} + $newparts;
 
     $partstep = 0 if(!defined $stepsvalues[$partstep]);
     my $mystep = $stepsvalues[$partstep];
@@ -182,7 +184,8 @@ $maxparts = 1;
 $newparts = 1;
 foreach my $table (keys %{ $CONFIG->{"STATS_TABLE_ROTATION"} }) {
 
-    my $rotate = $CONFIG->{'STATS_TABLE_ROTATION'}{$table};
+    $newparts = $CONFIG->{'MYSQL'}{'newtables'};
+    $maxparts = $CONFIG->{'STATS_TABLE_ROTATION'}{$table} + $newparts;
     my $partstep = $CONFIG->{'STATS_TABLE_STEP'}{$table};
 
     #Check it
