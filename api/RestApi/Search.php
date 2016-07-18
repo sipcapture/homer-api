@@ -876,9 +876,67 @@ class Search {
         if(count(($adata = $this->getLoggedIn()))) return $adata;
         /* get our DB */
 
-        $rtc = getVar('rtc', false, $param['transaction'], 'bool');
-        if(!$rtc) $data = $this->getMessagesByMethod($timestamp, $param);
-        else $data = $this->getMessagesRTCByMethod($timestamp, $param);
+        $data = $this->getMessagesByMethod($timestamp, $param);
+        
+        while(list($i,$message)=each($data)){
+        	
+        	$new_message = '';
+        	$isup_part = array();
+        	
+	    	if(preg_match('/multipart/i', $message['content_type'])){
+	    		
+				$d_message = $this->getMultipartMessage($message['msg'],$message['content_type']);
+				$new_message = $d_message['headers']."\n\n";
+				
+				while(list($k,$part)=each($d_message['mime_parts'])){
+
+					$new_message .= "--".$d_message['boundary']."\n";
+					$new_message .= $part['header'];
+					$new_message .= "\n\n";
+					
+					if(preg_match('/sdp/i', $part['header']))
+						$new_message .= $part['body'];
+					
+					if(preg_match('/isup/i', $part['header'])){			
+						$new_message .= $this->decodeIsupData($part['body'],'hex_decode');
+						if(TSHARK_ENABLED == "1")
+							$isup_part = $this->decodeIsupData($part['body'],'isup_decode');
+					}
+					
+					$new_message .= "\n\n";
+					
+				}
+				
+				$new_message .= "--".$d_message['boundary']."--\n\n";
+				
+				if($isup_part)
+					$new_message .= "pcap file: ".$isup_part['file']."\n".$isup_part['content'];
+
+	    	} else if (preg_match('/isup/i', $message['content_type'])){ 
+	    	
+				$part = array();
+				$lines = explode ( "\r\n\r\n", $message['msg'] );
+	    		
+				$part ['header'] = $lines [0];
+				$part ['body'] = $lines [1];
+	    		
+				$new_message .= $part['header']."\n\n";    		
+				$new_message .= $this->decodeIsupData($part['body'],'hex_decode');
+				
+				if(TSHARK_ENABLED == "1"){
+					$isup_part = $this->decodeIsupData($part['body'],'isup_decode');
+					$new_message .= "\n\npcap file: ".$isup_part['file']."\n\n".$isup_part['content'];
+				}
+	    		
+        	} else {
+	    		
+	    		$new_message = $message['msg'];
+	    		
+	    	}
+	    	
+	    	$data[$i]['msg'] = $new_message;
+	    	
+		}
 
         $answer = array();
 
@@ -1380,7 +1438,7 @@ class Search {
         $data =  $this->getMessagesForTransaction($timestamp, $param);
                     
         foreach($data as $row) {
-                $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
+                $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, false);
                 if(!$min_ts) $min_ts = $row['micro_ts'];
         }
         
@@ -1471,7 +1529,7 @@ class Search {
             $data =  $this->getMessagesForTransaction($timestamp, $param);
 
             foreach($data as $row) {   
-                    $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
+                    $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, false);
                     if(!$min_ts) $min_ts = $row['micro_ts'];
             }
 
@@ -1695,7 +1753,39 @@ class Search {
 		//SDP ?
 		$val = "content_type";
 		if(preg_match('/sdp/i', $data->content_type)) $method_text .= " (SDP) ";
+		if(preg_match('/isup/i', $data->content_type)) {
+			
+			$part = array();
+			$lines = explode ( "\r\n\r\n", $data->msg );
+			
+			$part ['header'] = $lines [0];
+			$part ['body'] = $lines [1];
+			
+			$method = $this->decodeIsupData($part ['body'],'method_name');
+			$method_text .= ' (ISUP'.( ($method)?'-'.$method:'' ).') ';
+			
+		}
 		if(preg_match('/[0-9A-Za-z_-]/i', $data->auth_user)) $method_text .= " (AUTH)";
+		if(preg_match('/multipart/i', $data->content_type)){
+			
+			$d_message = $this->getMultipartMessage($data->msg,$data->content_type);
+			
+			while(list($k,$part)=each($d_message['mime_parts'])){
+				
+				if(preg_match('/sdp/i', $part['header'])) $ctype_names[] = 'SDP';
+				if(preg_match('/isup/i', $part['header'])) {
+					
+					
+					$method = $this->decodeIsupData($part['body'],'method_name');
+					$ctype_names[] = 'ISUP'.( ($method)?'-'.$method:'' );
+					
+				}
+			}
+			
+			$method_text .= " (".implode('/',$ctype_names).")";
+			
+			
+		}
 		$calldata["method_text"] = $method_text;
 
 		// MSG Temperature
@@ -2321,6 +2411,196 @@ class Search {
 
    	return $timearray;
    }
+    
+	function decodeIsupPart($body) {
+		$len = strlen ( $body );
+		$isup_readable = '';
+		
+		for($j = 0; $j < $len; $j ++)
+			
+			$isup_readable .= sprintf ( "%02X ", ord ( $body [$j] ) );
+			
+			/* PCAP */
+		$pcap_file = '/tmp/' . uniqid () . '.pcap';
+		$fd = fopen ( $pcap_file, 'wb' );
+		$pcap_headers_1 = array (
+				'D4',
+				'C3',
+				'B2',
+				'A1',
+				'02',
+				'00',
+				'04',
+				'00',
+				'00',
+				'00',
+				'00',
+				'00',
+				'00',
+				'00',
+				'00',
+				'00',
+				'00',
+				'90',
+				'01',
+				'00',
+				'8C',
+				'00',
+				'00',
+				'00',
+				'64',
+				'D1',
+				'EB',
+				'56',
+				'78',
+				'D4',
+				'03',
+				'00' 
+		);
+		
+		while ( list ( $hpk, $hpv ) = each ( $pcap_headers_1 ) ) {
+			fwrite ( $fd, chr ( hexdec ( $hpv ) ) );
+		}
+		
+		$pcap_len = chr ( $len + 10 ) . chr ( 0 ) . chr ( 0 ) . chr ( 0 );
+		fwrite ( $fd, $pcap_len . $pcap_len );
+		
+		$pcap_headers_2 = array (
+				'DF',
+				'A5',
+				'3A',
+				'85',
+				'df',
+				'cd',
+				'0d',
+				'33',
+				'03',
+				'00' 
+		);
+		while ( list ( $hpk, $hpv ) = each ( $pcap_headers_2 ) ) {
+			fwrite ( $fd, chr ( hexdec ( $hpv ) ) );
+		}
+		fwrite ( $fd, $res ['body'] );
+		fclose ( $fd );
+		
+		/* tskark */
+		$command = TSHARK_PATH.' -V -r ' . $pcap_file . ' -O isup | '.EGREP.' \'^\s(.*)\'';
+		$output = exec ( $command, $arr_output );
+		
+		$pcap_message = "\n\nfile: " . $pcap_file . "\n\n";
+		$pcap_message .= implode ( "\r\n", $arr_output );
+		$pcap_message .= "\n\n";
+		
+	}
+   
+	private function getMultipartMessage($msg,$content_type) {
+		
+		$boundary = $this->getBoundaryName($content_type);
+		
+		$matches = preg_split ( '/\-\-' . $boundary . '(--)?(\r\n)/', $msg );
+		$retour = array();
+
+		$retour['headers'] = trim($matches [0]);
+		$retour['boundary'] = $boundary;
+		
+		$mime_parts = array();
+		
+		while ( list ( $key, $val ) = each ( $matches ) ) {
+			
+			if (preg_match ( '/^(Content\-Type: )(.*)/i', $val, $m )) {
+
+				$mime_parts[] = $this->getMultipart($val);
+
+			}
+		}
+		
+		$retour['mime_parts'] = $mime_parts;
+		return $retour;
+		
+	}
+	
+	private function getMultipart($part){
+		
+		$lines = explode ( "\r\n\r\n", $part );
+		
+		$res = array (
+				'ctype' => $m[2],
+				'header' => '',
+				'body' => ''
+		);
+		
+		$res ['header'] = $lines [0];
+		$res ['body'] = substr ( $lines [1], 0, - 2 );
+		
+		return $res;
+		
+	}
+	
+	private function getBoundaryName($content_type){
+		preg_match('/boundary\=(.*)/',$content_type,$matches);	
+		return trim($matches[1],"\x00,\x09,\x0A,\x0B,\x0D,\x20,\x22");
+	}
+	
+	private function decodeIsupData($isup,$type){
+		
+		$retour = null;
+		$len = strlen($isup);
+		$isup_method_name = array('01' => 'IAM','02' => 'SAM','03' => 'INR','04' => 'INF','06' => 'ACM','07' => 'CON','08' => 'FOT','09' => 'ANM','10' => 'RLC','12' => 'RSC','13' => 'BLO','14' => 'UBL','15' => 'BLA','16' => 'UBA','17' => 'GRS','18' => 'CGB','19' => 'CGU','20' => 'FAA','21' => 'FRJ','27' => 'DRS','28' => 'PAM','29' => 'GRA','30' => 'OLM','31' => 'CRG','32' => 'NRM','33' => 'FAC','34' => 'UPT','35' => 'UPA','36' => 'IDR','37' => 'IRS','38' => 'SGM','40' => 'LOP','41' => 'APM','42' => 'PRI','49' => 'CMC','0C' => 'REL','0D' => 'SUS','0E' => 'RES','1A' => 'CGBA','1B' => 'CGUA','1F' => 'FAR','2A' => 'CQM','2B' => 'CQR','2C' => 'CPG','2D' => 'USR','2E' => 'UCIC','2F' => 'CFN','4A' => 'CMRJ','4B' => 'CMR','E9' => 'CRA','EA' => 'CRM','EB' => 'CVR','EC' => 'CVT','ED' => 'EXM','FC' => 'CCL','FD' => 'MPM','FE' => 'OPR');
+		
+		switch($type){
+		
+			case 'isup_decode':
+				
+				$pcap_file = '/tmp/'.uniqid().'.pcap';
+				$fd=fopen($pcap_file,'wb');
+				$pcap_headers_1 = array('D4','C3','B2','A1','02','00','04','00','00','00','00','00','00','00','00','00','00','90','01','00','8C','00','00','00','64','D1','EB','56','78','D4','03','00');
+				while(list($hpk,$hpv)=each($pcap_headers_1)){
+					fwrite($fd,chr(hexdec($hpv)));
+				}
+					
+				$pcap_len = chr($len+10).chr(0).chr(0).chr(0);
+				fwrite($fd,$pcap_len.$pcap_len);
+				
+				$pcap_headers_2 = array('DF','A5','3A','85','df','cd','0d','33','03','00');
+				while(list($hpk,$hpv)=each($pcap_headers_2)){
+					fwrite($fd,chr(hexdec($hpv)));
+				}
+				fwrite($fd, $isup);
+				fclose($fd);
+					
+				/* tskark */
+				$command = TSHARK_PATH.' -V -r ' . $pcap_file . ' -O isup | '.EGREP.' \'^\s(.*)\'';
+				$output = exec($command,$arr_output);
+				array_shift($arr_output);
+			
+				$retour = array(
+					'file' => $pcap_file,
+					'content' => implode("\r\n",$arr_output)
+				);
+				
+			break;
+			
+			case 'hex_decode':
+
+				for ($j = 0; $j < $len; $j++)
+					$retour .= sprintf("%02X ", ord($isup[$j]));
+				
+			break;
+			
+			case 'method_name':
+
+				$hex_method = sprintf("%02X",ord( $isup[0] ));
+				
+				if(isset($isup_method_name[$hex_method]))
+					$retour = $isup_method_name[$hex_method];			
+				
+			break;
+				
+		}
+		
+		return $retour;
+		
+	}
     
 }
 
