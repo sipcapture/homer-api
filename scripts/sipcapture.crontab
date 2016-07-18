@@ -3,3 +3,4 @@
 # at low traffic time
 
 30 4 * * * root /usr/bin/homer_rotate > /dev/null 2>&1
+2 * * * *  root /usr/bin/homer_partremove > /dev/null 2>&1
