@@ -67,7 +67,7 @@ foreach my $table (keys %{ $CONFIG->{"DROP_OLD_PARTITIONS"} }) {
 			}
 		}
 		# delete old partitions
-		if($#partitions_to_remove > 0) {
+		if(scalar @partitions_to_remove > 0) {
 			drop_partitions($db, $todaytable, @partitions_to_remove);
 		}
 	}
