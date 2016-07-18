@@ -436,24 +436,31 @@ class Search {
 	$mapsCheck = array('from_user', 'to_user', 'ruri_user', 'pid_user');
 
 	if(NORMALIZE_NUMBER == 1)
-	{	
+        {
 
-        	foreach($mapsCheck as $mpc=>$val) {		
-	        	if($search[$val] != NULL)
-	        	{
-	        	        $mapsFrom = array();	   
-        			$k = $search[$val];      
-    	        	        $mapsFrom[$k] = $k;
+                foreach($mapsCheck as $mpc=>$val) {
+                        if($search[$val] != NULL)
+                        {
+                                $mapsFrom = array();
+                                $k = $search[$val];
+                                $mapsFrom[$k] = $k;
+                                /* normal */
                                 $m = preg_replace('/^0/', '+'.MY_COUNTRY_CODE, $k);
                                 $mapsFrom[$m] = $m;
                                 $m = preg_replace('/^0/', '00'.MY_COUNTRY_CODE, $k);
                                 $mapsFrom[$m] = $m;
+                                /* + */
                                 $m = preg_replace('/^\+'.MY_COUNTRY_CODE.'/', '0', $k);
                                 $mapsFrom[$m] = $m;
-                                $m = preg_replace('/^\+'.MY_COUNTRY_CODE.'/', '00'.MY_COUNTRY_CODE, $k);
+                                $m = preg_replace('/^\+/', '00', $k);
+                                $mapsFrom[$m] = $m;
+                                /* 00 */
+                                $m = preg_replace('/^00'.MY_COUNTRY_CODE.'/', '0', $k);
+                                $mapsFrom[$m] = $m;
+                                $m = preg_replace('/^00/', '\+', $k);
                                 $mapsFrom[$m] = $m;
                                 //syslog(LOG_WARNING,"Search $mpc => $val: ".$search[$val]);
-                                $search[$val] = implode(";",  array_keys($mapsFrom));        	
+                                $search[$val] = implode(";",  array_keys($mapsFrom));
                         }
                 }
         }
