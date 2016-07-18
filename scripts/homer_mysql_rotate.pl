@@ -129,6 +129,8 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
 
     my $rotate = $CONFIG->{'DATA_TABLE_ROTATION'}{$table};
     my $partstep = $CONFIG->{'DATA_TABLE_STEP'}{$table};
+    $newparts = $CONFIG->{'MYSQL'}{'newtables'};
+    $maxparts = $CONFIG->{'DATA_TABLE_ROTATION'}{$table} + $newparts;
 
     $partstep = 0 if(!defined $stepsvalues[$partstep]);
     my $mystep = $stepsvalues[$partstep];
@@ -147,7 +149,7 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
         my $query = sprintf("SHOW TABLES LIKE '%s_%%';",$table);
         my $sth = $db->prepare($query);
         $sth->execute();
-        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time() - 86400*$rotation_horizon);
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time() - 86400*$rotation_horizon);
         my $oldest = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
         $oldest+=0;
         while(my @ref = $sth->fetchrow_array()) {
@@ -182,7 +184,8 @@ $maxparts = 1;
 $newparts = 1;
 foreach my $table (keys %{ $CONFIG->{"STATS_TABLE_ROTATION"} }) {
 
-    my $rotate = $CONFIG->{'STATS_TABLE_ROTATION'}{$table};
+    $newparts = $CONFIG->{'MYSQL'}{'newtables'};
+    $maxparts = $CONFIG->{'STATS_TABLE_ROTATION'}{$table} + $newparts;
     my $partstep = $CONFIG->{'STATS_TABLE_STEP'}{$table};
 
     #Check it
@@ -210,6 +213,14 @@ sub db_connect {
 
 }
 
+sub calculate_gmt_offset {
+	my $timestamp = shift;
+	my @utc = gmtime($timestamp);
+	my @local = localtime($timestamp);
+	my $timezone_offset = mktime(@local) - mktime(@utc);
+	return $timezone_offset;
+}
+
 sub new_data_table {
 
     my $cstamp = shift;
@@ -221,8 +232,10 @@ sub new_data_table {
     my $newparts=int(86400/$mystep);
 
     my @partsadd;
+    my $tz_offset = calculate_gmt_offset($cstamp);
     my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = gmtime($cstamp);
-    my $kstamp = mktime (0, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
+    # mktime generates timestamp based on local timestamps, so we have to add our timezone offset
+    my $kstamp = mktime (0+$tz_offset, 0, 0, $mday, $mon, $year, $wday, $yday, $isdst);
 
     my $table_timestamp = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
     $sqltable=~s/\[TIMESTAMP\]/$table_timestamp/ig;
@@ -295,11 +308,8 @@ sub new_partition_table {
            $sth->execute();
     }
 
-    $query = "SELECT UNIX_TIMESTAMP(CURDATE())";
-    $sth = $db->prepare($query);
-    $sth->execute();
-    my ($curtstamp) = $sth->fetchrow_array();
-    $curtstamp+=0;
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime();
+    my $curtstamp = time() - $sec - 60 * $min - 3600 * $hour;
     my $todaytstamp+=0;
 
     my %PARTS;
@@ -359,7 +369,7 @@ sub new_partition_table {
     for(my $i=0; $i<$newparts; $i++) {
         my $oldstamp = $curtstamp;
         $curtstamp+=$mystep;
-        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($oldstamp);
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($oldstamp);
         my $newpartname = sprintf("p%04d%02d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
         $newpartname.= sprintf("%02d", $min) if($partstep > 1);
         if(!defined $PARTS{$newpartname."_".$curtstamp}) {
@@ -377,7 +387,7 @@ sub new_partition_table {
         # Fix MAXVALUE. Thanks Dorn B. <djbinter@gmail.com> for report and fix.
         my $query = "ALTER TABLE ".$table." REORGANIZE PARTITION pmax INTO (".join(',', @partsadd) ."\n, PARTITION pmax VALUES LESS THAN MAXVALUE)";
         say "Alter partition: [$query]" if($CONFIG->{"SYSTEM"}{"debug"} == 1);
-        $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s\n", ,$db->errstr) if($CONFIG->{"SYSTEM"}{"exec"} == 1);
+        $db->do($query) or printf(STDERR "Failed to execute query [%s] with error: %s\n", $query, $db->errstr) if($CONFIG->{"SYSTEM"}{"exec"} == 1);
         if (!$db->{Executed}) {
             print "Couldn't drop partition: $minpart\n";
             break;
