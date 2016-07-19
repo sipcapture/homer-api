@@ -476,8 +476,14 @@ class Report {
 		$dst_ip = $data[$key]["destination_ip"];
 
 		if(!is_array($data[$key]["msg"])) {
-			$d = json_decode($data[$key]["msg"], true);
-			$data[$key]["msg"] = $d;
+			/* fix JSON if we have some wrong chracters at the end*/
+			$json = $data[$key]["msg"];
+			$whole_length = strlen($json); 
+    			$right_length = (strlen(strrchr($json, "}")) - 1); 
+    			$left_length = ($whole_length - $right_length - 1); 
+		        $json = substr($json, 0, ($left_length + 1)); 
+			//$json = $data[$key]["msg"];
+			$data[$key]["msg"] = json_decode($json, true);
 		}
 		
 		$ipkey= "RTCP[".$data[$key]["msg"]["sdes_ssrc"]."] ". $src_ip." -> ".$dst_ip;
