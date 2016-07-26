@@ -274,7 +274,9 @@ route {
 #!ifdef KAMAILIO_4_3
 			xlog("report_capture is not in < 4.3");
 #!else
-			report_capture("$var(table)", "$var(callid)");
+			#Workaround for Kamailio < 5
+			report_capture("$var(table)", "$var(callid)", "$mb");
+			#report_capture("$var(table)", "$var(callid)");
 #!endif                        
                         drop;
                 }
