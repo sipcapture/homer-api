@@ -475,7 +475,7 @@ route[CHECK_STATS] {
 	#INVITE
 	if(cache_fetch("local","a=>method::reinvite",$var(tmpvar))) {
 		cache_remove("local","a=>method::reinvite");
-	        avp_db_query("INSERT INTO stats_method (from_date, to_date, method, totag, total) VALUES($var(f_date), $var(t_date),'INVITE', 1, $var(tmpvar))) ON DUPLICATE KEY UPDATE total=total+$var(tmpvar)");
+	        avp_db_query("INSERT INTO stats_method (from_date, to_date, method, totag, total) VALUES($var(f_date), $var(t_date),'INVITE', 1, $var(tmpvar)) ON DUPLICATE KEY UPDATE total=total+$var(tmpvar)");
 	}
 
 	#INVITE
