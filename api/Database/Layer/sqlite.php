@@ -39,38 +39,99 @@ class sqlite {
         function querySearchData($layerHelper) 
         {
         
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
-                $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
+		if(isset($layerHelper['order']['by'])) {
+	                $order = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];
+		}
+		else {
+	                $order = " LIMIT ".$layerHelper['order']['limit'];
+		}
                 $values = implode(",", $layerHelper['values']);
-                $time = $layerHelper['time'];                                
                 $callwhere = $layerHelper['where']['param'];                                
                 
-                $query  = "SELECT t.".$values;
-                $query .= " FROM ".$table." as t ";
-                $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-                if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
-                $query .= $order;
+                $query  = "SELECT ".$values;
                 
+                if(isset($layerHelper['fields']))        
+                {
+                        if(isset($layerHelper['fields']['msg']) && $layerHelper['fields']['msg'] == true)
+                        {
+                                $query .= ",msg";                        
+                        }
+                                                
+                        if(isset($layerHelper['fields']['md5msg']) && $layerHelper['fields']['md5msg'] == true)
+                        {
+                                $query .= ",MD5(msg) as md5sum";
+                        }                                        
+                }                
+                
+                if(isset($layerHelper['fields']['ts']))                        
+                {
+                        foreach($layerHelper['fields']['ts'] as $k=>$v) {
+                                $query .= ", UNIX_TIMESTAMP(".$v['name'].") as ".$v['alias'];
+                        }
+                }                
+                
+                $query .= " FROM ".$table." as t ";
+                
+                if(isset($layerHelper['time']))
+                {
+                        $time = $layerHelper['time'];                                                          
+                        $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                        if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
+                }
+                else if(count($callwhere))
+                {
+                        $query .= " WHERE ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
+                }
+                
+                $query .= $order;
+                                
                 return $query;
         }                                    
         
-        /*generate a query for SQLITE and Search DATA POST */                
-        function querySearchMessagesData($layerHelper) 
+        
+        function queryInsertIntoData($layerHelper) 
         {
         
-                $table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
-                $order = " order by ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];                
+		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
+		if(isset($layerHelper['order']['by'])) {
+	                $order = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];
+		}
+		else {
+	                $order = " LIMIT ".$layerHelper['order']['limit'];
+		}
                 $values = implode(",", $layerHelper['values']);
-                $time = $layerHelper['time'];                                
                 $callwhere = $layerHelper['where']['param'];                                
                 
-                $query  = "SELECT t.".$values;
-                $query .= " FROM ".$table." as t ";
-                $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-                if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
+                $query  = "INSERT INTO ";                        
+                
+                if(isset($layerHelper['table']['destination']) && isset($layerHelper['table']['destination']['db']))                      
+                {
+                        $query.=$layerHelper['table']['destination']['db'].".";
+                }                
+                
+                $query .= $table. " SELECT ".$values." FROM ".$table;
+                
+                if(isset($layerHelper['time']))
+                {
+                        $time = $layerHelper['time'];                                                          
+                        $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
+                        if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
+                }
+                else if(count($callwhere))
+                {
+                        $query .= " WHERE ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
+                }
+                
                 $query .= $order;
+                                
                 return $query;
-        }                                    
+        }                                            
+        
+	function getExpire($now, $math, $interval, $type)
+        {
+                return $now." ".$math." INTERVAL ".$interval." ".$type;  
+        }
 }
 
 ?>

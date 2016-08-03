@@ -288,11 +288,20 @@ class Search {
         $layerHelper = array();
         $layerHelper['table'] = array();        
         $layerHelper['order'] = array();                
-        $layerHelper['where'] = array();                                
+        $layerHelper['where'] = array();                    
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();                     
+        
+        $layerHelper['time'] = $time;			                                       
         $layerHelper['table']['base'] = "sip_capture";        
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";                
         $layerHelper['where']['param'] = $callwhere;
-                
+        $layerHelper['fields']['msg'] = false;
+	if($uniq) $layerHelper['fields']['md5msg'] = true;			      	
+	$layerHelper['values'][] = FIELDS_CAPTURE;
+        $layerHelper['values'][] = "'".$query_type."' as trans";
+        $layerHelper['values'][] = "'".$node['name']."' as dbnode";                                               
+			                    
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
         foreach($nodes as $node) {
@@ -308,14 +317,7 @@ class Search {
 			    
 			    $layerHelper['table']['type'] = $query_type;
 			    $layerHelper['table']['timestamp'] = $tkey;
-			    $layerHelper['time'] = $time;			    
-			    $layerHelper['order']['limit'] = $limit;
-			    
-			    $layerHelper['values'] = array();
-			    $layerHelper['values'][] = FIELDS_CAPTURE;
-                            $layerHelper['values'][] = "'".$query_type."' as trans";
-                            $layerHelper['values'][] = "'".$node['name']."' as dbnode";
-                            if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
+			    $layerHelper['order']['limit'] = $limit;			    
 			    			    
 			    $query = $layer->querySearchData($layerHelper);
 			    $noderows = $db->loadObjectArray($query);
@@ -473,7 +475,7 @@ class Search {
         $callwhere = generateWhere($search, $and_or, $db, $b2b);
         
         $fields = FIELDS_CAPTURE;
-        if($full) $fields.=", msg ";
+
 
         $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
@@ -485,11 +487,28 @@ class Search {
         $layerHelper['table'] = array();
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        
         $layerHelper['table']['base'] = "sip_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
-                                                                                
+        $layerHelper['time'] = $time;                                        
+        $layerHelper['fields']['msg'] = $full;
+                
+        if(!$count)
+        {                         
+        	$layerHelper['values'][] = $fields;
+                $layerHelper['values'][] = "'".$query_type."' as trans";
+                $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+                if($uniq) $layerHelper['fields']['md5msg'] = true;
+	}
+        else {
+        	$layerHelper['values'][] = "count(*) as cnt";                        
+	}
+        
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
+	
 
         foreach($nodes as $node) {
 	    $db->dbconnect_node($node);
@@ -502,23 +521,9 @@ class Search {
 
 			$layerHelper['table']['type'] = $query_type;
                         $layerHelper['table']['timestamp'] = $tkey;
-                        $layerHelper['time'] = $time;
                         $layerHelper['order']['limit'] = $limit;                        
 
-                        $layerHelper['values'] = array();
-                        
-                        if(!$count)
-                        {                         
-                            $layerHelper['values'][] = $fields;
-                            $layerHelper['values'][] = "'".$query_type."' as trans";
-                            $layerHelper['values'][] = "'".$node['name']."' as dbnode";
-                            if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
-                        }
-                        else {
-                            $layerHelper['values'][] = "count(*) as cnt";                        
-                        }
-
-			$query = $layer->querySearchMessagesData($layerHelper);			
+			$query = $layer->querySearchData($layerHelper);			
 			$noderows = $db->loadObjectArray($query);
 			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"Search query: ".$query);
 			$data = array_merge($data,$noderows);
@@ -646,9 +651,15 @@ class Search {
         $layerHelper['table'] = array();
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['time'] = $time;                 
+        
         $layerHelper['table']['base'] = "sip_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
+        $layerHelper['table']['destination'] = array();
+        $layerHelper['table']['destination']['db'] = ARCHIVE_DATABASE;                                                                                                        
                                                                                 
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
 
@@ -665,24 +676,7 @@ class Search {
                         $layerHelper['table']['timestamp'] = $tkey;
                         $layerHelper['order']['limit'] = $limit;                        
 
-			$table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];
-			
-			if(isset($layerHelper['order']['by'])) {
-                                $order = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];
-                        }
-                        else {
-                                $order = " LIMIT ".$layerHelper['order']['limit'];
-                        }
-                        
-                        $callwhere = $layerHelper['where']['param'];                                
-                 
-
-                 
-	                $query  = "INSERT INTO ".ARCHIVE_DATABASE.".".$table." SELECT * ";
-        	        $query .= " FROM ".$table;
-                	$query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-	                if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
-        	        $query .= $order;
+        	        $query = $layer->queryInsertIntoData($layerHelper);
                         $db->executeQuery($query);									
 		    }
 		}
@@ -700,6 +694,10 @@ class Search {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+
+	/* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+         
 
         $trans = array();
         $data = array();
@@ -754,6 +752,19 @@ class Search {
 	
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
 
+	$layerHelper = array();
+	$layerHelper['table'] = array(); 
+	$layerHelper['order'] = array(); 
+	$layerHelper['where'] = array(); 
+	$layerHelper['fields'] = array();
+	$layerHelper['values'] = array();
+	$layerHelper['time'] = $time;
+	$layerHelper['table']['base'] = "sip_capture";
+	$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+	$layerHelper['where']['param'] = $callwhere;   
+	$layerHelper['table']['destination'] = array();
+	$layerHelper['table']['destination']['db'] = ARCHIVE_DATABASE;   
+
         foreach($nodes as $node)
         {
             $db->dbconnect_node($node);
@@ -765,14 +776,13 @@ class Search {
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
-			$order = " LIMIT ".$limit;
-			$table = "sip_capture_".$query_type."_".$tkey;
-			$query  = "INSERT INTO ".ARCHIVE_DATABASE.".".$table." SELECT * ";
-			$query .= " FROM ".$table;
-			$query .= " WHERE (date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-        	        $query .= $order;
-                        $db->executeQuery($query);									
+			
+			$layerHelper['table']['type'] = $query_type;
+                        $layerHelper['table']['timestamp'] = $tkey;
+                        $layerHelper['order']['limit'] = $limit;
+
+                        $query = $layer->queryInsertIntoData($layerHelper);
+                        $db->executeQuery($query);
 		    }
 		}
             }
@@ -978,6 +988,9 @@ class Search {
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
 
+	/* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+         
         $data = array();
 
         $record_id = getVar('id', 0, $param['search'], 'int');
@@ -1004,7 +1017,7 @@ class Search {
         $and_or = $utils['logic_or'] ? " OR " : " AND ";
 
         $limit = 1;
-        $search['t.id'] = $record_id;
+        $search['id'] = $record_id;
         $callwhere = generateWhere($search, $and_or, $db, 0);
 
 
@@ -1016,19 +1029,36 @@ class Search {
 
         $timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        
+        $layerHelper['time'] = $time;
+        $layerHelper['fields']['msg'] = true;                        
+        if($uniq) $layerHelper['fields']['md5msg'] = true;
+        $layerHelper['table']['base'] = "sip_capture";
+        $layerHelper['where']['type'] = "AND";
+        $layerHelper['where']['param'] = $callwhere;        
+        $layerHelper['values'][] = FIELDS_CAPTURE;
+        $layerHelper['values'][] = "'".$query_type."' as trans";
+        $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+
         foreach($nodes as $node) {
             $db->dbconnect_node($node);
             foreach($timearray as $tkey=>$tval) {
                 foreach($this->query_types as $query_type) {
                     if($trans[$query_type]) {
                         if($limit < 1) break;
-                        $order = " LIMIT ".$limit;
-                        $table = "sip_capture_".$query_type."_".$tkey;
-                        $query  = "SELECT t.*, '".$query_type."' as trans ";
-                        $query .= "FROM ".$table." as t";
-                        $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-                        if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-                        $noderows = $db->loadObjectArray($query.$order);
+                        
+                        $layerHelper['table']['type'] = $query_type;
+                        $layerHelper['table']['timestamp'] = $tkey;
+                        $layerHelper['order']['limit'] = $limit;
+                        
+                        $query = $layer->querySearchData($layerHelper);
+                        $noderows = $db->loadObjectArray($query);
                         $data = array_merge($data,$noderows);
                         $limit -= count($noderows);
                     }
@@ -1050,6 +1080,9 @@ class Search {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+
+	/* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');         
 
         $data = array();
 
@@ -1078,14 +1111,36 @@ class Search {
 
         $timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
+	$layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+
+        $layerHelper['time'] = $time;                 
+        $layerHelper['table']['base'] = "webrtc_capture";         
+	$layerHelper['table']['notime'] = true;
+        $layerHelper['where']['type'] = "AND";
+        $layerHelper['where']['param'] = $callwhere;
+        $layerHelper['fields']['msg'] = false;
+	
+ 	$layerHelper['values'][] = "*";
+	$layerHelper['values'][] = "'".$node['name']."' as dbnode";
+	$layerHelper['fields']['ts'] = array();
+	$layerHelper['fields']['ts'][0]=array();
+	$layerHelper['fields']['ts'][0]['name'] = 'date';
+	$layerHelper['fields']['ts'][0]['alias'] = 'unixts';
+
+
         foreach($nodes as $node) {
             $db->dbconnect_node($node);
             if($limit < 1) break;
-            $order = " LIMIT ".$limit;
-            $table = "webrtc_capture";                            
-            $query = "SELECT *, '".$node['name']."' as dbnode, (UNIX_TIMESTAMP(date)) as unixts FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-            $noderows = $db->loadObjectArray($query.$order);
+
+	    $layerHelper['order']['limit'] = $limit;
+
+	    $query = $layer->querySearchData($layerHelper);
+            $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);
             $limit -= count($noderows);            
         }
@@ -1107,6 +1162,9 @@ class Search {
         $node = array( "dbname" =>  DB_HOMER);
         if(SINGLE_NODE == 1) $node = array( "dbname" =>  DB_HOMER);
         $db->dbconnect_node($node);
+
+	/* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');         
 
         $data = array();
         $search = array();
@@ -1144,22 +1202,37 @@ class Search {
 
         $ts = $time['from_ts'];
 
+	$layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+
+        $layerHelper['time'] = $time;                 
+        $layerHelper['table']['base'] = "sip_capture";         
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $callwhere;
+        $layerHelper['fields']['msg'] = true;
+        $layerHelper['values'][] = FIELDS_CAPTURE;
+        $layerHelper['values'][] = "'".$query_type."' as trans";
+        $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
 	 foreach($timearray as $tkey=>$tval) {
 
 	    foreach($this->query_types as $query_type) {
 		if($trans[$query_type]) {
-		    if($limit < 1) break;
-		    $order = " order by id DESC LIMIT ".$limit;
-		    $table = "sip_capture_".$query_type."_".$tkey;
-		    $query  = "SELECT t.*, '".$query_type."' as trans";
-		    $query .= " FROM ".$table." as t";
-		    $query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-		    if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
-		    $noderows = $db->loadObjectArray($query.$order);
-		    $data = array_merge($data,$noderows);
-		    $limit -= count($noderows);
+			if($limit < 1) break;
+
+			$layerHelper['table']['type'] = $query_type;
+                        $layerHelper['table']['timestamp'] = $tkey;                
+                        $layerHelper['order']['limit'] = $limit;   
+
+                        $query = $layer->querySearchData($layerHelper);
+			$data = array_merge($data,$noderows);
+			$limit -= count($noderows);
 		}
 	    }
 	}
@@ -1197,6 +1270,9 @@ class Search {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+
+	/* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');         
 
         $trans = array();
         $data = array();
@@ -1251,6 +1327,23 @@ class Search {
 	
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);        
 
+	$layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+
+        $layerHelper['time'] = $time;                 
+        $layerHelper['table']['base'] = "sip_capture";         
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $callwhere;
+        $layerHelper['fields']['msg'] = true;
+        if($uniq) $layerHelper['fields']['md5msg'] = true;
+        $layerHelper['values'][] = FIELDS_CAPTURE;
+        $layerHelper['values'][] = "'".$query_type."' as trans";
+        $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+                                            
         foreach($nodes as $node)
         {
             $db->dbconnect_node($node);
@@ -1262,13 +1355,13 @@ class Search {
 		foreach($this->query_types as $query_type) {
 		    if($trans[$query_type]) {
 			if($limit < 1) break;
-			$order = " order by id DESC LIMIT ".$limit;
-			$table = "sip_capture_".$query_type."_".$tkey;
-			$query  = "SELECT t.*, '".$query_type."' as trans,'".$node['name']."' as dbnode";
-			if($uniq) $query .= ", MD5(msg) as md5sum";
-			$query .= " FROM ".$table." as t";
-			$query .= " WHERE (t.date BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-			if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+		
+			$layerHelper['table']['type'] = $query_type;
+                        $layerHelper['table']['timestamp'] = $tkey;                
+                        $layerHelper['order']['limit'] = $limit;   
+
+			$query = $layer->querySearchData($layerHelper);
+
 			$noderows = $db->loadObjectArray($query.$order);
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
@@ -1307,6 +1400,10 @@ class Search {
         $lnodes = array();
         $answer = array();  
         $callwhere = array();
+        
+         /* get our DB Abstract Layer */
+         $layer = $this->getContainer('layer');
+                 
         
         //if(array_key_exists('node', $param)) $lnodes = $param['node'];
         if(isset($param['location'])) $lnodes = $param['location']['node'];                
@@ -1374,17 +1471,42 @@ class Search {
         else {
             foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
         }
+	
+	$layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+
+        $layerHelper['time'] = $time;
+        $layerHelper['table']['base'] = "webrtc_capture";
+        $layerHelper['table']['notime'] = true;
+        $layerHelper['where']['type'] = "AND";
+        $layerHelper['where']['param'] = $callwhere;
+        $layerHelper['fields']['msg'] = false;
+        
+        $layerHelper['values'][] = "*";
+        $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'unixts';
+	$layerHelper['order']['limit'] = $limit;
+
 
         foreach($nodes as $node)
         {        
             
 	    $db->dbconnect_node($node);                            
             $limit = $limit_orig;
+
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
-	    $table = "webrtc_capture";                            
-            $query = "SELECT *, '".$node['name']."' as dbnode, (UNIX_TIMESTAMP(date)) as unixts FROM ".$table." WHERE (`date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-            if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
+	    $layerHelper['order']['limit'] = $limit;   
+	    $layerHelper['where']['param'] = $callwhere;
+
+	    $query = $layer->querySearchData($layerHelper);
             $noderows = $db->loadObjectArray($query);
             $data = array_merge($data,$noderows);                
             $limit -= count($noderows);            
@@ -2208,6 +2330,9 @@ class Search {
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
 
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');                 
+
         $uid = $_SESSION['uid'];
 
         $data['timestamp'] = $timestamp;
@@ -2218,7 +2343,10 @@ class Search {
 		        mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ));
 
         $json = json_encode($data, true);
-        $query = "INSERT INTO link_share set uid='?', uuid='?', data='?', expire=CURDATE() + INTERVAL 14 DAY";
+        
+        $expire = $layer->getExpire("CURDATE()","+", "14","DAY");
+        
+        $query = "INSERT INTO link_share set uid='?', uuid='?', data='?', expire=".$expire;
         $query  = $db->makeQuery($query, $uid, $uuid, $json );
         $db->executeQuery($query);
 
