@@ -496,7 +496,6 @@ class Report {
 		        $chartData[$ipkey]["packets"] = array();
 			$chartData[$ipkey]["jitter"] = array();
 			$chartData[$ipkey]["packets_lost"] = array();
-			$chartData[$ipkey]["packets"] =  array();
 			$statsData[$ipkey] = array();
 			$statsData[$ipkey]["mos_counter"] =  0;
 			$statsData[$ipkey]["mos_average"] =  0;
@@ -521,7 +520,7 @@ class Report {
 				$statsData[$ipkey]["mos_counter"] += 1;
 				$statsData[$ipkey]["mos_average"] += $tmpMos;
 				$statsData[$ipkey]["jitter_avg"] += $block["ia_jitter"];
-				$statsData[$ipkey]["packets_lost"] += $block["packets_lost"];				
+				$statsData[$ipkey]["packets_lost"] += $block["fraction_lost"]; // packets lost repeats itself each packet. Should be fraction lost instead				
 				
 				if($block["ia_jitter"] > $statsData[$ipkey]["jitter_max"]) $statsData[$ipkey]["jitter_max"] = $block["ia_jitter"];				
 				if(!array_key_exists("mos_worst", $statsData[$ipkey]) || $statsData[$ipkey]["mos_worst"] > $tmpMos) $statsData[$ipkey]["mos_worst"] = $tmpMos;			
