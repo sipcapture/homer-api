@@ -70,7 +70,10 @@ class Statistic {
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
-                         
+
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+                                 
         $data = array();
 
         $search = array();
@@ -88,9 +91,7 @@ class Statistic {
             $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
-        
-        if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";
-                        
+                                
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
         $time['from_ts'] = intval($time['from']/1000);
@@ -102,20 +103,49 @@ class Statistic {
         
         $order = "";
 
-        if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, method, REPLACE(REPLACE(auth, 0,'N'),1,'A') AS auth, cseq, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY method, cseq, auth, totag";       
-        }
-        else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, method, REPLACE(REPLACE(auth, 0,'N'),1,'A') AS auth, cseq, totag, total";                                            
+        //if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";
+
+	$layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['table']['base'] = "stats_method";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $calldata;
+        $layerHelper['time'] = $time;               
+	
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'from_date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'from_ts';
+        $layerHelper['fields']['ts'][1]=array();
+        $layerHelper['fields']['ts'][1]['name'] = 'to_date';
+        $layerHelper['fields']['ts'][1]['alias'] = 'to_ts';
+
+        $layerHelper['fields']['replace'] = "auth";
+        $layerHelper['fields']['time'] = "to_date";
+        
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
+
+	if($total) 
+	{
+		$layerHelper['values'][] = "id, method,cseq,COUNT(id) as cnt,SUM(total) as total";
+	        $layerHelper['group']['by'] = "method, cseq, auth, totag";		
+	}
+	else 
+	{
+		$layerHelper['values'][] = "id, method, cseq, totag, total";
+        
+               //$fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, method, REPLACE(REPLACE(auth, 0,'N'),1,'A') AS auth, cseq, COUNT(id) as cnt, SUM(total) as total";
+               //$order .= " GROUP BY method, cseq, auth, totag";       
+               //$fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, method, REPLACE(REPLACE(auth, 0,'N'),1,'A') AS auth, cseq, totag, total";                                            
         }
 
-         $order .= " order by id DESC";
-        
-        $table = "stats_method";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-        $query.= $arrwhere;
-        $query.= $order;
+	$query = $layer->querySearchData($layerHelper);
+        $noderows = $db->loadObjectArray($query);
         $data = $db->loadObjectArray($query);
 
         /* sorting */
@@ -162,7 +192,10 @@ class Statistic {
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
-                         
+        
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+                                                           
         $data = array();
 
         $search = array();
@@ -178,7 +211,7 @@ class Statistic {
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
         
-        if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";
+        //if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";
                         
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
         $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
@@ -189,23 +222,41 @@ class Statistic {
         $limit = getVar('limit', 500, $param, 'int');
         $total = getVar('total', false, $param, 'bool');
         
-        $order = "";
-        
-        if($total) {
-           $fields = "id, source_ip, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY type";       
-        }
-        else {
-           $fields = "id, source_ip, description, UNIX_TIMESTAMP(`create_date`) as from_ts, UNIX_TIMESTAMP(`create_date`) as to_ts, type, total";                                            
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['table']['base'] = "alarm_data";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $calldata;
+        $layerHelper['time'] = $time;               
+	
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'create_date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'from_ts';
+        $layerHelper['fields']['ts'][1]=array();
+        $layerHelper['fields']['ts'][1]['name'] = 'create_date';
+        $layerHelper['fields']['ts'][1]['alias'] = 'to_ts';
+
+        $layerHelper['fields']['time'] = "create_date";
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
+
+	if($total) 
+	{
+		$layerHelper['values'][] = "id, source_ip, type, COUNT(id) as cnt,SUM(total) as total";
+	        $layerHelper['group']['by'] = "type";		
+	}
+	else 
+	{
+		$layerHelper['values'][] = "id, source_ip, description, type, total";
         }
 
-        $order .= " order by id DESC";
-        
-        $table = "alarm_data";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`create_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-        
-        $query.= $arrwhere;
-        $query.= $order;
+	$query = $layer->querySearchData($layerHelper);                
+
         $data = $db->loadObjectArray($query);
 
         $answer = array();          
@@ -251,6 +302,10 @@ class Statistic {
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+                 
+                 
                          
         $data = array();
 
@@ -278,22 +333,40 @@ class Statistic {
         $limit = getVar('limit', 500, $param, 'int');
         $total = getVar('total', false, $param, 'bool');
         
-        $order = "";
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['table']['base'] = "stats_data";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $calldata;
+        $layerHelper['time'] = $time;               
+	
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'from_date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'from_ts';
+        $layerHelper['fields']['ts'][1]=array();
+        $layerHelper['fields']['ts'][1]['name'] = 'to_date';
+        $layerHelper['fields']['ts'][1]['alias'] = 'to_ts';
 
-        if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY type";       
-        }
-        else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
+        $layerHelper['fields']['time'] = "to_date";
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
+
+	if($total) 
+	{
+		$layerHelper['values'][] = "id, type, COUNT(id) as cnt,SUM(total) as total";
+	        $layerHelper['group']['by'] = "type";		
+	}
+	else 
+	{
+		$layerHelper['values'][] = "id, type, total";
         }
 
-         $order .= " order by id DESC";
-        
-        $table = "stats_data";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-        $query.= $arrwhere;
-        $query.= $order;
+	$query = $layer->querySearchData($layerHelper);                
         $data = $db->loadObjectArray($query);
 
         /* sorting */
@@ -345,6 +418,9 @@ class Statistic {
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
+
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');                          
                          
         $data = array();
 
@@ -375,25 +451,43 @@ class Statistic {
         $and_or = getVar('orand', NULL, $param['filter'], 'string');        
         $limit = getVar('limit', 500, $param, 'int');
         $total = getVar('total', false, $param, 'bool');
-        
-        $order = "";
+                        
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['table']['base'] = "stats_generic";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $calldata;
+        $layerHelper['time'] = $time;               
+	
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'from_date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'from_ts';
+        $layerHelper['fields']['ts'][1]=array();
+        $layerHelper['fields']['ts'][1]['name'] = 'to_date';
+        $layerHelper['fields']['ts'][1]['alias'] = 'to_ts';
 
-        if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY type";       
-        }
-        else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, type, total";                                            
+        $layerHelper['fields']['time'] = "to_date";
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
+
+	if($total) 
+	{
+		$layerHelper['values'][] = "id, type, COUNT(id) as cnt,SUM(total) as total";
+	        $layerHelper['group']['by'] = "type";		
+	}
+	else 
+	{
+		$layerHelper['values'][] = "id, type, total";
         }
 
-         $order .= " order by id DESC";
-        
-        $table = "stats_generic";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-        $query.= $arrwhere;
-        $query.= $order;
+	$query = $layer->querySearchData($layerHelper);                
         $data = $db->loadObjectArray($query);
-
+                
         $answer = array();          
                 
         if(empty($data)) {
@@ -439,6 +533,9 @@ class Statistic {
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
                          
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+                                                                            
         $data = array();
 
         $search = array();
@@ -464,25 +561,43 @@ class Statistic {
         $and_or = getVar('orand', NULL, $param['filter'], 'string');        
         $limit = getVar('limit', 500, $param, 'int');
         $total = getVar('total', false, $param, 'bool');
-        
-        $order = "";
+                
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['table']['base'] = "stats_ip";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $calldata;
+        $layerHelper['time'] = $time;               
+	
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'from_date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'from_ts';
+        $layerHelper['fields']['ts'][1]=array();
+        $layerHelper['fields']['ts'][1]['name'] = 'to_date';
+        $layerHelper['fields']['ts'][1]['alias'] = 'to_ts';
 
-        if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, source_ip, method, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY source_ip";       
-        }
-        else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, source_ip, method, total";                                            
+        $layerHelper['fields']['time'] = "to_date";
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
+
+	if($total) 
+	{
+		$layerHelper['values'][] = "id, source_ip, method, COUNT(id) as cnt,SUM(total) as total";
+	        $layerHelper['group']['by'] = "source_ip";		
+	}
+	else 
+	{
+		$layerHelper['values'][] = "id, source_ip, method, total";
         }
 
-        $order .= " order by id DESC";
-        
-        $table = "stats_ip";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-        $query.= $arrwhere;
-        $query.= $order;
+	$query = $layer->querySearchData($layerHelper);                
         $data = $db->loadObjectArray($query);
-
+                
         /* sorting */
         //usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
                            
@@ -532,7 +647,9 @@ class Statistic {
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
-                         
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');                     
+                                              
         $data = array();
 
         $search = array();
@@ -561,22 +678,40 @@ class Statistic {
         $limit = getVar('limit', 500, $param, 'int');
         $total = getVar('total', false, $param, 'bool');
         
-        $order = "";
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['table']['base'] = "stats_geo";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $calldata;
+        $layerHelper['time'] = $time;               
+	
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'from_date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'from_ts';
+        $layerHelper['fields']['ts'][1]=array();
+        $layerHelper['fields']['ts'][1]['name'] = 'to_date';
+        $layerHelper['fields']['ts'][1]['alias'] = 'to_ts';
 
-        if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, country, lat, lon, method, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY id,from_ts,to_ts,country,lat,lon,method";       
-        }
-        else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, country, lat, lon, method, total";                                            
-        }
+        $layerHelper['fields']['time'] = "to_date";
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
 
-        $order .= " order by id DESC";
+	if($total) 
+	{
+		$layerHelper['values'][] = "id, COUNT(id) as cnt,SUM(total) as total, country, lat, lon, method";
+	        $layerHelper['group']['by'] = "id,from_ts,to_ts,country,lat,lon,method";		
+	}
+	else 
+	{
+		$layerHelper['values'][] = "id, country, lat, lon, method, total";
+        }        
         
-        $table = "stats_geo";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-        $query.= $arrwhere;
-        $query.= $order;
+        $query = $layer->querySearchData($layerHelper);
         $data = $db->loadObjectArray($query);
 
         /* sorting */
@@ -629,7 +764,10 @@ class Statistic {
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
-                         
+        
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+                                                 
         $data = array();
 
         $search = array();
@@ -655,24 +793,42 @@ class Statistic {
         $limit = getVar('limit', 500, $param, 'int');
         $total = getVar('total', false, $param, 'bool');
         
-        $order = "";
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['order'] = array();
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['values'] = array();
+        $layerHelper['table']['base'] = "stats_useragent";
+        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+        $layerHelper['where']['param'] = $calldata;
+        $layerHelper['time'] = $time;               
+	
+        $layerHelper['fields']['ts'] = array();
+        $layerHelper['fields']['ts'][0]=array();
+        $layerHelper['fields']['ts'][0]['name'] = 'from_date';
+        $layerHelper['fields']['ts'][0]['alias'] = 'from_ts';
+        $layerHelper['fields']['ts'][1]=array();
+        $layerHelper['fields']['ts'][1]['name'] = 'to_date';
+        $layerHelper['fields']['ts'][1]['alias'] = 'to_ts';
 
-        if($total) {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, useragent, method, COUNT(id) as cnt, SUM(total) as total";
-           $order .= " GROUP BY useragent";       
-        }
-        else {
-           $fields = "id, UNIX_TIMESTAMP(`from_date`) as from_ts, UNIX_TIMESTAMP(`to_date`) as to_ts, useragent, method, total";                                            
-        }
+        $layerHelper['fields']['time'] = "to_date";
+        $layerHelper['order']['by'] = "id";
+        $layerHelper['order']['type'] = "DESC";
 
-        $order .= " order by id DESC";
+	if($total) 
+	{
+		$layerHelper['values'][] = "id, COUNT(id) as cnt,SUM(total) as total, useragent, method ";
+	        $layerHelper['group']['by'] = "useragent";
+	}
+	else 
+	{
+		$layerHelper['values'][] = "id, useragent, method, total";
+        }        
         
-        $table = "stats_useragent";            
-        $query = "SELECT ".$fields." FROM ".$table." WHERE (`to_date` BETWEEN FROM_UNIXTIME(".$time['from_ts'].") AND FROM_UNIXTIME(".$time['to_ts']."))";
-        $query.= $arrwhere;
-        $query.= $order;
+        $query = $layer->querySearchData($layerHelper);
         $data = $db->loadObjectArray($query);
-
+        
         /* sorting */
         //usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
                            
@@ -719,6 +875,7 @@ class Statistic {
             //$config = \Config::factory('configs/config.ini', APPLICATION_ENV, 'auth');
             if($name == "auth") $containerClass = sprintf("Authentication\\".AUTHENTICATION);
             else if($name == "db") $containerClass = sprintf("Database\\".DATABASE_CONNECTOR);            
+            else if($name == "layer") $containerClass = sprintf("Database\\Layer\\".DATABASE_DRIVER);
             $this->_instance[$name] = new $containerClass();
         }
         return $this->_instance[$name];

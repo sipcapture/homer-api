@@ -40,13 +40,14 @@ class Internal extends Authentication {
 	private $user_table = "user";
 	private $user_level = "userlevel"; 
 	private $db;
-	private $_instance = null;
+	protected $_instance = array();	    
 
 	function __construct($utable = NULL)
 	{
 		if($utable != NULL) $this->user_table = $utable;
         }
 
+        /*
 	public function getContainer()
 	{
         	if ($this->_instance === null) { 
@@ -57,11 +58,31 @@ class Internal extends Authentication {
         	
 	        return $this->_instance;
 	}
+	*/
+
+	public function getContainer($name)
+	{
+        	if (!$this->_instance || !isset($this->_instance[$name]) || $this->_instance[$name] === null) {
+			//$config = \Config::factory('configs/config.ini', APPLICATION_ENV, 'auth');
+			if($name == "db") $containerClass = sprintf("Database\\".DATABASE_CONNECTOR);
+			else if($name == "layer") $containerClass = sprintf("Database\\Layer\\".DATABASE_DRIVER);
+			$this->_instance[$name] = new $containerClass();
+	        }
+
+	        return $this->_instance[$name];
+	}
+
 
 	function logIn($param) {
 
            $mydb = $this->getContainer('db');
-           $query  = $mydb->makeQuery("SELECT * FROM ".$this->user_table." WHERE ".$this->user_column."='?' AND ".$this->pass_column." = PASSWORD('?');" , $param['username'], $param['password']);
+           $mydb->select_db(DB_CONFIGURATION);
+           $mydb->dbconnect();
+                                
+           /* get our DB Abstract Layer */
+           $layer = $this->getContainer('layer');
+                               
+           $query  = $mydb->makeQuery("SELECT * FROM ".$this->user_table." WHERE ".$this->user_column."='?' AND ".$this->pass_column." = ".$layer->getPassword($param['password'], $this->pass_column).";" , $param['username']);
            $rows = $mydb->loadObjectList($query);
 
            if(count($rows) > 0) {
@@ -119,6 +140,11 @@ class Internal extends Authentication {
            if($_SESSION['loggedin'] == "-1") return array();
 
            $mydb = $this->getContainer('db');
+           $mydb->select_db(DB_CONFIGURATION);
+           $mydb->dbconnect();
+                                
+           /* get our DB Abstract Layer */
+           $layer = $this->getContainer('layer');
 
            $query  = $mydb->makeQuery("SELECT uid, gid, username, `grp`, firstname, lastname, email, lastvisit,department  FROM ".$this->user_table." WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
            $rows = $mydb->loadObjectList($query);
@@ -145,11 +171,13 @@ class Internal extends Authentication {
            if(!isset($_SESSION['loggedin'])) $_SESSION['loggedin'] = '-1';
            if($_SESSION['loggedin'] == "-1") return array();
 
-	   /* get our DB */
            $mydb = $this->getContainer('db');
-	   $mydb->select_db(DB_CONFIGURATION);
-	   $mydb->dbconnect();
-     
+           $mydb->select_db(DB_CONFIGURATION);
+           $mydb->dbconnect();
+                                
+           /* get our DB Abstract Layer */
+           $layer = $this->getContainer('layer');
+
            $data = array();
 	   $search = array();
 	   $callwhere = array();  
@@ -165,7 +193,7 @@ class Internal extends Authentication {
 	   $exten = "";
 	   $callwhere = generateWhere($update, 1, $mydb, 0);
 	   if(count($callwhere)) {
-                if(strlen($password) > 0) $exten = "`password` = PASSWORD('".$password."'),";
+                if(strlen($password) > 0) $exten = "`password` = ".$layer->setPassword($password).",";
                 $exten .= implode(", ", $callwhere);
            }
 
@@ -180,9 +208,15 @@ class Internal extends Authentication {
 
 		//generate new password
 		$newpassword = $this->createPassword();		
+		
+		$mydb = $this->getContainer('db');
+		$mydb->select_db(DB_CONFIGURATION);
+		$mydb->dbconnect();
+		
 		//update database with new password
-		$query = "UPDATE ".$this->user_table." SET ".$this->pass_column."='".$newpassword."' WHERE ".$this->user_column."='".stripslashes($username)."'";
-		if(!$db->executeQuery($query)) {
+		$query = "UPDATE ".$this->user_table." SET ".$this->pass_column."=".$layer->setPassword($newpassword)." WHERE ".$this->user_column."='".stripslashes($username)."'";
+		
+		if(!$mydb->executeQuery($query)) {
 			die("No update possible");		
 			exit;		
 		}

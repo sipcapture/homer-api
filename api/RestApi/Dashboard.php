@@ -310,7 +310,7 @@ class Dashboard {
 	$db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
-
+        
         $data = array();
 
         $search = array();
@@ -333,8 +333,12 @@ class Dashboard {
             $data = $db->loadObjectArray($query);
             foreach($data as $row) {  $id = $row['id']; }
         
-            $query = "INSERT INTO ".$table." SET id='?', name='?', icon='?', weight=?, alias='?' ON DUPLICATE KEY UPDATE name = '?', icon = '?',  weight=?, alias='?'";
-            $query  = $db->makeQuery($query, $id, $name, $icon, $weight, $alias, $name, $icon, $weight, $alias);            
+            $query = "DELETE FROM ".$table." WHERE id = '?'";
+            $query  = $db->makeQuery($query, $id);            
+            $db->executeQuery($query);
+                                        
+            $query = "INSERT INTO ".$table." SET id='?', name='?', icon='?', weight=?, alias='?'";
+            $query  = $db->makeQuery($query, $id, $name, $icon, $weight, $alias);            
         }
         else {
             $query = "DELETE FROM ".$table." WHERE id='?'";
@@ -415,6 +419,7 @@ class Dashboard {
         if (!$this->_instance || !isset($this->_instance[$name]) || $this->_instance[$name] === null) {
             //$config = \Config::factory('configs/config.ini', APPLICATION_ENV, 'auth');
             if($name == "auth") $containerClass = sprintf("Authentication\\".AUTHENTICATION);
+            else if($name == "layer") $containerClass = sprintf("Database\\Layer\\".DATABASE_DRIVER);                        
             else if($name == "db") $containerClass = sprintf("Database\\".DATABASE_CONNECTOR);
             $this->_instance[$name] = new $containerClass();
         }

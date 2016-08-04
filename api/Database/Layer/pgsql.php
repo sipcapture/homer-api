@@ -38,44 +38,66 @@ class pgsql {
         function querySearchData($layerHelper) 
         {
         
-		$table = $layerHelper['table']['base']."_".$layerHelper['table']['type']."_".$layerHelper['table']['timestamp'];                        
-		if(isset($layerHelper['order']['by'])) {
-	                $order = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type']." LIMIT ".$layerHelper['order']['limit'];
-		}
-		else {
-	                $order = " LIMIT ".$layerHelper['order']['limit'];
-		}
-                $values = implode(",", $layerHelper['values']);
+		$table = $layerHelper['table']['base'];
+		if(isset($layerHelper['table']['type'])) $table .= "_".$layerHelper['table']['type'];
+		if(isset($layerHelper['table']['timestamp'])) $table .= "_".$layerHelper['table']['timestamp'];
+		                                 
+		
+		$ordergroup = array();
+                if(isset($layerHelper['group']['by'])) {
+                        $ordergroup[] = " GROUP BY ".$layerHelper['group']['by'];
+                }
+
+                if(isset($layerHelper['order']['by'])) {
+                        $ordergroup[] = " ORDER BY ".$layerHelper['order']['by']." ".$layerHelper['order']['type'];
+                }
+                
+                if(isset($layerHelper['order']['limit'])) {
+                        $ordergroup[] = " LIMIT ".$layerHelper['order']['limit'];
+                }
+		
                 $callwhere = $layerHelper['where']['param'];                                
-                
-                $query  = "SELECT ".$values;
-                
-                if(isset($layerHelper['fields']))        
+
+		if(isset($layerHelper['fields']))
                 {
                         if(isset($layerHelper['fields']['msg']) && $layerHelper['fields']['msg'] == true)
                         {
-                                $query .= ",convert_from(msg::bytea, 'UTF8'::name) AS msg";                        
+                                $layerHelper['values'][] = "convert_from(msg::bytea, 'UTF8'::name) AS msg";                        
                         }
-                                                
+
+                        if(isset($layerHelper['fields']['distinct']))
+                        {
+                                $layerHelper['values'][] = "DESTINCT ON (".$layerHelper['fields']['distinct'].")";
+                        }
+
                         if(isset($layerHelper['fields']['md5msg']) && $layerHelper['fields']['md5msg'] == true)
                         {
-                                $query .= ",MD5(msg) as md5sum";
-                        }                                        
-                }                
-                
-                if(isset($layerHelper['fields']['ts']))                        
+                                $layerHelper['values'][] = "MD5(msg::text) as md5sum";
+                        }
+                        
+			if(isset($layerHelper['fields']['replace']) && $layerHelper['fields']['replace'] == "auth")
+			{
+                                $layerHelper['values'][] = "REPLACE(REPLACE(auth, '0','N'),'1','A') AS auth";
+                        }
+                }
+
+                if(isset($layerHelper['fields']['ts']))
                 {
                         foreach($layerHelper['fields']['ts'] as $k=>$v) {
-                                $query .= ", UNIX_TIMESTAMP(".$v['name'].") as ".$v['alias'];
+                                $layerHelper['values'][] = "extract(epoch FROM ".$v['name'].")  as ".$v['alias'];
                         }
-                }                
-                
-                $query .= " FROM ".$table." as t ";
+                }
+
+                $values = implode(",", $layerHelper['values']);
+                $query  = "SELECT ".$values. " FROM ".$table;
                 
                 if(isset($layerHelper['time']))
                 {
                         $time = $layerHelper['time'];                                                          
-                        $query .= " WHERE (t.date BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
+                        $datafield = "date";                   
+                        if(isset($layerHelper['fields']['time'])) $datafield = $layerHelper['fields']['time'];                                                                           
+                                                                           
+                        $query .= " WHERE (".$datafield." BETWEEN to_timestamp(".$time['from_ts'].") AND to_timestamp(".$time['to_ts']."))";
                         if(count($callwhere)) $query .= " AND ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
                 }
                 else if(count($callwhere))
@@ -83,7 +105,7 @@ class pgsql {
                         $query .= " WHERE ( " .implode(" ".$layerHelper['where']['type']." ", $callwhere). ")";
                 }
                 
-                $query .= $order;
+                $query .= implode(" ", $ordergroup);
                                 
                 return $query;
         }                                    
@@ -131,6 +153,22 @@ class pgsql {
         {        
                 return $now." ".$math." INTERVAL ".$interval." ".$type;
         }      
+        
+	function getPassword($password, $field)
+        {
+                return "crypt('".$password."',".$field.")";
+        }
+
+	function setPassword($password)
+        {
+                return "crypt('$password', gen_salt('md5'))";
+        }
+        
+	function createOnDuplicateInsert($table, $insertArray, $updateArray) {
+
+                return "INSERT INTO ".$table." SET ".implode(",", $insertArray). " ON DUPLICATE KEY UPDATE  ".implode(",", $updateArray);
+        }
+
 }
 
 ?>

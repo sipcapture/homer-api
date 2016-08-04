@@ -169,6 +169,9 @@ class Admin {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+        
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
                          
         $data = array();
 
@@ -191,7 +194,7 @@ class Admin {
         $exten = "";
         $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
-                if(strlen($password) > 0) $exten = "`password` = PASSWORD('".$password."'),";        
+                if(strlen($password) > 0) $exten = "`password` = ".$layer->setPassword($password).",";        
                 $exten .= implode(", ", $callwhere);                
         }
                               
@@ -550,6 +553,7 @@ class Admin {
             //$config = \Config::factory('configs/config.ini', APPLICATION_ENV, 'auth');
             if($name == "auth") $containerClass = sprintf("Authentication\\".AUTHENTICATION);
             else if($name == "db") $containerClass = sprintf("Database\\".DATABASE_CONNECTOR);            
+            else if($name == "layer") $containerClass = sprintf("Database\\Layer\\".DATABASE_DRIVER);                                    
             $this->_instance[$name] = new $containerClass();
         }
         return $this->_instance[$name];

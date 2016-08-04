@@ -174,9 +174,13 @@ class Profile {
 
                  if($id == "search") $json = json_encode($param, JSON_FORCE_OBJECT);
                  else $json = json_encode($param);
-                 
-        	 $query = "INSERT INTO setting set uid='?', param_name='?', param_value = '?' ON DUPLICATE KEY UPDATE param_value = '?'";
-        	 $query  = $db->makeQuery($query, $uid, $id, $json, $json );
+
+                 $query = "DELETE FROM setting WHERE uid='?', param_name='?'";
+                 $query  = $db->makeQuery($query, $uid, $id );                                  
+                 $db->executeQuery($query);
+                                                
+        	 $query = "INSERT INTO setting set uid='?', param_name='?', param_value = '?'";
+        	 $query  = $db->makeQuery($query, $uid, $id, $json);
                  $db->executeQuery($query);
         }
 
