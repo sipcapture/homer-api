@@ -35,7 +35,7 @@ class Authentication {
 	private $db;
 
 	//login function prototype
-	function login($username, $password){
+	function login($param){
 		return false;		
 	}
 	
