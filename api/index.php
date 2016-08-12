@@ -61,7 +61,7 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
     ->addPostRoute('user', 'doUser') // => /api/session
     ->addDeleteRoute('session', 'doLogout') // => /admin/logout
     ->addGetRoute('logout', 'doLogout') // => /admin/logout
-    
+
     ->addSubController('search', 'RestApi\Search') //adds a new sub entry point 'tools' => admin/tools
       ->addPostRoute('data', 'doSearchData') // => /api/session
       ->addPostRoute('export/data/archive', 'doArchiveExportData') // => /api/session
@@ -71,19 +71,19 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('sharelink', 'doShareLink') // => /api/session
       ->addPostRoute('share/transaction', 'doSearchShareTransaction') // => /api/session
       ->addPostRoute('share/export/pcap', 'doPcapExportById') // => /api/session
-      ->addPostRoute('share/export/text', 'doTextExportById') // => /api/session      
+      ->addPostRoute('share/export/text', 'doTextExportById') // => /api/session
       ->addPostRoute('export/pcap', 'doPcapExport') // => /api/session
       ->addPostRoute('export/text', 'doTextExport') // => /api/session
-      ->addPostRoute('export/cloud', 'doCloudExport') // => /api/session      
+      ->addPostRoute('export/cloud', 'doCloudExport') // => /api/session
       ->addPostRoute('export/data/pcap', 'doPcapExportData') // => /api/session
       ->addPostRoute('export/data/text', 'doTextExportData') // => /api/session
-      ->addPostRoute('export/data/cloud', 'doCloudExportData') // => /api/session      
-      ->addPostRoute('export/data/count', 'doCountExportData') // => /api/session    
-      ->addPostRoute('export/data/transarchive', 'doTransactionArchiveExportData') // => /api/session  
+      ->addPostRoute('export/data/cloud', 'doCloudExportData') // => /api/session
+      ->addPostRoute('export/data/count', 'doCountExportData') // => /api/session
+      ->addPostRoute('export/data/transarchive', 'doTransactionArchiveExportData') // => /api/session
       ->addGetRoute('data', 'getSearchData') // => /api/session
     ->done()
 
-    /* statistic */    
+    /* statistic */
     ->addSubController('statistic', 'RestApi\Statistic') //adds a new sub entry point 'tools' => admin/tools
       ->addGetRoute('method', 'getStatisticMethod') // => /api/session
       ->addPostRoute('method', 'doStatisticMethod') // => /api/session
@@ -99,17 +99,19 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addGetRoute('country', 'getStatisticCountry') // => /api/session
       ->addPostRoute('useragent', 'doStatisticUserAgent') // => /api/session
       ->addGetRoute('useragent', 'getStatisticUserAgent') // => /api/session
+      ->addPostRoute('destination', 'doStatisticDestination') // => /api/session
+      ->addGetRoute('destination', 'getStatisticDestination') // => /api/session
     ->done()
 
-    /* alarm */    
+    /* alarm */
     ->addSubController('alarm', 'RestApi\Alarm') //adds a new sub entry point 'tools' => admin/tools
       ->addGetRoute('config/get', 'getAlarmConfig') // => /api/session
       ->addPostRoute('config/new', 'doNewAlarmConfig') // => /api/session
       ->addPostRoute('config/edit', 'doEditAlarmConfig') // => /api/session
-      ->addDeleteRoute('config/delete/([0-9]+)', 'deleteAlarmConfig')      
-      ->addGetRoute('list/get', 'getAlarmList') // => /api/session      
-      ->addPostRoute('list/get', 'doAlarmList') // => /api/session      
-      ->addPostRoute('list/edit', 'doEditAlarmList') // => /api/session      
+      ->addDeleteRoute('config/delete/([0-9]+)', 'deleteAlarmConfig')
+      ->addGetRoute('list/get', 'getAlarmList') // => /api/session
+      ->addPostRoute('list/get', 'doAlarmList') // => /api/session
+      ->addPostRoute('list/edit', 'doEditAlarmList') // => /api/session
       ->addGetRoute('method', 'getAlarmMethod') // => /api/session
       ->addPostRoute('method', 'doAlarmMethod') // => /api/session
       ->addPostRoute('ip', 'doAlarmIP') // => /api/session
@@ -136,53 +138,53 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
     ->done()
 
 
-    /* admin */    
+    /* admin */
     ->addSubController('admin', 'RestApi\Admin') //adds a new sub entry point 'tools' => admin/tools
       ->addGetRoute('user/get', 'getUser') // => /api/session
       ->addGetRoute('user/get/([0-9A-Za-z_])', 'getUserById') // => /api/session
       ->addPostRoute('user/new', 'doNewUser') // => /api/session
       ->addPostRoute('user/edit', 'doEditUser') // => /api/session
-      ->addDeleteRoute('user/delete/([0-9]+)', 'deleteUser')      
+      ->addDeleteRoute('user/delete/([0-9]+)', 'deleteUser')
 
-      /* alias */          
+      /* alias */
       ->addGetRoute('alias/get', 'getAlias') // => /api/session
       ->addGetRoute('user/get/([0-9A-Za-z_])', 'getAliasById') // => /api/session
       ->addPostRoute('alias/new', 'doNewAlias') // => /api/session
       ->addPostRoute('alias/edit', 'doEditAlias') // => /api/session
-      ->addDeleteRoute('alias/delete/([0-9]+)', 'deleteAlias')          
+      ->addDeleteRoute('alias/delete/([0-9]+)', 'deleteAlias')
       /* nodes */
       ->addGetRoute('node/get', 'getNode') // => /api/session
       ->addGetRoute('node/get/([0-9A-Za-z_])', 'getNodeById') // => /api/session
       ->addPostRoute('node/new', 'doNewNode') // => /api/session
       ->addPostRoute('node/edit', 'doEditNode') // => /api/session
-      ->addDeleteRoute('node/delete/([0-9]+)', 'deleteNode')                
+      ->addDeleteRoute('node/delete/([0-9]+)', 'deleteNode')
       /* alarms */
       ->addGetRoute('useragent', 'getAlarmUserAgent') // => /api/session
     ->done()
 
-         
+
     ->addSubController('profile', 'RestApi\Profile') //adds a new sub entry point 'tools' => admin/tools
       ->addPostRoute('store/([0-9A-Za-z_-]+)', 'postIdProfile')
       ->addPostRoute('store', 'postProfile')
-      ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdProfile')      
+      ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdProfile')
       ->addGetRoute('store', 'getProfile')
-      ->addDeleteRoute('store/([0-9A-Z_-]+)', 'deleteIdProfile')      
+      ->addDeleteRoute('store/([0-9A-Z_-]+)', 'deleteIdProfile')
       ->addDeleteRoute('store', 'deleteProfile')
     ->done()
-    
+
     ->addSubController('dashboard', 'RestApi\Dashboard') //adds a new sub entry point 'tools' => admin/tools
       ->addPostRoute('store/([0-9A-Za-z_-]+)', 'postIdDashboard')
       ->addPostRoute('store', 'postDashboard')
       ->addPostRoute('upload', 'uploadDashboard')
-      ->addGetRoute('store/1', 'newDashboard')      
+      ->addGetRoute('store/1', 'newDashboard')
       ->addPostRoute('menu/([0-9A-Za-z_-]+)', 'postMenuDashboard')
       ->addGetRoute('node', 'getNode')
-      ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdDashboard')      
+      ->addGetRoute('store/([0-9A-Za-z_-]+)', 'getIdDashboard')
       ->addGetRoute('store', 'getDashboard')
-      ->addDeleteRoute('store/([0-9A-Za-z_-]+)', 'deleteIdDashboard')      
+      ->addDeleteRoute('store/([0-9A-Za-z_-]+)', 'deleteIdDashboard')
       ->addDeleteRoute('store', 'deleteDashboard')
     ->done()
-    
+
 ->run();
 
 ?>
