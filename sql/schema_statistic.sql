@@ -173,6 +173,54 @@ CREATE TABLE IF NOT EXISTS `stats_geo` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `stats_dest_mem`
+--
+
+CREATE TABLE IF NOT EXISTS `stats_dest_mem` (
+`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT ,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `prefix` varchar(50) NOT NULL,
+  `method` varchar(50) NOT NULL DEFAULT '',
+  `reply_reason` varchar(100) NOT NULL DEFAULT '',
+  `country` varchar(255) NOT NULL DEFAULT 'UN',
+  `lat` float NOT NULL DEFAULT '0',
+  `lon` float NOT NULL DEFAULT '0',
+  `duration` int,
+  `total` int(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `datemethod` (`country` ,`prefix`,`method`)
+) ENGINE=MEMORY DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stats_dest_reply`
+--
+
+CREATE TABLE IF NOT EXISTS `stats_dest_reply` (
+`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `from_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `to_date` timestamp NOT NULL DEFAULT '1971-01-01 00:00:01',
+  `prefix` varchar(50) NOT NULL,
+  `method` varchar(50) NOT NULL DEFAULT '',
+  `reply_reason` varchar(100) NOT NULL DEFAULT '',
+  `country` varchar(255) NOT NULL DEFAULT 'UN',
+  `lat` float NOT NULL DEFAULT '0',
+  `lon` float NOT NULL DEFAULT '0',
+  `total` int(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`,`from_date`),
+  UNIQUE KEY `datemethod` (`from_date`,`to_date`, `country`, `prefix`,`method`),
+  KEY `from_date` (`from_date`),
+  KEY `to_date` (`to_date`),
+  KEY `prefix` (`prefix`),
+  KEY `method` (`method`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8
+/*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`from_date`))
+(PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `stats_method`
 --
 
