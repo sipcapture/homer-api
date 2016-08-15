@@ -152,7 +152,7 @@ class Report {
 
                     if($limit < 1) break;
                           
-                    $layerHelper['table']['type'] = $query_type;
+                    $layerHelper['table']['type'] = "call";
                     $layerHelper['table']['timestamp'] = $tkey;             
                     $layerHelper['order']['limit'] = $limit;                        
                     $query = $layer->querySearchData($layerHelper);                    
@@ -355,7 +355,7 @@ class Report {
 
                     if(count($mapsCallid) > $limit) break;
                     
-                    $layerHelper['table']['type'] = $query_type;
+                    $layerHelper['table']['type'] = "call";
                     $layerHelper['table']['timestamp'] = $tkey; 
                     $layerHelper['order']['limit'] = $limit;    
                     $query = $layer->querySearchData($layerHelper);
@@ -1144,7 +1144,7 @@ class Report {
 		if($trans["call"]) {
 			if($limit < 1) break;
 
-			$layerHelper['table']['type'] = $query_type;
+			$layerHelper['table']['type'] = "call";
 			$layerHelper['table']['timestamp'] = $tkey; 
 			$layerHelper['order']['limit'] = $limit;    
 
