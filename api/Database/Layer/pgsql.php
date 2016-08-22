@@ -67,7 +67,7 @@ class pgsql {
 
                         if(isset($layerHelper['fields']['distinct']))
                         {
-                                $layerHelper['values'][] = "DESTINCT ON (".$layerHelper['fields']['distinct'].")";
+                                $layerHelper['values'][] = "DISTINCT ON (".$layerHelper['fields']['distinct'].")";
                         }
 
                         if(isset($layerHelper['fields']['md5msg']) && $layerHelper['fields']['md5msg'] == true)
