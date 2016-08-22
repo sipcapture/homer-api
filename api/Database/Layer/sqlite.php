@@ -64,7 +64,7 @@ class sqlite {
                         
                         if(isset($layerHelper['fields']['distinct']))
                         {
-                                $layerHelper['values'][] = "DESTINCT(".$layerHelper['fields']['distinct'].")";                        
+                                $layerHelper['values'][] = "DISTINCT(".$layerHelper['fields']['distinct'].")";                        
                         }
                                                                         
                         if(isset($layerHelper['fields']['md5msg']) && $layerHelper['fields']['md5msg'] == true)
