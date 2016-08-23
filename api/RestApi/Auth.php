@@ -127,6 +127,26 @@ class Auth {
         return $answer;
     }
     
+    public function getRedirectSession($param){
+        
+        $answer = array();        
+            
+        if($this->getContainer('auth')->checkSession()) {        
+                $url = urldecode($_GET['url']);
+                header("Location: ".$url."\n\n");                
+                exit;
+        }
+        else {
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'false';             
+                $answer['status'] = 403;        
+                $answer['message'] = 'wrong session';
+                $answer['data'] = array();
+        }        
+        
+        return $answer;
+    }
+    
     public function getUser(){
         
         $answer = array();        
