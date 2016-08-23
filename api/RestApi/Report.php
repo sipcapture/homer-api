@@ -1388,10 +1388,34 @@ class Report {
                 list($key, $value) = explode("=", $d);
 
                 switch($key) {
-                	case 'CD':
-                        	$res = 'sec';
+                        case 'CS':
+                                $res = 'call_setup_time';
                                 break;
-			case 'JI':
+                        case 'ES':
+                                $res = 'expected_packets_sent';
+                                break;
+                        case 'ER':
+                                $res = 'expected_packets_received';
+                                break;
+                        case 'OS':
+                                $res = 'audio_octets_sent';
+                                break;
+                        case 'OR':
+                                $res = 'audio_octets_received';
+                                break;
+                        case 'EN':
+                                $res = 'encoders';
+                                break;
+                        case 'DE':
+                                $res = 'decoders';
+                                break;
+                        case 'DL':
+                                $res = 'rtt_mean';
+                                break;
+                        case 'CD':
+                                $res = 'sec';
+                                break;
+                        case 'JI':
                                 $res = 'jitter_avg';
                                 break;
                         case 'PR':
@@ -1408,14 +1432,15 @@ class Report {
                                 break;
                         case 'IP':
                                 $res = 'media_ip_port';
-				break;
+                                break;
                         case 'EX':
                                 $res = 'reporter';
                                 break;
                         default:
-				$res = '';
-                                break;                                
-                }                        
+                                $res = '';
+                                break;
+                }
+
 		if(strlen($res)) {
 		    
 		    if($res == 'jitter_avg' && preg_match("/,/i", $value)) {
