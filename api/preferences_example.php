@@ -131,4 +131,8 @@ define('MY_COUNTRY_CODE', '49');
 define('SYSLOG_ENABLE', 0);
 define('SYSLOG_LEVEL', 'ERROR');
 
+define('API_AUTH_KEY', 0);
+define('API_AUTH_KEY_TYPE', "json");
+define('API_AUTH_KEY_NAME', "authkey");
+
 ?>
