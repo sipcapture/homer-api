@@ -128,13 +128,15 @@ INSERT INTO user_menu (id, name, alias, icon, weight, active) VALUES
 --
   
 CREATE TABLE IF NOT EXISTS `api_auth_key` (
-  `id` SERIAL NOT NULL,
-  `authkey` varchar(200) NOT NULL DEFAULT '',
-  `source_ip` varchar(200) NOT NULL DEFAULT '0.0.0.0',
-  `startdate` timestamp NOT NULL DEFAULT '2012-01-01 00:00:00',
-  `stopdate` timestamp NOT NULL DEFAULT '2031-01-01 00:00:00',
-  `description` varchar(200) NOT NULL DEFAULT '',
-  `enable` smallint NOT NULL DEFAULT '1',
+  id SERIAL NOT NULL,
+  authkey varchar(200) NOT NULL DEFAULT '',
+  source_ip varchar(200) NOT NULL DEFAULT '0.0.0.0',
+  startdate timestamp NOT NULL DEFAULT '2012-01-01 00:00:00',
+  stopdate timestamp NOT NULL DEFAULT '2031-01-01 00:00:00',
+  userobject varchar(250) NOT NULL DEFAULT '',
+  description varchar(200) NOT NULL DEFAULT '',
+  lastvisit timestamp NOT NULL,
+  enable smallint NOT NULL DEFAULT '1',
   PRIMARY KEY (id)
 );
 

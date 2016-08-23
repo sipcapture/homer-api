@@ -30,8 +30,8 @@ namespace RestApi;
 class Auth {
     
 
-    private $_instance = null;
-    
+    protected $_instance = array();
+            
     function __construct()
     {
 
@@ -82,6 +82,35 @@ class Auth {
     public function doSession($username, $password){
     
         $data = $this->getContainer('auth')->logIn(array('username'=>$username, 'password'=>$password));
+
+        $answer = array();  
+                
+        if(empty($data)) {
+        
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'false';             
+                $answer['status'] = 404;                
+                $answer['message'] = 'bad password or username';                             
+                $answer['data'] = $data;
+        }                
+        else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';             
+                $answer['message'] = 'ok';                             
+                $answer['data'] = $data;
+        }
+        
+        return $answer;
+    }
+    
+    public function doAuthKeySession($authkey){
+
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) $ip = $_SERVER['HTTP_CLIENT_IP'];
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	else $ip = $_SERVER['REMOTE_ADDR'];
+
+        $data = $this->getContainer('internalauth')->checkKey($authkey, $ip);
 
         $answer = array();  
                 
@@ -184,14 +213,16 @@ class Auth {
         return $answer;
     }
 
-    public function getContainer()
+    public function getContainer($name)
     {
-        if ($this->_instance === null) {
+	if (!$this->_instance || !isset($this->_instance[$name]) || $this->_instance[$name] === null) {
             //$config = \Config::factory('configs/config.ini', APPLICATION_ENV, 'auth');
-            $containerClass = sprintf("Authentication\\".AUTHENTICATION);
-            $this->_instance = new $containerClass();
+            if($name == "auth") $containerClass = sprintf("Authentication\\".AUTHENTICATION);
+            else if($name == "internalauth") $containerClass = sprintf("Authentication\\Internal");
+            $this->_instance[$name] = new $containerClass();
         }
-        return $this->_instance;
+
+        return $this->_instance[$name];
     }
 
     /* TEST CHECK FOR API*/
