@@ -79,7 +79,7 @@ class PDOConnector extends DefaultConnector {
 		$dbname = isset ($node['dbname']) ? $node['dbname'] : NULL;
 		$dbusername = isset ($node['dbusername']) ? $node['dbusername'] : $this->username;
 		$dbpassword = isset ($node['dbpassword']) ? $node['dbpassword'] : $this->password;
-		$dbport = isset ($node['dbport']) ? $node['dbport'] : NULL;
+		$dbport = isset ($node['dbport']) ? $node['dbport'] : $this->port;
 
 		if(!$host) $host = $this->hostname;
 
