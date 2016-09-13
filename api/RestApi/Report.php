@@ -134,7 +134,7 @@ class Report {
 	$layerHelper['order'] = array();
 	$layerHelper['where'] = array();
 	$layerHelper['fields'] = array();
-	$layerHelper['values'] = array();
+	$layerHelper['values'] = array();                          
 	$layerHelper['table']['base'] = "sip_capture";
 	$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 	$layerHelper['where']['param'] = $callwhere;
@@ -151,7 +151,7 @@ class Report {
 	    foreach($timearray as $tkey=>$tval) {
 
                     if($limit < 1) break;
-                          
+
                     $layerHelper['table']['type'] = "call";
                     $layerHelper['table']['timestamp'] = $tkey;             
                     $layerHelper['order']['limit'] = $limit;                        
@@ -185,7 +185,6 @@ class Report {
 	$layerHelper['order'] = array();
 	$layerHelper['where'] = array();
 	$layerHelper['fields'] = array();
-	$layerHelper['values'] = array();
 	$layerHelper['table']['base'] = "rtcp_capture";
 	$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 	$layerHelper['where']['param'] = $callwhere;
@@ -498,7 +497,6 @@ class Report {
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
         $layerHelper['fields'] = array();
-        $layerHelper['values'] = array();
         $layerHelper['table']['base'] = "rtcp_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
@@ -511,6 +509,8 @@ class Report {
             $limit = $limit_orig;
             
 	    $layerHelper['order']['limit'] = $limit;    
+            $layerHelper['values'] = array();
+
 	    $layerHelper['values'][] = "*";
 	    $layerHelper['values'][] = "'".$node['name']."' as dbnode";
 
@@ -705,7 +705,6 @@ class Report {
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
         $layerHelper['fields'] = array();
-        $layerHelper['values'] = array();
         $layerHelper['table']['base'] = "rtcp_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
@@ -718,6 +717,8 @@ class Report {
             $limit = $limit_orig;
 
 	    $layerHelper['order']['limit'] = $limit;
+            $layerHelper['values'] = array();
+
             $layerHelper['values'][] = "*";
             $layerHelper['values'][] = "'".$node['name']."' as dbnode";
 	
@@ -884,7 +885,6 @@ class Report {
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
         $layerHelper['fields'] = array();
-        $layerHelper['values'] = array();
         $layerHelper['table']['base'] = "report_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
@@ -897,6 +897,8 @@ class Report {
             $limit = $limit_orig;
 	
 	    $layerHelper['order']['limit'] = $limit;
+            $layerHelper['values'] = array();
+
             $layerHelper['values'][] = "*";
             $layerHelper['values'][] = "'".$node['name']."' as dbnode";
 	
@@ -1129,10 +1131,8 @@ class Report {
         $layerHelper['where']['param'] = $callwhere;
         $layerHelper['time'] = $time;               
 	$layerHelper['fields']['msg'] = true;
-	if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
 	$layerHelper['order']['by'] = "id";
 	$layerHelper['order']['type'] = "DESC";
-	                        	                        
 
         foreach($nodes as $node)
         {
@@ -1150,6 +1150,7 @@ class Report {
 
 			$layerHelper['values'] = array();
         		$layerHelper['values'][] = FIELDS_CAPTURE;
+        		if($uniq) $layerHelper['values'][] = "MD5(msg) as md5sum";
         		
         		$query = $layer->querySearchData($layerHelper);
         		$noderows = $db->loadObjectArray($query.$order);
@@ -1563,7 +1564,6 @@ class Report {
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
         $layerHelper['fields'] = array();
-        $layerHelper['values'] = array();
         $layerHelper['table']['base'] = "logs_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
@@ -1577,6 +1577,8 @@ class Report {
             $limit = $limit_orig;
 
 	    $layerHelper['order']['limit'] = $limit;
+
+            $layerHelper['values'] = array();
             $layerHelper['values'][] = "*";
             $layerHelper['values'][] = "'".$node['name']."' as dbnode";
 
@@ -1701,7 +1703,6 @@ class Report {
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
         $layerHelper['fields'] = array();
-        $layerHelper['values'] = array();
         $layerHelper['table']['base'] = "webrtc_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
@@ -1714,6 +1715,8 @@ class Report {
             $limit = $limit_orig;
 
 	    $layerHelper['order']['limit'] = $limit;
+
+            $layerHelper['values'] = array();
             $layerHelper['values'][] = "*";
             $layerHelper['values'][] = "'".$node['name']."' as dbnode";
 
@@ -1941,7 +1944,6 @@ class Report {
         $layerHelper['order'] = array();
         $layerHelper['where'] = array();
         $layerHelper['fields'] = array();
-        $layerHelper['values'] = array();
         $layerHelper['table']['base'] = "report_capture";
         $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
         $layerHelper['where']['param'] = $callwhere;
@@ -1955,6 +1957,8 @@ class Report {
             if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
 
 	    $layerHelper['order']['limit'] = $limit;
+
+            $layerHelper['values'] = array();
             $layerHelper['values'][] = "*";
             $layerHelper['values'][] = "'".$node['name']."' as dbnode";
 

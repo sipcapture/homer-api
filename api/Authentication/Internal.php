@@ -115,6 +115,48 @@ class Internal extends Authentication {
            }
         }
         
+        function checkKey($authkey, $ip) {
+
+           $mydb = $this->getContainer('db');
+           $mydb->select_db(DB_CONFIGURATION);
+           $mydb->dbconnect();
+                                
+           /* get our DB Abstract Layer */
+           $layer = $this->getContainer('layer');
+                               
+           $query  = $mydb->makeQuery("SELECT id, userobject FROM api_auth_key WHERE authkey = '?' AND NOW() BETWEEN `startdate` AND `stopdate` AND (source_ip = '0.0.0.0' OR source_ip = '?') AND enable = 1;" , $authkey, $ip);
+           $rows = $mydb->loadObjectList($query);
+
+           if(count($rows) > 0) {
+           	$data = $rows[0];           
+                $uobj = json_decode($data->userobject, true);
+                
+                $_SESSION['loggedin']   = $uobj['uid'];
+                $_SESSION['uid']        = $uobj['uid'];
+                $_SESSION['username']   = $uobj['username'];
+                $_SESSION['gid']        = $uobj['gid'];
+                $_SESSION['grp']        = $uobj['grp'];
+                                
+                $query = "UPDATE userobject SET lastvisit = NOW() WHERE id=".$data->id;
+                $mydb->executeQuery($query);
+
+                $user['uid']     = $uobj['uid'];
+                $user['username'] = $uobj['username'];
+                $user['gid']        = $uobj['gid'];   
+                $user['grp']      = $uobj['grp'];   
+                $user['firstname']  = $uobj['firstname'];
+                $user['lastname']   = $uobj['lastname']; 
+                $user['email']      = $uobj['email'];    
+                $user['lastvisit']  = $uobj['lastvisit'];
+
+                return $user;
+                  
+           } else{
+               $_SESSION['loggedin'] = "-1";
+               return array();
+           }
+        }
+        
         //logout function 
         function logOut(){
                 //$_SESSION['loggedin'] = '-1';

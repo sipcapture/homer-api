@@ -1,7 +1,7 @@
 <?php
 
 define('CONFIG_VERSION', "2.0.1"); /* Please ALWAYS include CONFIGVERSION */
-define('WEBHOMER_VERSION', "5.1.0"); /* WEBHOMER VERSION */
+define('WEBHOMER_VERSION', "5.1.3"); /* WEBHOMER VERSION */
 define('HOMER_TIMEZONE', "Europe/Amsterdam"); /* Set a global application default timezone */
 
 /* CFLOW Options */
@@ -130,5 +130,9 @@ define('MY_COUNTRY_CODE', '49');
 /*syslog*/
 define('SYSLOG_ENABLE', 0);
 define('SYSLOG_LEVEL', 'ERROR');
+
+define('API_AUTH_KEY', 0);
+define('API_AUTH_KEY_TYPE', "json");
+define('API_AUTH_KEY_NAME', "authkey");
 
 ?>

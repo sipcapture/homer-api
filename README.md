@@ -1,4 +1,7 @@
+
 [![Logo](http://sipcapture.org/data/images/sipcapture_header.png)](http://sipcapture.org)
+
+<a href="https://cla-assistant.io/sipcapture/homer-api"><img src="https://cla-assistant.io/readme/badge/sipcapture/homer-api" alt="CLA assistant" /></a>
 
 # HOMER 5 API
 

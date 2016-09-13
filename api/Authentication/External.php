@@ -54,6 +54,10 @@ class External extends Authentication {
         	{
 			$key = $_COOKIE[EXTERNAL_AUTH_REQUEST_KEY];
         	}
+        	else if(EXTERNAL_AUTH_REQUEST_TYPE == "get") 
+        	{
+			$key = $_GET[EXTERNAL_AUTH_REQUEST_KEY];
+        	}
         	
         	$param = preg_replace('[KEY]', $key, EXTERNAL_AUTH_PARAM);        	
         	$ch = curl_init();

@@ -183,3 +183,22 @@ INSERT INTO `user_menu` (`id`, `name`, `alias`, `icon`, `weight`, `active`) VALU
 ('_1426001444630', 'SIP Search', 'search', 'fa-search', 10, 1),
 ('_1427728371642', 'Home', 'home', 'fa-home', 1, 1),
 ('_1431721484444', 'Alarms', 'alarms', 'fa-warning', 20, 1);
+
+
+--
+-- Table structure for table `api_auth_key`
+--
+
+CREATE TABLE IF NOT EXISTS `api_auth_key` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `authkey` varchar(200) NOT NULL,
+  `source_ip` varchar(200) NOT NULL DEFAULT '0.0.0.0',
+  `startdate` datetime NOT NULL DEFAULT '2012-01-01 00:00:00',
+  `stopdate` datetime NOT NULL DEFAULT '2032-01-01 00:00:00',
+  `userobject` varchar(250) NOT NULL,
+  `description` varchar(200) NOT NULL DEFAULT '',
+  `lastvisit` datetime NOT NULL DEFAULT '2012-01-01 00:00:00',
+  `enable` int(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `authkey` (`authkey`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
