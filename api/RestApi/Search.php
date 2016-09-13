@@ -520,7 +520,8 @@ class Search {
 		                if($uniq) $layerHelper['fields']['md5msg'] = true;
 			}
 		        else {
-		        	$layerHelper['values'][] = "count(*) as cnt";                        
+		        	$layerHelper['values'][] = "count(*) as cnt";
+		        	$layerHelper['group']['by'] = "msg";
 			}
 
 			$layerHelper['table']['type'] = $query_type;
