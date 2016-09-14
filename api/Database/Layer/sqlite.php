@@ -178,6 +178,11 @@ class sqlite {
                 return "PASSWORD('".$password."')";
         }
         
+        function getTableName($table)
+        {
+                return $table; 
+        }                                                
+        
         function createOnDuplicateInsert($table, $insertArray, $updateArray) {
           
                 return "INSERT INTO ".$table." SET ".implode(",", $insertArray). " ON DUPLICATE KEY UPDATE  ".implode(",", $updateArray);

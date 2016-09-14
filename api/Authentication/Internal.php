@@ -82,7 +82,7 @@ class Internal extends Authentication {
            /* get our DB Abstract Layer */
            $layer = $this->getContainer('layer');
                                
-           $query  = $mydb->makeQuery("SELECT * FROM ".$this->user_table." WHERE ".$this->user_column."='?' AND ".$this->pass_column." = ".$layer->getPassword($param['password'], $this->pass_column).";" , $param['username']);
+           $query  = $mydb->makeQuery("SELECT * FROM ".$layer->getTableName($this->user_table)." WHERE ".$this->user_column."='?' AND ".$this->pass_column." = ".$layer->getPassword($param['password'], $this->pass_column).";" , $param['username']);
            $rows = $mydb->loadObjectList($query);
 
            if(count($rows) > 0) {
@@ -95,7 +95,7 @@ class Internal extends Authentication {
                 
                 
                 //update lastvisit
-                $query = "UPDATE ".$this->user_table." SET lastvisit = NOW() WHERE ".$this->id_column."='".$row->uid."'";
+                $query = "UPDATE ".$layer->getTableName($this->user_table)." SET lastvisit = NOW() WHERE ".$this->id_column."='".$row->uid."'";
                 $mydb->executeQuery($query);
 
                 $user['uid']     = $row->uid;
@@ -188,7 +188,7 @@ class Internal extends Authentication {
            /* get our DB Abstract Layer */
            $layer = $this->getContainer('layer');
 
-           $query  = $mydb->makeQuery("SELECT uid, gid, username, `grp`, firstname, lastname, email, lastvisit,department  FROM ".$this->user_table." WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
+           $query  = $mydb->makeQuery("SELECT uid, gid, username, `grp`, firstname, lastname, email, lastvisit,department  FROM ".$layer->getTableName($this->user_table)." WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
            $rows = $mydb->loadObjectList($query);
            
            if(count($rows)) {
@@ -239,7 +239,7 @@ class Internal extends Authentication {
                 $exten .= implode(", ", $callwhere);
            }
 
-	   $query = $mydb->makeQuery("UPDATE ".$this->user_table." SET ".$exten. " WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
+	   $query = $mydb->makeQuery("UPDATE ".$layer->getTableName($this->user_table)." SET ".$exten. " WHERE ".$this->id_column." = ? limit 1;", $_SESSION['loggedin']);
 	   $mydb->executeQuery($query);       	   
 	   return $this->getUser();
         }
@@ -256,7 +256,7 @@ class Internal extends Authentication {
 		$mydb->dbconnect();
 		
 		//update database with new password
-		$query = "UPDATE ".$this->user_table." SET ".$this->pass_column."=".$layer->setPassword($newpassword)." WHERE ".$this->user_column."='".stripslashes($username)."'";
+		$query = "UPDATE ".$layer->getTableName($this->user_table)." SET ".$this->pass_column."=".$layer->setPassword($newpassword)." WHERE ".$this->user_column."='".stripslashes($username)."'";
 		
 		if(!$mydb->executeQuery($query)) {
 			die("No update possible");		
