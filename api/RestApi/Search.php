@@ -610,6 +610,7 @@ class Search {
         $search['from_domain'] = getVar('from_domain', NULL, $param['search'], 'string');
         $search['to_user'] = getVar('to_user', NULL, $param['search'], 'string');
         $search['to_domain'] = getVar('to_domain', NULL, $param['search'], 'string');
+        $search['ruri'] = getVar('ruri', NULL, $param['search'], 'string');
         $search['ruri_user'] = getVar('ruri_user', NULL, $param['search'], 'string');
         $search['ruri_domain'] = getVar('ruri_domain', NULL, $param['search'], 'string');
         $search['callid'] = getVar('callid', NULL, $param['search'], 'string');
