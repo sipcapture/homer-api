@@ -128,7 +128,7 @@ INSERT INTO user_menu (id, name, alias, icon, weight, active) VALUES
 -- Table structure for table `api_auth_key`
 --
   
-CREATE TABLE IF NOT EXISTS `api_auth_key` (
+CREATE TABLE IF NOT EXISTS api_auth_key (
   id SERIAL NOT NULL,
   authkey varchar(200) NOT NULL DEFAULT '',
   source_ip varchar(200) NOT NULL DEFAULT '0.0.0.0',
