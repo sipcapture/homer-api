@@ -140,16 +140,20 @@ class Admin {
         $update['gid'] = getVar('gid', 10, $param, 'int');              
         $update['lastvisit'] = getVar('lastvisit', date_format(date_create(), 'Y-m-d H:i:s'), $param, 'string');
         $password = getVar('password', '', $param, 'string');
-          
+        
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer'); 
+                    
         $exten = "";
         $callwhere = generateWhere($update, 1, $db, 0);
-        if(count($callwhere)) {
-                $exten = "`password` = PASSWORD('".$password."'),";        
+	
+	if(count($callwhere)) {
+                $exten = "`password` = ".$layer->setPassword($password).",";
                 $exten .= implode(", ", $callwhere);                
         }
-                              
+
         $table = "user";            
-        $query = "INSERT INTO ".$table." SET ".$exten;        
+        $query = "INSERT INTO ".$layer->getTableName($table)." SET ".$exten;        
         $db->executeQuery($query);        
         
         $uid = $db->getLastId();             
@@ -199,7 +203,7 @@ class Admin {
         }
                               
         $table = "user";            
-        $query = "UPDATE ".$table." SET ".$exten. " WHERE uid=".$uid;        
+        $query = "UPDATE ".$layer->getTableName($table)." SET ".$exten. " WHERE uid=".$uid;        
         $db->executeQuery($query);        
         
         $answer = $this->getUser("");        
