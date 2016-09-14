@@ -59,7 +59,7 @@ define('SQL_SCHEMA_VERSION', 5); /* SQL SCHEMA VERSION. Default 5 */
 define('DATABASE_CONNECTOR', "PDOConnector");
 
 /* fields */
-define('FIELDS_CAPTURE', "id, date, (micro_ts DIV 1000) as milli_ts, micro_ts,method,reply_reason,ruri,ruri_user,ruri_domain,from_user,from_domain,from_tag,
+define('FIELDS_CAPTURE', "id, date, floor(micro_ts /1000) as milli_ts, micro_ts,method,reply_reason,ruri,ruri_user,ruri_domain,from_user,from_domain,from_tag,
 to_user,to_domain,to_tag,pid_user,contact_user,auth_user,callid,callid_aleg,via_1,via_1_branch,cseq,diversion,reason,content_type,auth,
 user_agent,source_ip,source_port,destination_ip,destination_port,contact_ip,contact_port,originator_ip,originator_port,correlation_id,proto,family,rtp_stat,type,node");
 
