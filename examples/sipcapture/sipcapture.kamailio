@@ -101,7 +101,7 @@ modparam("sipcapture", "insert_retry_timeout", 10)
 #modparam("sipcapture", "capture_node", "homer01")
 
 #!ifdef WITH_HOMER_GEO
-modparam("geoip", "path", "/usr/share/GeoIP/GeoIP.dat")
+modparam("geoip", "path", "/usr/share/GeoIP/GeoIPCity.dat")
 #!endif
 
 #Stats time
