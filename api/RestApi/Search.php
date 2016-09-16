@@ -38,6 +38,7 @@ class Search {
     function __construct()
     {
 	$this->query_types = array("call", "registration", "rest");
+	if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
     }
 
     /**
@@ -229,8 +230,6 @@ class Search {
 	/* auth */
         if(count(($adata = $this->getLoggedIn()))) return $adata;
         
-        openlog("homer", LOG_PID | LOG_PERROR, LOG_LOCAL0);
-        
         /* get our DB */
         $db = $this->getContainer('db');
         
@@ -321,6 +320,7 @@ class Search {
 			    			    
 			    $query = $layer->querySearchData($layerHelper);
 			    $noderows = $db->loadObjectArray($query);
+			    if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get search data: ".$query);
 			    $data = array_merge($data,$noderows);
 			    $limit -= count($noderows);
 		    }
@@ -374,7 +374,7 @@ class Search {
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
 
-        if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+
         
         /* get our DB Abstract Layer */
         $layer = $this->getContainer('layer');
@@ -684,7 +684,8 @@ class Search {
                         $layerHelper['order']['limit'] = $limit;                        
 
         	        $query = $layer->queryInsertIntoData($layerHelper);
-                        $db->executeQuery($query);									
+                        $db->executeQuery($query);
+                        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"do export data: ".$query);									
 		    }
 		}
             }
@@ -790,6 +791,7 @@ class Search {
 
                         $query = $layer->queryInsertIntoData($layerHelper);
                         $db->executeQuery($query);
+                        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"do export transaction data: ".$query);
 		    }
 		}
             }
@@ -995,8 +997,6 @@ class Search {
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();        
         
-        if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
-        
 	/* get our DB Abstract Layer */
         $layer = $this->getContainer('layer');
          
@@ -1159,6 +1159,7 @@ class Search {
 
 	    $query = $layer->querySearchData($layerHelper);
             $noderows = $db->loadObjectArray($query);
+            if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get messages rtcp data: ".$query);
             $data = array_merge($data,$noderows);
             $limit -= count($noderows);            
         }
@@ -1251,6 +1252,10 @@ class Search {
                         $layerHelper['order']['limit'] = $limit;   
 
                         $query = $layer->querySearchData($layerHelper);
+                        $noderows = $db->loadObjectArray($query);
+                        
+                        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"do search message data: ".$query);
+                                                
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
 		}
@@ -1385,8 +1390,10 @@ class Search {
                         $layerHelper['order']['limit'] = $limit;   
 
 			$query = $layer->querySearchData($layerHelper);
-
-			$noderows = $db->loadObjectArray($query.$order);
+			$noderows = $db->loadObjectArray($query);
+			
+			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get messages for transaction data: ".$query);
+			
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
 		    }
@@ -1535,6 +1542,7 @@ class Search {
 
 	    $query = $layer->querySearchData($layerHelper);
             $noderows = $db->loadObjectArray($query);
+            if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get rtcp for transaction data: ".$query);
             $data = array_merge($data,$noderows);                
             $limit -= count($noderows);            
         }
