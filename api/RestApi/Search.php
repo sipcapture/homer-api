@@ -993,8 +993,10 @@ class Search {
         /* get our DB */
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
-        $db->dbconnect();
-
+        $db->dbconnect();        
+        
+        if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+        
 	/* get our DB Abstract Layer */
         $layer = $this->getContainer('layer');
          
@@ -1069,6 +1071,9 @@ class Search {
                         
                         $query = $layer->querySearchData($layerHelper);
                         $noderows = $db->loadObjectArray($query);
+
+                        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"method query: ".$query);
+                        
                         $data = array_merge($data,$noderows);
                         $limit -= count($noderows);
                     }
