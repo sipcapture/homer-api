@@ -19,8 +19,8 @@ define('BLEGDETECT', 1); /* always detect BLEG leg in CFLOW/PCAP*/
 define('BLEGCID', "b2b"); /* options: x-cid, b2b */
 define('BLEGTAIL', "_b2b-1"); /* session-ID correlation suffix, required for b2b mode */
 
-/* Database: mysql */
-define('DATABASE_DRIVER',"mysql");
+/* Database: mysql. Moved to configuration.php */
+if(!defined('DATABASE_DRIVER')) define('DATABASE_DRIVER',"mysql");
 
 /* AUTH: CLASS NAME. i.e. Internal  */
 define('AUTHENTICATION',"Internal");
