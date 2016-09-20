@@ -2381,7 +2381,7 @@ class Search {
         
         $expire = $layer->getExpire("CURDATE()","+", "14","DAY");
         
-        $query = "INSERT INTO link_share set uid='?', uuid='?', data='?', expire=".$expire;
+        $query = "INSERT INTO link_share (uid, uuid, data, expire) values ('?','?','?',".$expire.");";
         $query  = $db->makeQuery($query, $uid, $uuid, $json );
         $db->executeQuery($query);
 
