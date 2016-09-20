@@ -81,11 +81,12 @@ class Admin {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+	$layer = $this->getContainer('layer');
                          
         $data = array();
         
         $table = "user";            
-        $query = "SELECT uid,gid,username,grp,firstname,lastname,email, department, regdate, lastvisit, active FROM ".$table." order by uid DESC;";
+        $query = "SELECT uid,gid,username,grp,firstname,lastname,email, department, regdate, lastvisit, active FROM ".$layer->getTableName($table)." order by uid DESC;";
         $query  = $db->makeQuery($query);                
         $data = $db->loadObjectArray($query);
 
