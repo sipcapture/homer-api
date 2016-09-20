@@ -140,7 +140,7 @@ class Dashboard {
 		
 		    $boardid = str_replace(".json", "", $file);
 		    
-		    if($skipDashboards[$boardid] == 1) continue;
+		    if(array_key_exists( $boardid, $skipDashboards ) && $skipDashboards[$boardid] == 1) continue;
 		
 		    $dar = DASHBOARD_PARAM."/".$file;
 		    $myfile = fopen($dar, "r") or die("Unable to open file!");
