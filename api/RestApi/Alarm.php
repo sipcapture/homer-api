@@ -318,13 +318,14 @@ class Alarm {
         $calldata = array();
         $arrwhere = "";
         
-	foreach($param['filter'] as $key=>$filter) {
-        
-            $search[$key]['type'] = getVar('type', NULL, $filter, 'string');
-            $search[$key]['source_ip'] = getVar('source_ip', NULL, $filter, 'string');
-                                    
-            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
-            if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
+	if(isset($param['filter']))
+	{
+		foreach($param['filter'] as $key=>$filter) {       
+            		$search[$key]['type'] = getVar('type', NULL, $filter, 'string');
+            		$search[$key]['source_ip'] = getVar('source_ip', NULL, $filter, 'string');                                    
+            		$callwhere = generateWhere($search[$key], 1, $db, 0);                                          
+            		if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
+		}
         }
         
         if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";
