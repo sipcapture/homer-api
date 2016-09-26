@@ -394,9 +394,9 @@ class Search {
 		$trans['call'] = true;
 	}
 	 
-	if(isset($param['extra']) && isset($param['extra']['full']))
+	if(isset($param['receive']) && isset($param['receive']['body']))
 	{
-             $full = getVar('full', false, $param['extra'], 'bool');             
+             $full = getVar('body', false, $param['receive'], 'bool');             
         }
 
         if(isset($param['location'])) $lnodes = $param['location']['node'];
