@@ -393,6 +393,11 @@ class Search {
 		$trans['registration'] = true;
 		$trans['call'] = true;
 	}
+	 
+	if(isset($param['extra']) && isset($param['extra']['full']))
+	{
+             $full = getVar('full', false, $param['extra'], 'bool');             
+        }
 
         if(isset($param['location'])) $lnodes = $param['location']['node'];
                 
