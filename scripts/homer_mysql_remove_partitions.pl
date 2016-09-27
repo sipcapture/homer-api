@@ -160,13 +160,13 @@ sub read_config {
 sub db_connect {
     my $CONFIG  = shift;
     my $db_name = shift;
-    my $dbi = ""
-    if($CONFIG->{"MYSQL"}{$usesocket}) {
-    	$dbi = "DBI:mysql:database=".$CONFIG->{"MYSQL"}{$db_name}.";mysql_socket=".$CONFIG->{"MYSQL"}{$socket)
+    my $dbistring = ""
+    if($CONFIG->{"MYSQL"}{"usesocket"}) {
+    	$dbi = "DBI:mysql:database=".$CONFIG->{"MYSQL"}{$db_name}.";mysql_socket=".$CONFIG->{"MYSQL"}{"socket"}
     } else {
     	$dbi = "DBI:mysql:".$CONFIG->{"MYSQL"}{$db_name}.":".$CONFIG->{"MYSQL"}{"host"}.":".$CONFIG->{"MYSQL"}{"port"}
     }
-    my $db = DBI->connect($dbi, $CONFIG->{"MYSQL"}{"user"}, $CONFIG->{"MYSQL"}{"password"});
+    my $db = DBI->connect($dbistring, $CONFIG->{"MYSQL"}{"user"}, $CONFIG->{"MYSQL"}{"password"});
     return $db;
 }
 
