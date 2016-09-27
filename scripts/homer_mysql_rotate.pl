@@ -207,10 +207,14 @@ exit;
 sub db_connect {
     my $CONFIG  = shift;
     my $db_name = shift;
-
-    my $db = DBI->connect("DBI:mysql:".$CONFIG->{"MYSQL"}{$db_name}.":".$CONFIG->{"MYSQL"}{"host"}.":".$CONFIG->{"MYSQL"}{"port"}, $CONFIG->{"MYSQL"}{"user"}, $CONFIG->{"MYSQL"}{"password"});
+    my $dbi = ""
+    if($CONFIG->{"MYSQL"}{$usesocket}) {
+    	$dbi = "DBI:mysql:database=".$CONFIG->{"MYSQL"}{$db_name}.";mysql_socket=".$CONFIG->{"MYSQL"}{$socket)
+    } else {
+    	$dbi = "DBI:mysql:".$CONFIG->{"MYSQL"}{$db_name}.":".$CONFIG->{"MYSQL"}{"host"}.":".$CONFIG->{"MYSQL"}{"port"}
+    }
+    my $db = DBI->connect($dbi, $CONFIG->{"MYSQL"}{"user"}, $CONFIG->{"MYSQL"}{"password"});
     return $db;
-
 }
 
 sub calculate_gmt_offset {
