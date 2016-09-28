@@ -160,7 +160,7 @@ sub read_config {
 sub db_connect {
     my $CONFIG  = shift;
     my $db_name = shift;
-    my $dbistring = ""
+    my $dbistring = "";
     if($CONFIG->{"MYSQL"}{"usesocket"}) {
     	$dbi = "DBI:mysql:database=".$CONFIG->{"MYSQL"}{$db_name}.";mysql_socket=".$CONFIG->{"MYSQL"}{"socket"}
     } else {
