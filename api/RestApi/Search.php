@@ -433,6 +433,10 @@ class Search {
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
         $search['proto'] = getVar('proto', NULL, $param['search'], 'string');
         $search['family'] = getVar('family', NULL, $param['search'], 'string');
+        $search['custom_field1'] = getVar('custom_field1', NULL, $param['search'], 'string');
+        $search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
+        $search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
+
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
         $b2b = getVar('b2b', false, $param['search'], 'bool');
@@ -637,6 +641,9 @@ class Search {
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
         $search['proto'] = getVar('proto', NULL, $param['search'], 'string');
         $search['family'] = getVar('family', NULL, $param['search'], 'string');
+	$search['custom_field1'] = getVar('custom_field1', NULL, $param['search'], 'string');
+        $search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
+        $search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
         $b2b = getVar('b2b', false, $param['search'], 'bool');
