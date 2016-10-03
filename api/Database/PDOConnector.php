@@ -90,7 +90,7 @@ class PDOConnector extends DefaultConnector {
 			$dbstring = DATABASE_DRIVER.":host=".$host.(($dbport) ? ";port=".$dbport : "" ).";dbname=".$dbname;
 			$this->connection = new PDO($dbstring, $dbusername, $dbpassword);
 			if(DATABASE_DRIVER == "mysql") $this->executeQuery('SET time_zone = "+00:00";');
-	                else if(DATABASE_DRIVER == "pgsql") $this->executeQuery('SET TIME ZONE ‘0′');
+			//else if(DATABASE_DRIVER == "pgsql") $this->executeQuery('SET TIME ZONE ‘0′');
 
 		} catch (PDOException $e){
 			try {
