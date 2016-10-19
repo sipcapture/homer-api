@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `alias` (
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `host_2` (`ip`,`port`,`capture_id`),
   KEY `host` (`ip`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `alias`
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `group` (
   `gid` int(10) NOT NULL DEFAULT 0,
   `name` varchar(100) NOT NULL DEFAULT '',
   UNIQUE KEY `gid` (`gid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `group`
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `node` (
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `host_2` (`host`),
   KEY `host` (`host`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `node`
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `setting` (
   UNIQUE KEY `uid_2` (`uid`,`param_name`),
   KEY `param_name` (`param_name`),
   KEY `uid` (`uid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
 
 --
 -- Dumping data for table `setting`
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`uid`),
   UNIQUE KEY `login` (`username`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user`

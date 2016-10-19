@@ -433,6 +433,10 @@ class Search {
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
         $search['proto'] = getVar('proto', NULL, $param['search'], 'string');
         $search['family'] = getVar('family', NULL, $param['search'], 'string');
+        $search['custom_field1'] = getVar('custom_field1', NULL, $param['search'], 'string');
+        $search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
+        $search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
+
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
         $b2b = getVar('b2b', false, $param['search'], 'bool');
@@ -637,6 +641,9 @@ class Search {
         $search['node'] = getVar('node', NULL, $param['search'], 'string');
         $search['proto'] = getVar('proto', NULL, $param['search'], 'string');
         $search['family'] = getVar('family', NULL, $param['search'], 'string');
+	$search['custom_field1'] = getVar('custom_field1', NULL, $param['search'], 'string');
+        $search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
+        $search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
         $b2b = getVar('b2b', false, $param['search'], 'bool');
@@ -1793,8 +1800,11 @@ class Search {
                         $src_id = $data->source_ip.":".$data->source_port;
                         $dst_id = $data->destination_ip.":".$data->destination_port;
 
-		        if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step; }
-		        if(!isset($hosts[$dst_id])) { $hosts[$dst_id] = $hostcount; $hostcount+=$host_step; }
+                        $src_id_complete = $data->source_ip.":".$data->source_port."-".$data->node;
+                        $dst_id_complete = $data->destination_ip.":".$data->destination_port."-".$data->node;
+
+                        if(!isset($hosts[$src_id_complete])) { $hosts[$src_id_complete] = $hostcount; $hostcount+=$host_step; }
+                        if(!isset($hosts[$dst_id_complete])) { $hosts[$dst_id_complete] = $hostcount; $hostcount+=$host_step; }
 
 		        $ssrc = ":".$data->source_port;
 
@@ -1966,7 +1976,7 @@ class Search {
 		$calldata["msg_color"] = $msgcol;
 
 		/*IF */
-		if($hosts[$src_id] > $hosts[$dst_id]) $calldata["destination"] = 2;
+		if($hosts[$src_id_complete] > $hosts[$dst_id_complete]) $calldata["destination"] = 2;
 		else $calldata["destination"] = 1;
 
 		return $calldata;
@@ -2533,8 +2543,46 @@ class Search {
             // Apply source_alias
             if (isset($alias_cache[$key])) $alias = $alias_cache[$key];
             else {
+                if (preg_match('/(.*):(.*)-(.*)/', $key, $matches)) {
+                    $key_ip_address = $matches[1];
+                    $key_port = $matches[2];
+                    $key_node = $matches[3];
+
+                    if (isset($alias_cache[$key_ip_address . ":" . $key_port . "-" . $key_node])) {
+                        $alias = $alias_cache[$key_ip_address . ":" . $key_port . "-" . $key_node];
+                    }
+                    else if (isset($alias_cache[$key_ip_address . ":" . $key_port . "-*"])) {
+                        $alias = $alias_cache[$key_ip_address . ":" . $key_port . "-*"];
+                    }
+                    else if (isset($alias_cache[$key_ip_address . ":" . $key_port])) {
+                        $alias = $alias_cache[$key_ip_address . ":" . $key_port];
+                    }
+                    else if (isset($alias_cache[$key_ip_address])) {
+                        $alias = $alias_cache[$key_ip_address];
+                    }
+                    else {
+                        $alias = $key_ip_address.":".$key_port;
+                    }
+                }
+                // port was omitted in alias:
+                else if (preg_match('/(.*)-(.*)/', $key, $matches)) {
+                    $key_ip_address = $matches[1];
+                    $key_node = $matches[2];
+                    if (isset($alias_cache[$key_ip_address . "-" . $key_node])) {
+                        $alias = $alias_cache[$key_ip_address . "-" . $key_node];
+                    }
+                    else if (isset($alias_cache[$key_ip_address . "-*"])) {
+                        $alias = $alias_cache[$key_ip_address . "-*"];
+                    }
+                    else if (isset($alias_cache[$key_ip_address])) {
+                        $alias = $alias_cache[$key_ip_address];
+                    }
+                    else {
+                        $alias = $key_ip_address;
+                    }
+                }
                 // extract IP address from $key:
-                if (preg_match('/(.*):.*/', $key, $matches)) {
+                else if (preg_match('/(.*):.*/', $key, $matches)) {
                     $key_ip_address = $matches[1];
                     if (isset($alias_cache[$key_ip_address])) {
                         $alias = $alias_cache[$key_ip_address];
