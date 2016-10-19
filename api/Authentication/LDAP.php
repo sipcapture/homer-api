@@ -112,13 +112,10 @@ class LDAP extends Authentication {
                         $_SESSION['username'] = $user['username'];
                         $_SESSION['gid'] = $user['gid'];
                         $_SESSION['grp'] = "users";
-                        
                         $_SESSION['data'] = $user;
-                        
-                        
 
-                        // Assigne Admin Privs, should be read from the LDAP Directory in the future
-                        $ADMIN_USER = split(",", LDAP_ADMIN_USER);
+                        // Assign Admin Privs, should be read from the LDAP Directory in the future
+                        $ADMIN_USER = explode(",", LDAP_ADMIN_USER);
                         foreach($ADMIN_USER as &$value) {
 
                             if ($value == $param['username']) {
@@ -132,7 +129,6 @@ class LDAP extends Authentication {
                 }
             }
         }
-
         return array();
     }
 
@@ -175,7 +171,6 @@ class LDAP extends Authentication {
 
         return $_SESSION['data'];
     }
-
 
     //create random password with 8 alphanumerical characters
 
