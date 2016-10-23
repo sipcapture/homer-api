@@ -150,7 +150,7 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
         my $sth = $db->prepare($query);
         $sth->execute();
         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time() - 86400*$rotation_horizon);
-        my $oldest = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
+        my $oldest = sprintf("%04d%02d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
         $oldest+=0;
         while(my @ref = $sth->fetchrow_array()) {
            my $table_name = $ref[0];
