@@ -298,6 +298,8 @@ class Admin {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+
+        $layer = $this->getContainer('layer');
                          
         $data = array();
 
