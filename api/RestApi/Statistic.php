@@ -643,6 +643,8 @@ class Statistic {
 	/* auth */
         if(count(($adata = $this->getLoggedIn()))) return $adata;
 
+        if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);                
+
         /* get our DB */
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
@@ -704,7 +706,7 @@ class Statistic {
 	if($total)
 	{
 		$layerHelper['values'][] = "id, COUNT(id) as cnt,SUM(total) as total, country, lat, lon, method";
-	        $layerHelper['group']['by'] = "id,from_ts,to_ts,country,lat,lon,method";
+	        $layerHelper['group']['by'] = "country,method";
 	}
 	else
 	{
@@ -713,7 +715,8 @@ class Statistic {
 
         $query = $layer->querySearchData($layerHelper);
         $data = $db->loadObjectArray($query);
-
+        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"Stats country query: ".$query); 
+                                
         /* sorting */
         //usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 

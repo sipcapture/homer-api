@@ -179,7 +179,7 @@ class Profile {
                  $query  = $db->makeQuery($query, $uid, $id );                                  
                  $db->executeQuery($query);
                                                 
-        	 $query = "INSERT INTO setting SET uid='?', param_name='?', param_value = '?'";
+        	 $query = "INSERT INTO setting (uid,param_name,param_value) VALUES ('?','?','?');";
         	 $query  = $db->makeQuery($query, $uid, $id, $json);
                  $db->executeQuery($query);
         }

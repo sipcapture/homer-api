@@ -67,7 +67,7 @@ class pgsql {
 
                         if(isset($layerHelper['fields']['distinct']))
                         {
-                                $layerHelper['values'][] = "DISTINCT ON (".$layerHelper['fields']['distinct'].")";
+                                $layerHelper['values'][] = "DISTINCT ".$layerHelper['fields']['distinct']." ";
                         }
 
                         if(isset($layerHelper['fields']['md5msg']) && $layerHelper['fields']['md5msg'] == true)
@@ -77,7 +77,7 @@ class pgsql {
                         
 			if(isset($layerHelper['fields']['replace']) && $layerHelper['fields']['replace'] == "auth")
 			{
-                                $layerHelper['values'][] = "REPLACE(REPLACE(auth, '0','N'),'1','A') AS auth";
+                                $layerHelper['values'][] = "CASE WHEN auth=0 THEN 'N' WHEN auth=1 THEN 'A' ELSE 'U' END AS auth";
                         }
                 }
 
@@ -164,6 +164,11 @@ class pgsql {
                 return "crypt('$password', gen_salt('md5'))";
         }
         
+        function getTableName($table)
+        {
+                return "\"".$table."\""; 
+        }
+                                                
 	function createOnDuplicateInsert($table, $insertArray, $updateArray) {
 
                 return "INSERT INTO ".$table." SET ".implode(",", $insertArray). " ON DUPLICATE KEY UPDATE  ".implode(",", $updateArray);

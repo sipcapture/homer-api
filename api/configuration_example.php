@@ -13,6 +13,7 @@ define('DB_CONFIGURATION', "homer_configuration");
 define('DB_STATISTIC', "homer_statistic");
 define('DB_HOMER', "homer_data");
 define('SINGLE_NODE', 1);
+define('DATABASE_DRIVER',"mysql");
 
 /*********************************************************************************/
 

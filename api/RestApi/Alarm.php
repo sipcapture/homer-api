@@ -36,7 +36,7 @@ class Alarm {
 
     function __construct()
     {
-
+            if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);                
     }
 
     /**
@@ -135,13 +135,22 @@ class Alarm {
         $update['stopdate'] = getVar('stopdate', '', $param, 'date');        
           
         $exten = "";
+	$insertkey = array();
+        $insertvalue = array();
         $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
-                $exten .= implode(", ", $callwhere);                
+                //$exten .= implode(", ", $callwhere);                
+                foreach($callwhere as $k=>$v)
+                {
+                        list($kl, $vl) = explode("=", $v);
+                        $insertkey[] = $kl;
+                        $insertvalue[] = $vl;
+                }
         }
                               
         $table = "alarm_config";            
-        $query = "INSERT INTO ".$table." SET ".$exten;        
+        $query = "INSERT INTO ".$layer->getTableName($table)." (".implode(",",$insertkey).") VALUES (".implode(",",$insertvalue).")";
+        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"create user: ".$query);
         $db->executeQuery($query);        
         
         $uid = $db->getLastId();             
@@ -309,13 +318,14 @@ class Alarm {
         $calldata = array();
         $arrwhere = "";
         
-	foreach($param['filter'] as $key=>$filter) {
-        
-            $search[$key]['type'] = getVar('type', NULL, $filter, 'string');
-            $search[$key]['source_ip'] = getVar('source_ip', NULL, $filter, 'string');
-                                    
-            $callwhere = generateWhere($search[$key], 1, $db, 0);                                          
-            if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
+	if(isset($param['filter']))
+	{
+		foreach($param['filter'] as $key=>$filter) {       
+            		$search[$key]['type'] = getVar('type', NULL, $filter, 'string');
+            		$search[$key]['source_ip'] = getVar('source_ip', NULL, $filter, 'string');                                    
+            		$callwhere = generateWhere($search[$key], 1, $db, 0);                                          
+            		if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
+		}
         }
         
         if(count($calldata)) $arrwhere = " AND (". implode(" OR ", $calldata). ")";

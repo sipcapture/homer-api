@@ -66,7 +66,10 @@ class PDOConnector extends DefaultConnector {
 	    try {
 		$dbstring = DATABASE_DRIVER.":host=".$this->hostname. (($this->port) ? ";port=".$this->port : "" ) . ";dbname=".$this->dbname;
 		$this->connection = new PDO($dbstring, $this->username, $this->password);
-		$this->executeQuery('SET time_zone = "+00:00";');
+		if(DATABASE_DRIVER == "mysql") $this->executeQuery('SET time_zone = "+00:00";');
+		/* disable temporaly... looks like PGSQL bug for timezone selection */
+		//else if(DATABASE_DRIVER == "pgsql") $this->executeQuery('SET TIME ZONE ‘0′');
+		
 	    } catch (PDOException $e){
 		die($e->getMessage());
 	    }
@@ -86,7 +89,8 @@ class PDOConnector extends DefaultConnector {
 		try {
 			$dbstring = DATABASE_DRIVER.":host=".$host.(($dbport) ? ";port=".$dbport : "" ).";dbname=".$dbname;
 			$this->connection = new PDO($dbstring, $dbusername, $dbpassword);
-			$this->executeQuery('SET time_zone = "+00:00";');
+			if(DATABASE_DRIVER == "mysql") $this->executeQuery('SET time_zone = "+00:00";');
+			//else if(DATABASE_DRIVER == "pgsql") $this->executeQuery('SET TIME ZONE ‘0′');
 
 		} catch (PDOException $e){
 			try {

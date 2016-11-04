@@ -140,7 +140,7 @@ class Dashboard {
 		
 		    $boardid = str_replace(".json", "", $file);
 		    
-		    if($skipDashboards[$boardid] == 1) continue;
+		    if(isset($skipDashboards[$boardid]) && $skipDashboards[$boardid] == 1) continue;
 		
 		    $dar = DASHBOARD_PARAM."/".$file;
 		    $myfile = fopen($dar, "r") or die("Unable to open file!");
@@ -327,7 +327,6 @@ class Dashboard {
         $table = "user_menu";
         if($protect)
         {        
-        
             $query = "SELECT id FROM user_menu WHERE active = 1 AND alias='?' limit 1";
             $query  = $db->makeQuery($query, $id);
             $data = $db->loadObjectArray($query);
@@ -337,7 +336,7 @@ class Dashboard {
             $query  = $db->makeQuery($query, $id);            
             $db->executeQuery($query);
                                         
-            $query = "INSERT INTO ".$table." SET id='?', name='?', icon='?', weight=?, alias='?'";
+            $query = "INSERT INTO ".$table." (id, name, icon, weight, alias) VALUES ('?','?','?',?,'?');";
             $query  = $db->makeQuery($query, $id, $name, $icon, $weight, $alias);            
         }
         else {

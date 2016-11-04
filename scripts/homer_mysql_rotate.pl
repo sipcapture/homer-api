@@ -150,7 +150,7 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
         my $sth = $db->prepare($query);
         $sth->execute();
         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time() - 86400*$rotation_horizon);
-        my $oldest = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday,$hour);
+        my $oldest = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
         $oldest+=0;
         while(my @ref = $sth->fetchrow_array()) {
            my $table_name = $ref[0];
@@ -207,10 +207,14 @@ exit;
 sub db_connect {
     my $CONFIG  = shift;
     my $db_name = shift;
-
-    my $db = DBI->connect("DBI:mysql:".$CONFIG->{"MYSQL"}{$db_name}.":".$CONFIG->{"MYSQL"}{"host"}.":".$CONFIG->{"MYSQL"}{"port"}, $CONFIG->{"MYSQL"}{"user"}, $CONFIG->{"MYSQL"}{"password"});
+    my $dbistring = "";
+    if($CONFIG->{"MYSQL"}{"usesocket"}) {
+    	$dbistring = "DBI:mysql:database=".$CONFIG->{"MYSQL"}{$db_name}.";mysql_socket=".$CONFIG->{"MYSQL"}{"socket"}
+    } else {
+    	$dbistring = "DBI:mysql:".$CONFIG->{"MYSQL"}{$db_name}.":".$CONFIG->{"MYSQL"}{"host"}.":".$CONFIG->{"MYSQL"}{"port"}
+    }
+    my $db = DBI->connect($dbistring, $CONFIG->{"MYSQL"}{"user"}, $CONFIG->{"MYSQL"}{"password"});
     return $db;
-
 }
 
 sub calculate_gmt_offset {

@@ -1,3 +1,5 @@
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO homer_user;
+
 CREATE TABLE IF NOT EXISTS alarm_config (
   id SERIAL NOT NULL,
   name varchar(200) NOT NULL DEFAULT '',

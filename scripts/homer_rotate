@@ -7,5 +7,10 @@ bin_dir=`dirname $0`
 programm="$bin_dir/homer_mysql_rotate.pl"
 config="$bin_dir/rotation.ini"
 
+if [ $# -ne 0 ]
+  then
+    config=$1
+fi
+
 $programm $config
 

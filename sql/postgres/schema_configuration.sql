@@ -1,3 +1,4 @@
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO homer_user;
 
 CREATE TABLE IF NOT EXISTS alias (
   id SERIAL NOT NULL,
@@ -102,8 +103,8 @@ CREATE TABLE IF NOT EXISTS "user" (
 CREATE UNIQUE INDEX user_name ON "user" (username);
 
 INSERT INTO "user" (uid, gid, grp, username, password, firstname, lastname, email, department, regdate, lastvisit, active) VALUES
-(1, 10, 'users,admins', 'admin', md5('test123'), 'Admin', 'Admin', 'admin@test.com', 'Voice Enginering', '2012-01-19 00:00:00', '2015-05-29 07:17:35', 1),
-(2, 10, 'users', 'noc', md5('123test'), 'NOC', 'NOC', 'noc@test.com', 'Voice NOC', '2012-01-19 00:00:00', '2015-05-29 07:17:35', 1);
+(1, 10, 'users,admins', 'admin', crypt('test123', gen_salt('md5')), 'Admin', 'Admin', 'admin@test.com', 'Voice Enginering', '2012-01-19 00:00:00', '2015-05-29 07:17:35', 1),
+(2, 10, 'users', 'noc', crypt('123test', gen_salt('md5')), 'NOC', 'NOC', 'noc@test.com', 'Voice NOC', '2012-01-19 00:00:00', '2015-05-29 07:17:35', 1);
 
 
 CREATE TABLE IF NOT EXISTS user_menu (
@@ -127,7 +128,7 @@ INSERT INTO user_menu (id, name, alias, icon, weight, active) VALUES
 -- Table structure for table `api_auth_key`
 --
   
-CREATE TABLE IF NOT EXISTS `api_auth_key` (
+CREATE TABLE IF NOT EXISTS api_auth_key (
   id SERIAL NOT NULL,
   authkey varchar(200) NOT NULL DEFAULT '',
   source_ip varchar(200) NOT NULL DEFAULT '0.0.0.0',

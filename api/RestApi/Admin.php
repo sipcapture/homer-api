@@ -35,7 +35,7 @@ class Admin {
 
     function __construct()
     {
-
+        if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);                
     }
 
     /**
@@ -81,11 +81,11 @@ class Admin {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
-                         
+        $layer = $this->getContainer('layer');                 
         $data = array();
         
         $table = "user";            
-        $query = "SELECT uid,gid,username,grp,firstname,lastname,email, department, regdate, lastvisit, active FROM ".$table." order by uid DESC;";
+        $query = "SELECT uid,gid,username,grp,firstname,lastname,email, department, regdate, lastvisit, active FROM ".$layer->getTableName($table)." order by uid DESC;";        
         $query  = $db->makeQuery($query);                
         $data = $db->loadObjectArray($query);
 
@@ -140,16 +140,32 @@ class Admin {
         $update['gid'] = getVar('gid', 10, $param, 'int');              
         $update['lastvisit'] = getVar('lastvisit', date_format(date_create(), 'Y-m-d H:i:s'), $param, 'string');
         $password = getVar('password', '', $param, 'string');
-          
+        
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer'); 
+                    
         $exten = "";
         $callwhere = generateWhere($update, 1, $db, 0);
-        if(count($callwhere)) {
-                $exten = "`password` = PASSWORD('".$password."'),";        
-                $exten .= implode(", ", $callwhere);                
+	
+	if(count($callwhere)) {
+	        $callwhere[] = "`password` = ".$layer->setPassword($password);	                        	        
+	        
+	        $insertkey = array();
+	        $insertvalue = array();
+	        
+                //$exten .= implode(", ", $callwhere);                
+                foreach($callwhere as $k=>$v)
+                {
+                        list($kl, $vl) = explode("=", $v);
+                        $insertkey[] = $kl;
+                        $insertvalue[] = $vl;                                        
+                }
+                
         }
-                              
+
         $table = "user";            
-        $query = "INSERT INTO ".$table." SET ".$exten;        
+        $query = "INSERT INTO ".$layer->getTableName($table)." (".implode(",",$insertkey).") VALUES (".implode(",",$insertvalue).")";        
+        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"create user: ".$query);
         $db->executeQuery($query);        
         
         $uid = $db->getLastId();             
@@ -199,7 +215,7 @@ class Admin {
         }
                               
         $table = "user";            
-        $query = "UPDATE ".$table." SET ".$exten. " WHERE uid=".$uid;        
+        $query = "UPDATE ".$layer->getTableName($table)." SET ".$exten. " WHERE uid=".$uid;        
         $db->executeQuery($query);        
         
         $answer = $this->getUser("");        
@@ -282,6 +298,8 @@ class Admin {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
+
+        $layer = $this->getContainer('layer');
                          
         $data = array();
 
@@ -300,11 +318,20 @@ class Admin {
         $exten = "";
         $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
-                $exten .= implode(", ", $callwhere);                
+                //$exten .= implode(", ", $callwhere);                
+                $insertkey = array();
+                $insertvalue = array();
+                foreach($callwhere as $k=>$v)
+                {
+                    list($kl, $vl) = explode("=", $v);
+                    $insertkey[] = $kl;
+                    $insertvalue[] = $vl;
+                }
         }
                               
         $table = "alias";            
-        $query = "INSERT INTO ".$table." SET ".$exten;        
+        $query = "INSERT INTO ".$layer->getTableName($table)." (".implode(",",$insertkey).") VALUES (".implode(",",$insertvalue).")";
+        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"create node: ".$query);
         $db->executeQuery($query);        
         
         $uid = $db->getLastId();             
@@ -449,13 +476,25 @@ class Admin {
         $update['name'] = getVar('name', '', $param, 'string');        
           
         $exten = "";
+	$insertkey = array();
+        $insertvalue = array();
+
         $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
-                $exten .= implode(", ", $callwhere);                
+                //$exten .= implode(", ", $callwhere);                                
+                foreach($callwhere as $k=>$v)
+                {
+                        list($kl, $vl) = explode("=", $v);
+                        $insertkey[] = $kl;
+                        $insertvalue[] = $vl;
+                }
         }
-                              
+
         $table = "node";            
-        $query = "INSERT INTO ".$table." SET ".$exten;        
+        
+        $query = "INSERT INTO ".$layer->getTableName($table)." (".implode(",",$insertkey).") VALUES (".implode(",",$insertvalue).")";
+        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"create node: ".$query);
+                  
         $db->executeQuery($query);        
         
         $uid = $db->getLastId();             
