@@ -1411,7 +1411,7 @@ class Report {
                                 $res = 'decoders';
                                 break;
                         case 'DL':
-                                $res = 'rtt_mean';
+                                $res = 'rtt';
                                 break;
                         case 'CD':
                                 $res = 'sec';
@@ -1449,11 +1449,12 @@ class Report {
 		        $answer[$res] = $val1;
 		        $answer['jitter_max'] = $val2;		        
 		    }
-		    else if($res == 'delay' && preg_match("/,/i", $value)) {
-		        list($val1, $val2) = explode(",", $value);
-		        $answer[$res] = $val1;
-		        $answer['delay_max'] = $val2;		        
-		    }
+                    else if($res == 'rtt' && preg_match("/,/i", $value)) {
+                        list($val1, $val2, $val3) = explode(",", $value);
+                        $answer['rtt_mean'] = $val1;
+                        $answer['rtt_min'] = $val2;
+                        $answer['rtt_max'] = $val3;
+                    }
 		    else if($res == 'packets_lost' && preg_match("/,/i", $value)) {
 		        list($val1, $val2) = explode(",", $value);
 		        $answer['packets_lost_sent'] = $val1;
@@ -1465,7 +1466,7 @@ class Report {
             }   
             
             if(!array_key_exists('mos_avg', $answer) && array_key_exists('packets_lost', $answer)) {
-                       $mos = $this->calculateJitterMos($answer['delay'], $answer['jitter_avg'], $answer['packets_lost']);
+                       $mos = $this->calculateJitterMos($answer['rtt_mean'], $answer['jitter_avg'], $answer['packets_lost']);
                        $answer['mos_avg'] = $mos;
                        $answer['mos_worst'] = $mos;                       
             }
