@@ -780,9 +780,11 @@ class Statistic {
             $search[$key]['method'] = getVar('method', NULL, $filter, 'string');
             $search[$key]['prefix'] = getVar('prefix', NULL, $filter, 'string');
             $search[$key]['country'] = getVar('country', NULL, $filter, 'string');
+            $search[$key]['status_code'] = getVar('status_code', NULL, $filter, 'string');
             if($search[$key]['country'] == "ALL") $search[$key]['country'] = NULL;
             if($search[$key]['prefix'] == "ALL") $search[$key]['prefix'] = NULL;
             if($search[$key]['method'] == "ALL") $search[$key]['method'] = NULL;
+            if($search[$key]['status_code'] == "ALL") $search[$key]['status_code'] = NULL;
             $callwhere = generateWhere($search[$key], 1, $db, 0);
             if(count($callwhere)) $calldata[] = "(". implode(" AND ", $callwhere). ")";
         }
@@ -823,12 +825,12 @@ class Statistic {
 
 	if($total)
 	{
-		$layerHelper['values'][] = "id, COUNT(id) as cnt,SUM(total) as total, country, prefix, method";
-	        $layerHelper['group']['by'] = "id,from_ts,to_ts,country,prefix,method";
+		$layerHelper['values'][] = "id, COUNT(id) as cnt,SUM(total) as total, country, prefix, method, status_code";
+	        $layerHelper['group']['by'] = "id,from_ts,to_ts,country,prefix,method,status_code";
 	}
 	else
 	{
-		$layerHelper['values'][] = "id, country, prefix, method, total";
+		$layerHelper['values'][] = "id, country, prefix, method, status_code, total";
         }
 
         $query = $layer->querySearchData($layerHelper);
