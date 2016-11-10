@@ -345,6 +345,7 @@ class Dashboard {
         }
                 
         $db->executeQuery($query);
+        $boards = array();
         return $boards;
     }    
     
