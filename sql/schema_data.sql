@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `report_capture` (
 
 
 --
--- Table structure for table `report_capture`
+-- Table structure for table `webrtc_capture`
 --
 
 CREATE TABLE IF NOT EXISTS `webrtc_capture` (
