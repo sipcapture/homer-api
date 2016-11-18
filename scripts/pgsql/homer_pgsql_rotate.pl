@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS [TRANSACTION]_[TIMESTAMP] (
   contact_port integer NOT NULL DEFAULT 0,
   originator_ip varchar(60) NOT NULL DEFAULT '',
   originator_port integer NOT NULL DEFAULT 0,
+  expires integer NOT NULL DEFAULT '-1',
   correlation_id varchar(256) NOT NULL DEFAULT '',
   custom_field1 varchar(120) NOT NULL DEFAULT '',
   custom_field2 varchar(120) NOT NULL DEFAULT '',
