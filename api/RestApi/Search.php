@@ -1705,7 +1705,7 @@ class Search {
             $data =  $this->getMessagesForTransaction($timestamp, $param);
 
             foreach($data as $row) {   
-                    $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, false);
+                    $localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, SHARE_MESSAGES);
                     if(!$min_ts) $min_ts = $row['micro_ts'];
             }
 

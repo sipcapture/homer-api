@@ -135,4 +135,7 @@ define('API_AUTH_KEY', 0);
 define('API_AUTH_KEY_TYPE', "json");
 define('API_AUTH_KEY_NAME', "authkey");
 
+/*Share*/
+define('SHARE_MESSAGES', 0);
+
 ?>
