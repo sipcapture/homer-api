@@ -43,6 +43,8 @@ if(defined('SESSION_TIME')) {
     session_set_cookie_params(SESSION_TIME);
 }
 
+if(!defined('SHARE_MESSAGES')) define('SHARE_MESSAGES', 0);
+
 session_start();
 
 include "autoload.php";
