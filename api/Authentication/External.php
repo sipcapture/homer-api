@@ -50,7 +50,6 @@ class External extends Authentication {
 	function logIn($param) {
 
         	$key =  "";
-		$param = "";
 		
         	if(EXTERNAL_AUTH_REQUEST_TYPE == "cookie") 
         	{
@@ -64,9 +63,10 @@ class External extends Authentication {
         	}
 		else if(EXTERNAL_AUTH_REQUEST_TYPE == "password") 
         	{
-			//only pass username and password to external app. 
-			$param = array_intersect_key($param, array_flip(array('username', 'password'));
-        	}
+			$param = array_intersect_key($param, array_flip(array('username', 'password')));
+        	} else {
+			$param = "";
+		}
         	       	
         	$ch = curl_init();
         	
