@@ -1,3 +1,5 @@
+SET default_tablespace = homer;
+
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO homer_user;
 
 CREATE TABLE IF NOT EXISTS alias (
