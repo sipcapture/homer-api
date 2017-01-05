@@ -267,13 +267,6 @@ class Search {
                 
         $limit_orig = getVar('limit', 100, $param, 'int');
         if($limit_orig <= 0) $limit_orig = 100;
-
-	/* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest']) {
-		$trans['rest'] = true;
-		$trans['registration'] = true;
-		$trans['call'] = true;
-	}
 	
         $callwhere = array();
         if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
