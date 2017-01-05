@@ -121,6 +121,72 @@ CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
 PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
 END
 
+my $ISUP_DATA_TABLE=<<END;
+CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `micro_ts` bigint(18) NOT NULL DEFAULT '0',
+  `method` varchar(4) NOT NULL DEFAULT '',
+  `correlation_id` varchar(256) NOT NULL DEFAULT '',
+  `opc` int(10) NOT NULL DEFAULT 0,
+  `dpc` int(10) NOT NULL DEFAULT 0,
+  `cic` int(10) NOT NULL DEFAULT 0,
+  `called_number` varchar(16)  DEFAULT '',
+  `called_ton` int(10)  DEFAULT 0,
+  `called_npi` int(10)  DEFAULT 0,
+  `called_inn` int(10)  DEFAULT 0,
+  `calling_number` varchar(16)  DEFAULT '',
+  `calling_ton` int(10)  DEFAULT 0,
+  `calling_npi` int(10)  DEFAULT 0,
+  `calling_ni` int(10)  DEFAULT 0,
+  `calling_restrict` int(10)  DEFAULT 0,
+  `calling_screened` int(10)  DEFAULT 0,
+  `calling_category` int(10)  DEFAULT 0,
+  `cause_standard` int(10)  DEFAULT 0,
+  `cause_location` int(10)  DEFAULT 0,
+  `cause_itu_class` int(10)  DEFAULT 0,
+  `cause_itu_cause` int(10)  DEFAULT 0,
+  `event_num` int(10)  DEFAULT 0,
+  `hop_counter` int(10)  DEFAULT 0,
+  `nci_satellite` int(10)  DEFAULT 0,
+  `nci_continuity_check` int(10)  DEFAULT 0,
+  `nci_echo_device` int(10)  DEFAULT 0,
+  `fwc_nic` int(10)  DEFAULT 0,
+  `fwc_etem` int(10)  DEFAULT 0,
+  `fwc_iw` int(10)  DEFAULT 0,
+  `fwc_etei` int(10)  DEFAULT 0,
+  `fwc_isup` int(10)  DEFAULT 0,
+  `fwc_isup_pref` int(10)  DEFAULT 0,
+  `fwc_ia` int(10)  DEFAULT 0,
+  `fwc_sccpm` int(10)  DEFAULT 0,
+  `transmission_medium` int(10)  DEFAULT 0,
+  `user_coding_standard` int(10)  DEFAULT 0,
+  `user_transfer_cap` int(10)  DEFAULT 0,
+  `user_transfer_mode` int(10)  DEFAULT 0,
+  `user_transfer_rate` int(10)  DEFAULT 0,
+  `user_layer1_ident` int(10)  DEFAULT 0,
+  `user_layer1_proto` int(10)  DEFAULT 0,
+  `source_ip` varchar(60) NOT NULL DEFAULT '',
+  `source_port` int(10) NOT NULL DEFAULT 0,
+  `destination_ip` varchar(60) NOT NULL DEFAULT '',
+  `destination_port` int(10) NOT NULL DEFAULT 0,
+  `proto` int(5) NOT NULL DEFAULT 0,
+  `family` int(1) DEFAULT NULL,
+  `type` int(5) NOT NULL DEFAULT 0,
+  `node` varchar(125) NOT NULL DEFAULT '',
+  `msg` varchar([MSG_SIZE]) NOT NULL DEFAULT '',
+  `expires` int(5) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`id`,`date`),
+  KEY `date` (`date`),
+  KEY `called_number` (`called_number`),
+  KEY `calling_number` (`calling_number`),
+  KEY `correlationid` (`correlation_id`(255))
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 COMMENT='[TIMESTAMP]'
+/*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`date`))
+([PARTITIONS]
+PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
+END
+
 #Check DATA tables
 my $db = db_connect($CONFIG, "db_data");
 my $maxparts = 1;
@@ -137,11 +203,13 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
     my $mystep = $stepsvalues[$partstep];
 
     #SIP Data tables
-    if($table=~/^sip_/) {
+    my $is_isup = $table=~/^isup_/;
+    if($table=~/^sip_/ || $is_isup) {
         my $curtstamp;
         for(my $y=0; $y<($newtables+1); $y++) {
+            my $data_table = $is_isup ? $ISUP_DATA_TABLE: $ORIGINAL_DATA_TABLE;
             $curtstamp = time()+(86400*$y);
-            new_data_table($curtstamp, $mystep, $partstep, $ORIGINAL_DATA_TABLE, $table);
+            new_data_table($curtstamp, $mystep, $partstep, $data_table, $table);
         }
 
         #And remove
