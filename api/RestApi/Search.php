@@ -466,7 +466,8 @@ class Search {
         $isup_search['family'] = getVar('family', NULL, $param['search'], 'string');
         
         /*webrtc*/
-        $webrtc_search['data'] = getVar('data', NULL, $param['search'], 'string');
+        $webrtc_search['msg'] = getVar('msg', NULL, $param['search'], 'string');
+        $webrtc_search['method'] = getVar('method', NULL, $param['search'], 'string');
         $webrtc_search['correlation_id'] = getVar('callid', NULL, $param['search'], 'string');
         $webrtc_search['source_ip'] = getVar('source_ip', NULL, $param['search'], 'string');
         $webrtc_search['source_port'] = getVar('source_port', NULL, $param['search'], 'string');
@@ -715,7 +716,8 @@ class Search {
         $isup_search['family'] = getVar('family', NULL, $param['search'], 'string');
         
         /* WEBRTC */
-        $webrtc_search['data'] = getVar('data', NULL, $param['search'], 'string');
+        $webrtc_search['msg'] = getVar('msg', NULL, $param['search'], 'string');
+        $webrtc_search['method'] = getVar('method', NULL, $param['search'], 'string');
         $webrtc_search['correlation_id'] = getVar('callid', NULL, $param['search'], 'string');
         $webrtc_search['source_ip'] = getVar('source_ip', NULL, $param['search'], 'string');
         $webrtc_search['source_port'] = getVar('source_port', NULL, $param['search'], 'string');
