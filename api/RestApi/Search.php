@@ -37,7 +37,7 @@ class Search {
     
     function __construct()
     {
-	$this->query_types = array("call", "registration", "isup", "rest");
+	$this->query_types = array("call", "registration", "isup", "webrtc","rest");
 	if(SYSLOG_ENABLE == 1) openlog("homerlog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
     }
 
@@ -245,17 +245,19 @@ class Search {
 
         if(isset($param['location'])) $lnodes = $param['location']['node'];
         
-        $trans['call'] = getVar('call', false, $param["transaction"], 'bool');
+        $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param["transaction"], 'bool');
         $trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
-        $trans['rest'] = getVar('rest', false, $param["transaction"], 'bool');
+        $trans['webrtc'] = getVar('isup', false, $param['webrtc'], 'bool');
+        $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
         
         /* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup']) {
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup'] && !$trans['webrtc']) {
 		$trans['rest'] = true;
 		$trans['registration'] = true;
 		$trans['call'] = true;
 		$trans['isup'] = false;
+		$trans['webrtc'] = false;
 	}
 
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
@@ -308,7 +310,13 @@ class Search {
 				$layerHelper['table']['base'] = "isup_capture";
 				$layerHelper['table']['type'] = "all";
 				$fields = ISUP_FIELDS_CAPTURE;
-			    } else {
+			    } 
+			    else if ($query_type == 'webrtc') {
+				$layerHelper['table']['base'] = "webrtc_capture";
+				$layerHelper['table']['type'] = "all";
+				$fields = WEBRTC_FIELDS_CAPTURE;
+			    } 			    
+			    else {
 				$layerHelper['table']['base'] = "sip_capture";
 				$layerHelper['table']['type'] = $query_type;
 				$fields = FIELDS_CAPTURE;
@@ -390,13 +398,15 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
+        $trans['webrtc'] = getVar('webrtc', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
 
 	/* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup']) {
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup'] && !$trans['webrtc']) {
 		$trans['rest'] = true;
 		$trans['registration'] = true;
 		$trans['call'] = true;
+		$trans['webrtc'] = false;
 		$trans['isup'] = false;
 	}
 	 
@@ -443,6 +453,7 @@ class Search {
         $search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
         $search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
 
+        /*isup*/
         $isup_search['calling_number'] = getVar('from_user', NULL, $param['search'], 'string');
         $isup_search['called_number'] = getVar('to_user', NULL, $param['search'], 'string');
         $isup_search['correlation_id'] = getVar('callid', NULL, $param['search'], 'string');
@@ -453,6 +464,17 @@ class Search {
         $isup_search['node'] = getVar('node', NULL, $param['search'], 'string');
         $isup_search['proto'] = getVar('proto', NULL, $param['search'], 'string');
         $isup_search['family'] = getVar('family', NULL, $param['search'], 'string');
+        
+        /*webrtc*/
+        $webrtc_search['data'] = getVar('data', NULL, $param['search'], 'string');
+        $webrtc_search['correlation_id'] = getVar('callid', NULL, $param['search'], 'string');
+        $webrtc_search['source_ip'] = getVar('source_ip', NULL, $param['search'], 'string');
+        $webrtc_search['source_port'] = getVar('source_port', NULL, $param['search'], 'string');
+        $webrtc_search['destination_ip'] = getVar('destination_ip', NULL, $param['search'], 'string');
+        $webrtc_search['destination_port'] = getVar('destination_port', NULL, $param['search'], 'string');
+        $webrtc_search['node'] = getVar('node', NULL, $param['search'], 'string');
+        $webrtc_search['proto'] = getVar('proto', NULL, $param['search'], 'string');
+        $webrtc_search['family'] = getVar('family', NULL, $param['search'], 'string');
 
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
@@ -501,6 +523,7 @@ class Search {
         $callwhere = array();
         $callwhere = generateWhere($search, $and_or, $db, $b2b);
         $isup_callwhere = generateWhere($isup_search, $and_or, $db, $b2b);
+        $webrtc_callwhere = generateWhere($webrtc_search, $and_or, $db, $b2b);
         
         $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
@@ -538,7 +561,13 @@ class Search {
 				$layerHelper['table']['type'] = "all";
 				$layerHelper['where']['param'] = $isup_callwhere;
 				$fields = ISUP_FIELDS_CAPTURE;
-			} else {
+			} 
+			else if ($query_type == 'webrtc') {
+				$layerHelper['table']['base'] = "webrtc_capture";
+				$layerHelper['table']['type'] = "all";
+				$fields = WEBRTC_FIELDS_CAPTURE;
+			} 			
+			else {
 				$layerHelper['table']['base'] = "sip_capture";
 				$layerHelper['table']['type'] = $query_type;
 				$layerHelper['where']['param'] = $callwhere;
@@ -623,14 +652,16 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
+        $trans['webrtc'] = getVar('webrtc', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
 
 	/* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup']) {
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup'] &&  !$trans['webrtc']) {
 		$trans['rest'] = true;
 		$trans['registration'] = true;
 		$trans['call'] = true;
 		$trans['isup'] = false;
+		$trans['webrtc'] = false;
 	}
 
         if(isset($param['location'])) $lnodes = $param['location']['node'];
@@ -671,6 +702,7 @@ class Search {
         $search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
         $search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
 
+        /* ISUP */
         $isup_search['calling_number'] = getVar('from_user', NULL, $param['search'], 'string');
         $isup_search['called_number'] = getVar('to_user', NULL, $param['search'], 'string');
         $isup_search['correlation_id'] = getVar('callid', NULL, $param['search'], 'string');
@@ -681,6 +713,17 @@ class Search {
         $isup_search['node'] = getVar('node', NULL, $param['search'], 'string');
         $isup_search['proto'] = getVar('proto', NULL, $param['search'], 'string');
         $isup_search['family'] = getVar('family', NULL, $param['search'], 'string');
+        
+        /* WEBRTC */
+        $webrtc_search['data'] = getVar('data', NULL, $param['search'], 'string');
+        $webrtc_search['correlation_id'] = getVar('callid', NULL, $param['search'], 'string');
+        $webrtc_search['source_ip'] = getVar('source_ip', NULL, $param['search'], 'string');
+        $webrtc_search['source_port'] = getVar('source_port', NULL, $param['search'], 'string');
+        $webrtc_search['destination_ip'] = getVar('destination_ip', NULL, $param['search'], 'string');
+        $webrtc_search['destination_port'] = getVar('destination_port', NULL, $param['search'], 'string');
+        $webrtc_search['node'] = getVar('node', NULL, $param['search'], 'string');
+        $webrtc_search['proto'] = getVar('proto', NULL, $param['search'], 'string');
+        $webrtc_search['family'] = getVar('family', NULL, $param['search'], 'string');
 
         $and_or = getVar('orand', NULL, $param['search'], 'string');
         $b2b = getVar('b2b', false, $param['search'], 'bool');
@@ -694,6 +737,7 @@ class Search {
         $callwhere = array();
         $callwhere = generateWhere($search, $and_or, $db, $b2b);
         $isup_callwhere = generateWhere($isup_search, $and_or, $db, $b2b);
+        $webrtc_callwhere = generateWhere($webrtc_search, $and_or, $db, $b2b);
         
 
         $nodes = array();
@@ -730,7 +774,14 @@ class Search {
 				$layerHelper['table']['type'] = "all";
 				$layerHelper['where']['param'] = $isup_callwhere;
 				$fields = ISUP_FIELDS_CAPTURE;
-			} else {
+			} 
+			else if($query_type == 'webrtc') {
+				$layerHelper['table']['base'] = "webrtc_capture";
+				$layerHelper['table']['type'] = "all";
+				$layerHelper['where']['param'] = $webrtc_callwhere;
+				$fields = WEBRTC_FIELDS_CAPTURE;
+			} 
+			else {
 				$fields = FIELDS_CAPTURE;
 				$layerHelper['table']['base'] = "sip_capture";
 				$layerHelper['table']['type'] = $query_type;
@@ -774,14 +825,16 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
+        $trans['webrtc'] = getVar('webrtc', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
         
         /* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup']) {
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup'] && !$trans['webrtc']) {
 		$trans['rest'] = true;
 		$trans['registration'] = true;
 		$trans['call'] = true;
 		$trans['isup'] = false;
+		$trans['webrtc'] = false;
 	}
 
         $location = $param['location'];
@@ -1067,14 +1120,16 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
+        $trans['webrtc'] = getVar('webrtc', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
         
         /* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup']) {
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup'] && !$trans['webrtc']) {
 		$trans['rest'] = true;
 		$trans['registration'] = true;
 		$trans['call'] = true;
 		$trans['isup'] = false;
+		$trans['webrtc'] = false;
 	}
 
 	$location = $param['location'];
@@ -1126,7 +1181,13 @@ class Search {
                                 $layerHelper['table']['base'] = "isup_capture";
                                 $layerHelper['table']['type'] = "all";
                                 $layerHelper['values'][] = ISUP_FIELDS_CAPTURE;
-                        } else {
+                        } 
+                        else if ($query_type == 'webrtc') {
+                                $layerHelper['table']['base'] = "webrtc_capture";
+                                $layerHelper['table']['type'] = "all";
+                                $layerHelper['values'][] = WEBRTC_FIELDS_CAPTURE;
+                        } 
+                        else {
                                 $layerHelper['table']['base'] = "sip_capture";
                                 $layerHelper['table']['type'] = $query_type;
                                 $layerHelper['values'][] = FIELDS_CAPTURE;
@@ -1156,6 +1217,7 @@ class Search {
         return $data;
     }
 
+    /* old method */
     public function getMessagesRTCByMethod($timestamp, $param){
 
         if(count(($adata = $this->getLoggedIn()))) return $adata;
@@ -1261,14 +1323,16 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
+        $trans['webrtc'] = getVar('webrtc', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
         
         /* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup']) {
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup'] && !$trans['webrtc']) {
 		$trans['rest'] = true;
 		$trans['registration'] = true;
 		$trans['call'] = true;
 		$trans['isup'] = false;
+		$trans['webrtc'] = false;
 	}
 
         $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
@@ -1379,14 +1443,16 @@ class Search {
         $trans['call'] = getVar('call', false, $param['transaction'], 'bool');
         $trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
         $trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
+        $trans['webrtc'] = getVar('webrtc', false, $param['transaction'], 'bool');
         $trans['rest'] = getVar('rest', false, $param['transaction'], 'bool');
         
         /* default transaction */
-	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup']) {
+	if(!$trans['call'] && !$trans['registration'] && !$trans['rest'] && !$trans['isup'] && !$trans['webrtc']) {
 		$trans['rest'] = true;
 		$trans['registration'] = true;
 		$trans['call'] = true;
 		$trans['isup'] = false;
+		$trans['webrtc'] = false;
 	}
 
         $location = $param['location'];
@@ -1416,9 +1482,11 @@ class Search {
         /* make array */
         $search['callid'] = implode(";", $callids);
         $isup_search['correlation_id'] = implode(";", $correlations);
+        $webrtc_search['correlation_id'] = implode(";", $correlations);
         $callwhere = array();
         $callwhere = generateWhere($search, $and_or, $db, $b2b);
         $isup_callwhere = generateWhere($isup_search, $and_or, $db, $b2b);
+        $webrtc_callwhere = generateWhere($webrtc_search, $and_or, $db, $b2b);
 
         $nodes = array();
         if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
@@ -1460,7 +1528,14 @@ class Search {
 				$layerHelper['table']['type'] = "all";
 				$layerHelper['where']['param'] = $isup_callwhere;
 				$layerHelper['values'][] = ISUP_FIELDS_CAPTURE;
-			} else {
+			}
+			else if ($query_type == 'webrtc') {
+				$layerHelper['table']['base'] = "webrtc_capture";
+				$layerHelper['table']['type'] = "all";
+				$layerHelper['where']['param'] = $webrtc_callwhere;
+				$layerHelper['values'][] = WEBRTC_FIELDS_CAPTURE;
+			}
+			else {
 				$layerHelper['table']['base'] = "sip_capture";
 				$layerHelper['table']['type'] = $query_type;
 				$layerHelper['where']['param'] = $callwhere;

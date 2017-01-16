@@ -187,6 +187,33 @@ CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
 PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
 END
 
+
+my $WEBRTC_DATA_TABLE=<<END;
+CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `method` varchar(100) NOT NULL DEFAULT '',
+  `micro_ts` bigint(18) NOT NULL DEFAULT '0',
+  `correlation_id` varchar(256) NOT NULL DEFAULT '',
+  `source_ip` varchar(60) NOT NULL DEFAULT '',
+  `source_port` int(10) NOT NULL DEFAULT 0,
+  `destination_ip` varchar(60) NOT NULL DEFAULT '',
+  `destination_port` int(10) NOT NULL DEFAULT 0,
+  `proto` int(5) NOT NULL DEFAULT 0,
+  `family` int(1) DEFAULT NULL,
+  `type` int(5) NOT NULL DEFAULT 0,
+  `node` varchar(125) NOT NULL DEFAULT '',
+  `msg` varchar(1500) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`,`date`),
+  KEY `date` (`date`),
+  KEY `correlationid` (`correlation_id`(255))
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 COMMENT='[TIMESTAMP]'
+/*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`date`))
+([PARTITIONS]
+PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
+END
+
+
 #Check DATA tables
 my $db = db_connect($CONFIG, "db_data");
 my $maxparts = 1;
@@ -204,10 +231,18 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
 
     #SIP Data tables
     my $is_isup = $table=~/^isup_/;
+    my $is_webrtc = $table=~/^webrtc_/;
     if($table=~/^sip_/ || $is_isup) {
         my $curtstamp;
         for(my $y=0; $y<($newtables+1); $y++) {
-            my $data_table = $is_isup ? $ISUP_DATA_TABLE: $ORIGINAL_DATA_TABLE;
+	    my $data_table = $ORIGINAL_DATA_TABLE;
+	    if($is_isup) {
+		$data_table =  $ISUP_DATA_TABLE;
+	    }
+	    elsif($is_isup) {
+		$data_table =  $WEBRTC_DATA_TABLE;
+	    }
+	
             $curtstamp = time()+(86400*$y);
             new_data_table($curtstamp, $mystep, $partstep, $data_table, $table);
         }

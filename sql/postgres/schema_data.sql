@@ -70,10 +70,36 @@ CREATE INDEX webrtc_capture_correlation ON "webrtc_capture" (correlation_id);
 CREATE TABLE webrtc_capture_p2013082901() INHERITS (webrtc_capture);
 ALTER TABLE webrtc_capture_p2013082901 ADD CONSTRAINT chk_webrtc_capture_p2013082901 CHECK (date < to_timestamp(1377734400)); 
 
+
+CREATE TABLE IF NOT EXISTS webrtc_capture_all_20170116 (
+  id BIGSERIAL NOT NULL,
+  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,  
+  micro_ts bigint NOT NULL DEFAULT '0',
+  method varchar(100) NOT NULL DEFAULT '',
+  correlation_id varchar(256) NOT NULL DEFAULT '',
+  source_ip varchar(60) NOT NULL DEFAULT '',
+  source_port integer NOT NULL DEFAULT 0,
+  destination_ip varchar(60) NOT NULL DEFAULT '',
+  destination_port integer NOT NULL DEFAULT 0,
+  proto integer NOT NULL DEFAULT 0,
+  family smallint DEFAULT NULL,
+  type integer NOT NULL DEFAULT 0,
+  node varchar(125) NOT NULL DEFAULT '',
+  msg varchar(1500) NOT NULL DEFAULT '',
+  PRIMARY KEY (id,date)
+);
+
+CREATE INDEX webrtc_capture_all_20170116_date ON "webrtc_capture_all_20170116" (date);
+CREATE INDEX webrtc_capture_all_20170116_correlation ON "webrtc_capture_all_20170116" (correlation_id);
+CREATE TABLE webrtc_capture_all_20170116_p2013082901() INHERITS (webrtc_capture_all_20170116);
+ALTER TABLE webrtc_capture_all_20170116_p2013082901 ADD CONSTRAINT chk_webrtc_capture_all_20170116_p2013082901 CHECK (date < to_timestamp(1377734400)); 
+
+
 CREATE TABLE IF NOT EXISTS isup_capture_all_20150407 (
   id BIGSERIAL NOT NULL,
   date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   micro_ts bigint NOT NULL DEFAULT '0',
+  method varchar(4) NOT NULL DEFAULT '',
   correlation_id varchar(256) NOT NULL DEFAULT '',
   opc smallint NOT NULL DEFAULT 0,
   dpc smallint NOT NULL DEFAULT 0,
