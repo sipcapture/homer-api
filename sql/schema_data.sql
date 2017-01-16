@@ -98,8 +98,10 @@ CREATE TABLE IF NOT EXISTS `webrtc_capture` (
 CREATE TABLE IF NOT EXISTS `webrtc_capture_all_20170116` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `method` varchar(100) NOT NULL DEFAULT '',
   `micro_ts` bigint(18) NOT NULL DEFAULT '0',
+  `method` varchar(100) NOT NULL DEFAULT '',  
+  `caller` varchar(250) NOT NULL DEFAULT '',
+  `callee` varchar(250) NOT NULL DEFAULT '',
   `session_id` varchar(256) NOT NULL DEFAULT '',
   `correlation_id` varchar(256) NOT NULL DEFAULT '',
   `source_ip` varchar(60) NOT NULL DEFAULT '',
