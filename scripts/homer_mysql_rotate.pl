@@ -236,7 +236,7 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
     #SIP Data tables
     my $is_isup = $table=~/^isup_/;
     my $is_webrtc = $table=~/^webrtc_/;
-    if($table=~/^sip_/ || $is_isup) {
+    if($table=~/^sip_/ || $is_isup || $is_webrtc) {
         my $curtstamp;
         for(my $y=0; $y<($newtables+1); $y++) {
 	    my $data_table = $ORIGINAL_DATA_TABLE;
