@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS webrtc_capture_all_20170116 (
   date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,  
   micro_ts bigint NOT NULL DEFAULT '0',
   method varchar(100) NOT NULL DEFAULT '',
+  session_id varchar(256) NOT NULL DEFAULT '',
   correlation_id varchar(256) NOT NULL DEFAULT '',
   source_ip varchar(60) NOT NULL DEFAULT '',
   source_port integer NOT NULL DEFAULT 0,
