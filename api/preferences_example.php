@@ -66,7 +66,7 @@ user_agent,source_ip,source_port,destination_ip,destination_port,contact_ip,cont
 define('ISUP_FIELDS_CAPTURE', "id, date, floor(micro_ts /1000) as milli_ts, micro_ts,correlation_id as callid, '' as callid_aleg, opc,dpc,cic,method,called_number,called_ton,called_npi,called_inn,calling_number,calling_ton,calling_npi,calling_ni,calling_restrict,calling_screened,calling_category,cause_standard,cause_itu_class,cause_itu_cause,event_num,source_ip,source_port,destination_ip,destination_port,correlation_id,proto,family,type,node");
 
 /* web rtc */
-define('WEBRTC_FIELDS_CAPTURE', "id, date, floor(micro_ts /1000) as milli_ts, micro_ts,session_id as callid, '' as callid_aleg, method,source_ip,source_port,destination_ip,destination_port,correlation_id,proto,family,type,node");
+define('WEBRTC_FIELDS_CAPTURE', "id, date, floor(micro_ts /1000) as milli_ts, micro_ts,session_id as callid, '' as callid_aleg, caller as from_user, callee as ruri_user, method,source_ip,source_port,destination_ip,destination_port,correlation_id,proto,family,type,node");
 
 /* can be file or db */
 define('PROFILE_STORE','db');
