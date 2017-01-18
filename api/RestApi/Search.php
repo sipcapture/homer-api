@@ -1486,7 +1486,7 @@ class Search {
         /* make array */
         $search['callid'] = implode(";", $callids);
         $isup_search['correlation_id'] = implode(";", $correlations);
-        $webrtc_search['correlation_id'] = implode(";", $correlations);
+        $webrtc_search['session_id'] = implode(";", $correlations);
         $callwhere = array();
         $callwhere = generateWhere($search, $and_or, $db, $b2b);
         $isup_callwhere = generateWhere($isup_search, $and_or, $db, $b2b);
