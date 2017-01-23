@@ -1821,6 +1821,343 @@ class Search {
         return $answer;
     }
 
+    public function stripCountryCode($uri) {
+        if (strpos($uri, '1') === 0)
+            return substr($uri, 1);
+        if (strpos($uri, '21') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '22') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '23') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '24') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '25') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '26') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '28') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '29') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '35') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '37') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '38') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '42') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '50') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '59') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '67') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '68') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '69') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '80') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '83') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '85') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '87') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '88') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '89') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '96') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '97') === 0)
+            return substr($uri, 3);
+        if (strpos($uri, '99') === 0)
+            return substr($uri, 3);
+        return substr($uri, 2);
+    }
+
+    public function buildCallSearch($db, $uri) {
+        $unk = '%'.$uri.'%';
+        $in = '%'.$this->stripCountryCode($uri).'%';
+
+        return 'calling_number LIKE '.$db->quote($unk).
+                    ' OR calling_number LIKE '.$db->quote($in).
+                    ' OR called_number LIKE '.$db->quote($unk).
+                    ' OR called_number LIKE '.$db->quote($in);
+    }
+
+    private function getISUPflow($data, &$hosts, &$hostcount) {
+        $calldata = array();
+        $host_step=1;
+
+        // compress IPv6 addresses for UI
+        $IPv6 = (strpos($data->source_ip, '::') === 0);
+
+        if ($IPv6) {
+            $data->source_ip = inet_ntop(inet_pton($data->source_ip));
+            $data->destination_ip = inet_ntop(inet_pton($data->destination_ip));
+        }
+
+        $calldata['id'] = $data->id;
+        $calldata['protocol'] = "isup";
+        $calldata['method'] = $data->method;
+        $calldata['src_port'] = $data->source_port;
+        $calldata['dst_port'] = $data->destination_port;
+        $calldata['trans'] = "isup";
+        $calldata['callid'] = $data->callid;
+        $calldata['node'] = $data->node;
+        $calldata['dbnode'] = $data->dbnode;
+        $calldata['micro_ts'] = $data->micro_ts;
+        $calldata['milli_ts'] = $data->milli_ts;
+        $calldata['ruri_user'] = "n/a";
+        $calldata['method_text'] = $data->method;
+        $calldata["msg_color"] = "black";
+        if(!empty($data->source_alias)) { $calldata['source_alias'] = $data->source_alias;}
+        if(!empty($data->destination_alias)) { $calldata['destination_alias'] = $data->destination_alias;}
+        $calldata['source_ip'] = $data->source_ip;
+        $calldata['destination_ip'] = $data->destination_ip;
+
+        if (CFLOW_HPORT == true) {
+            $src_id = $data->source_ip.":".$data->source_port;
+            $dst_id = $data->destination_ip.":".$data->destination_port;
+
+            $src_id_complete = $data->source_ip.":".$data->source_port."-".$data->node;
+            $dst_id_complete = $data->destination_ip.":".$data->destination_port."-".$data->node;
+
+            if(!isset($hosts[$src_id_complete])) { $hosts[$src_id_complete] = $hostcount; $hostcount+=$host_step; }
+            if(!isset($hosts[$dst_id_complete])) { $hosts[$dst_id_complete] = $hostcount; $hostcount+=$host_step; }
+        } else {
+            $src_id = $data->source_ip;
+            $dst_id = $data->destination_ip;
+
+            if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step;}
+            if(!isset($hosts[$dst_id])) { $hosts[$dst_id] = $hostcount; $hostcount+=$host_step;}
+        }
+
+        $calldata['src_id'] = $src_id;
+        $calldata['dst_id'] = $dst_id;
+        if($hosts[$src_id_complete] > $hosts[$dst_id_complete]) $calldata["destination"] = 2;
+        else $calldata["destination"] = 1;
+
+        return $calldata;
+    }
+
+    public function doSearchIsupForSIP($timestamp, $param) {
+        if(count(($adata = $this->getLoggedIn()))) return $adata;
+
+        $hosts = array();
+        $answer = array();
+        $localdata = array();
+
+        /* search matching transactions across date ranges */
+
+        $db = $this->getContainer('db');
+        $db->select_db(DB_CONFIGURATION);
+        $db->dbconnect();
+        $layer = $this->getContainer('layer');
+
+        $trans = array();
+        $data = array();
+        $lnodes = array();
+
+        if(isset($param['location']))
+            $lnodes = $param['location']['node'];
+        $location = $param['location'];
+        $time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
+        $time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
+        $time['from_ts'] = floor($time['from']/1000);
+        $time['to_ts'] = round($time['to']/1000);
+
+        $ruri = getVar('ruri', '', $param['search'], 'string');
+        $min_ts = getVar('min_ts', '', $param['search'], 'string');
+        $max_ts = getVar('max_ts', '', $param['search'], 'string');
+        $src_ip = getVar('src_ip', '', $param['search'], 'string');
+        $dst_ip = getVar('dst_ip', '', $param['search'], 'string');
+
+
+        $nodes = array();
+        if(SINGLE_NODE == 1)
+            $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
+        else {
+            foreach($lnodes as $lnd)
+                $nodes[] = $this->getNode($lnd['name']);
+        }
+        $timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
+
+        $layerHelper = array();
+        $layerHelper['table'] = array();
+        $layerHelper['table']['base'] = "isup_capture";
+        $layerHelper['table']['type'] = "all";
+        $layerHelper['where'] = array();
+        $layerHelper['fields'] = array();
+        $layerHelper['fields']['msg'] = true;
+        $layerHelper['values'][] = 'id, micro_ts, correlation_id, source_ip, source_port, destination_ip, destination_port, node'; //ISUP_FIELDS_CAPTURE;
+
+        /*
+         * Find matching isup messages for the existing call. We do have
+         *  - Time the call has started and ISUP should be around there
+         *  - The IP address the message originated from
+         */
+        foreach($nodes as $node)
+        {
+            $db->dbconnect_node($node);
+            $limit = 50;
+            $ts = $time['from_ts'];
+
+            /*
+             * Three queries to get the result across partitions
+             *  1st find the id, correlation_id based on ruri, time and ip
+             *  2nd find the last end but we might not find it here
+             *  3rd get all messags between the two ids
+             */
+            // 1st now...
+            $start_id = null;
+            $start_correlation_id = null;
+            $start_micro_ts = null;
+            $start_key = null;
+
+            foreach($timearray as $tkey=>$tval) {
+                $layerHelper['table']['timestamp'] = $tkey;
+
+                $layerHelper['fields']['md5msg'] = false;
+                $layerHelper['order'] = array();
+                $layerHelper['order']['by'] = 'micro_ts';
+                $layerHelper['order']['type'] = 'ASC';
+                $layerHelper['order']['limit'] = 1;
+                $layerHelper['where'] = array();
+                $layerHelper['where']['type'] = "AND";
+                $layerHelper['where']['param'] = array(
+                                        $this->buildCallSearch($db, $ruri),
+                                        'abs(micro_ts - '.$db->quote($min_ts).') < 1000000');
+                $query = $layer->querySearchData($layerHelper);
+                $noderows = $db->loadObjectArray($query);
+                if (count($noderows) < 1)
+                    continue;
+                $start_correlation_id = $noderows[0]['correlation_id'];
+                $start_id = $noderows[0]['id'];
+                $start_micro_ts = $noderows[0]['micro_ts'];
+                $start_key = $tkey;
+                break;
+            }
+
+            /* no start on this node.. skip it */
+            if (is_null($start_correlation_id) || is_null($start_id))
+                continue;
+
+            // 2nd now..
+            foreach($timearray as $tkey=>$tval) {
+                $layerHelper['table']['timestamp'] = $tkey;
+                $layerHelper['fields']['md5msg'] = false;
+                $layerHelper['order'] = array();
+                $layerHelper['order']['by'] = 'micro_ts';
+                $layerHelper['order']['type'] = 'DESC';
+                $layerHelper['order']['limit'] = 1;
+                $layerHelper['where'] = array();
+                $layerHelper['where']['type'] = "AND";
+                $layerHelper['where']['param'] = array(
+                                        'correlation_id = '.$db->quote($start_correlation_id),
+                                        'micro_ts >= '.$db->quote($start_micro_ts),
+                                        'method = "RLC"',
+                                        'abs(micro_ts - '.$db->quote($max_ts).') < 1000000');
+                $query = $layer->querySearchData($layerHelper);
+                $noderows = $db->loadObjectArray($query);
+                if (count($noderows) < 1)
+                    continue;
+
+                $end_id = $noderows[0]['id'];
+                $end_micro_ts = $noderows[0]['micro_ts'];
+                $end_key = $tkey;
+                break;
+            }
+
+            if (is_null($end_id))
+                continue;
+
+            // 3rd...
+            foreach($timearray as $tkey=>$tval) {
+                if ($tkey < $start_key)
+                    continue;
+                if ($tkey > $end_key)
+                    continue;
+                $layerHelper['table']['timestamp'] = $tkey;
+
+                $layerHelper['values'][] = ISUP_FIELDS_CAPTURE;
+                $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+                $layerHelper['fields']['md5msg'] = true;
+                $layerHelper['order'] = array();
+                $layerHelper['order']['limit'] = $limit;
+                $layerHelper['where'] = array();
+                $layerHelper['where']['type'] = "AND";
+
+                if ($start_key === $end_key) {
+                    $layerHelper['where']['param'] = array(
+                                        'correlation_id = '.$db->quote($start_correlation_id),
+                                        'id >= '.$db->quote($start_id),
+                                        'id <= '.$db->quote($end_id));
+                } else if ($tkey > $start_key && $tkey < $end_key) {
+                    /* multi day call? */
+                    $layerHelper['where']['param'] = array(
+                                        'correlation_id = '.$db->quote($start_correlation_id));
+                } else if ($tkey == $start_key) {
+                    $layerHelper['where']['param'] = array(
+                                        'correlation_id = '.$db->quote($start_correlation_id),
+                                        'id >= '.$db->quote($start_id));
+                } else if ($tkey == $end_key) {
+                    $layerHelper['where']['param'] = array(
+                                        'correlation_id = '.$db->quote($start_correlation_id),
+                                        'id <= '.$db->quote($end_id));
+                } else {
+                    error_log("Start key/end key combination unexpected: ".$start_key." ".$end_key." ".$tkey);
+                }
+                $query = $layer->querySearchData($layerHelper);
+                $noderows = $db->loadObjectArray($query);
+                $data = array_merge($data,$noderows);
+                $limit -= count($noderows);
+            }
+
+        }
+
+        $this->applyAliases($data);
+        $message = array();
+        $hostcount=0;
+        /* make them unique and extract host info */
+        foreach($data as $key=>$row) {
+            if(isset($message[$row['md5sum']]))
+                unset($data[$key]);
+            else
+                $message[$row['md5sum']] = $row['node'];
+        }
+
+        $localdata = array();
+        foreach($data as $row) {
+            $localdata[] = $this->getISUPflow((object) $row, $hosts, $hostcount);
+        }
+
+        /* sorting */
+        $reply['hosts'] = $this->applyHostsAliases($hosts);
+        $reply['isupdata'] = $localdata;
+
+        if(empty($localdata)) {
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['status'] = 200;
+                $answer['message'] = 'no data';
+                $answer['data'] = $reply;
+                $answer['count'] = count($reply);
+        } else {
+                $answer['status'] = 200;
+                $answer['sid'] = session_id();
+                $answer['auth'] = 'true';
+                $answer['message'] = 'ok';
+                $answer['data'] = $reply;
+                $answer['count'] = count($reply);
+        }
+        return $answer;
+    }
+
     public function doSearchShareTransaction($param){
 
         $answer = array();
