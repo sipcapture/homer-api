@@ -261,7 +261,7 @@ class Admin {
         $data = array();
         
         $table = "alias";            
-        $query = "SELECT id,gid,ip,port,capture_id,alias,status,created FROM ".$table." order by id DESC;";
+        $query = "SELECT id,gid,ip,port,capture_id,alias,is_stp,status,created FROM ".$table." order by id DESC;";
         $query  = $db->makeQuery($query);                
         $data = $db->loadObjectArray($query);
 
@@ -309,6 +309,7 @@ class Admin {
         $arrwhere = "";
         
         $update['status'] = getVar('status', true, $param, 'bool');
+        $update['is_stp'] = getVar('is_stp', '0', $param, 'string');
         $update['ip'] = getVar('ip', '', $param, 'string');
         $update['port'] = getVar('port', 0, $param, 'int');
         $update['capture_id'] = getVar('capture_id', '', $param, 'string');
@@ -360,6 +361,7 @@ class Admin {
         $arrwhere = "";
     
         $update['status'] = getVar('status', true, $param, 'bool');
+        $update['is_stp'] = getVar('is_stp', '0', $param, 'string');
         $update['ip'] = getVar('ip', '', $param, 'string');
         $update['port'] = getVar('port', 0, $param, 'int');
         $update['capture_id'] = getVar('capture_id', '', $param, 'string');

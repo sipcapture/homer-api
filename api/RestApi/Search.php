@@ -2673,16 +2673,32 @@ class Search {
         $db = $this->getContainer('db');
         $db->select_db(DB_CONFIGURATION);
         $db->dbconnect();
-        $query = "SELECT ip, port, capture_id, alias FROM alias";
+        $query = "SELECT ip, port, capture_id, alias, is_stp FROM alias";
         $aliases = $db->loadObjectArray($query);
         foreach($aliases as $alias) {
             if($alias['capture_id'] == "*" || $alias['capture_id'] == "0" || $alias['capture_id'] == "") 
             {            
-                if($alias['port'] == "0") $alias_cache[$alias['ip']] = $alias['alias'];                
-                else $alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];                
+                if($alias['port'] == "0")
+                {
+                    $alias_cache[$alias['ip']] = $alias['alias'];
+                    $stp_cache[$alias['ip']] = $alias['is_stp'];
+                }
+                else
+                {
+                    $alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];
+                    $stp_cache[$alias['ip']] = $alias['is_stp'];
+                }
             }            
-            else if($alias['port'] == "0") $alias_cache[$alias['ip'].'-'.$alias['capture_id']] = $alias['alias'];            
-            else $alias_cache[$alias['ip'].':'.$alias['port'].'-'.$alias['capture_id']] = $alias['alias'];
+            else if($alias['port'] == "0")
+            {
+                $alias_cache[$alias['ip'].'-'.$alias['capture_id']] = $alias['alias'];
+                $stp_cache[$alias['ip']] = $alias['is_stp'];
+            }
+            else
+            {
+                $alias_cache[$alias['ip'].':'.$alias['port'].'-'.$alias['capture_id']] = $alias['alias'];
+                $stp_cache[$alias['ip']] = $alias['is_stp'];
+            }
         }
 
         $newhosts = array();
@@ -2692,7 +2708,12 @@ class Search {
         foreach($data as $key=>$value) {
             
             // Apply source_alias
-            if (isset($alias_cache[$key])) $alias = $alias_cache[$key];
+            $is_stp = FALSE;
+            if (isset($alias_cache[$key]))
+            {
+                $alias = $alias_cache[$key];
+                $is_stp = $stp_cache[$key];
+            }
             else {
                 if (preg_match('/(.*):(.*)-(.*)/', $key, $matches)) {
                     $key_ip_address = $matches[1];
@@ -2701,15 +2722,19 @@ class Search {
 
                     if (isset($alias_cache[$key_ip_address . ":" . $key_port . "-" . $key_node])) {
                         $alias = $alias_cache[$key_ip_address . ":" . $key_port . "-" . $key_node];
+                        $is_stp = $stp_cache[$key_ip_address . ":" . $key_port . "-" . $key_node];
                     }
                     else if (isset($alias_cache[$key_ip_address . ":" . $key_port . "-*"])) {
                         $alias = $alias_cache[$key_ip_address . ":" . $key_port . "-*"];
+                        $is_stp = $stp_cache[$key_ip_address . ":" . $key_port . "-*"];
                     }
                     else if (isset($alias_cache[$key_ip_address . ":" . $key_port])) {
                         $alias = $alias_cache[$key_ip_address . ":" . $key_port];
+                        $is_stp = $stp_cache[$key_ip_address . ":" . $key_port];
                     }
                     else if (isset($alias_cache[$key_ip_address])) {
                         $alias = $alias_cache[$key_ip_address];
+                        $is_stp = $stp_cache[$key_ip_address];
                     }
                     else {
                         $alias = $key_ip_address.":".$key_port;
@@ -2721,12 +2746,15 @@ class Search {
                     $key_node = $matches[2];
                     if (isset($alias_cache[$key_ip_address . "-" . $key_node])) {
                         $alias = $alias_cache[$key_ip_address . "-" . $key_node];
+                        $is_stp = $stp_cache[$key_ip_address . "-" . $key_node];
                     }
                     else if (isset($alias_cache[$key_ip_address . "-*"])) {
                         $alias = $alias_cache[$key_ip_address . "-*"];
+                        $is_stp = $stp_cache[$key_ip_address . "-*"];
                     }
                     else if (isset($alias_cache[$key_ip_address])) {
                         $alias = $alias_cache[$key_ip_address];
+                        $is_stp = $stp_cache[$key_ip_address . "-*"];
                     }
                     else {
                         $alias = $key_ip_address;
@@ -2747,6 +2775,7 @@ class Search {
                 $newhosts[$alias]['position'] = $i++;
             }
             
+            $newhosts[$alias]['is_stp'] = (int) $is_stp;
             $newhosts[$alias]['hosts'][] = array($key => $value);                        
         }
         

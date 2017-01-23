@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `alias` (
   `port` int(10) NOT NULL DEFAULT '0',
   `capture_id` varchar(100) NOT NULL DEFAULT '',
   `alias` varchar(100) NOT NULL DEFAULT '',
+  `is_stp` tinyint(1) NOT NULL DEFAULT 0,
   `status` tinyint(1) NOT NULL DEFAULT 0,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS alias (
   port INTEGER NOT NULL DEFAULT '0', 
   capture_id varchar(100) NOT NULL DEFAULT '',
   alias varchar(100) NOT NULL DEFAULT '',
+  is_stp smallint NOT NULL DEFAULT 0,  
   status smallint NOT NULL DEFAULT 0,  
   created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
