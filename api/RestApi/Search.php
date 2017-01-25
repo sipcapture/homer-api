@@ -2125,10 +2125,11 @@ class Search {
         $hostcount=0;
         /* make them unique and extract host info */
         foreach($data as $key=>$row) {
-            if(isset($message[$row['md5sum']]))
+            $unique_key = $row['md5sum'].'-'.$row['source_ip'].'-'.$row['destination_ip'];
+            if(isset($message[$unique_key]))
                 unset($data[$key]);
             else
-                $message[$row['md5sum']] = $row['node'];
+                $message[$unique_key] = $row['node'];
         }
 
         $localdata = array();
