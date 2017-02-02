@@ -243,7 +243,7 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
 	    if($is_isup) {
 		$data_table =  $ISUP_DATA_TABLE;
 	    }
-	    elsif($is_isup) {
+	    elsif($is_webrtc) {
 		$data_table =  $WEBRTC_DATA_TABLE;
 	    }
 	
