@@ -43,6 +43,8 @@ if(defined('SESSION_TIME')) {
     session_set_cookie_params(SESSION_TIME);
 }
 
+if(!defined('SHARE_MESSAGES')) define('SHARE_MESSAGES', 0);
+
 session_start();
 
 include "autoload.php";
@@ -71,6 +73,7 @@ Server::create(WEBROOT.'api/v1', 'RestApi\Auth') //base entry points `/admin`
       ->addPostRoute('method', 'doSearchMethod') // => /api/session
       ->addPostRoute('message', 'doSearchMessage') // => /api/session
       ->addPostRoute('transaction', 'doSearchTransaction') // => /api/session
+      ->addPostRoute('isupForSIP', 'doSearchIsupForSIP') // => /api/session
       ->addPostRoute('sharelink', 'doShareLink') // => /api/session
       ->addPostRoute('share/transaction', 'doSearchShareTransaction') // => /api/session
       ->addPostRoute('share/export/pcap', 'doPcapExportById') // => /api/session

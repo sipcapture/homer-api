@@ -289,12 +289,12 @@ class Dashboard {
         
         //if (!is_string($json)) $json = json_encode($json);                                        
 	$dar = DASHBOARD_PARAM."/".$id.".json";
-	$json = "";
 
-	if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
-        	$jd = json_decode($GLOBALS['HTTP_RAW_POST_DATA']);
+	$json = file_get_contents("php://input");	   
+	    
+	if(isset($json)){
+        	$jd = json_decode($json);
         	if(json_last_error() == JSON_ERROR_NONE) {
-                	$json = $GLOBALS['HTTP_RAW_POST_DATA'];
                         $myfile = fopen($dar, "w") or die("Unable to open file!");
                         fwrite($myfile, $json);
                         fclose($myfile);		        
@@ -345,6 +345,7 @@ class Dashboard {
         }
                 
         $db->executeQuery($query);
+        $boards = array();
         return $boards;
     }    
     

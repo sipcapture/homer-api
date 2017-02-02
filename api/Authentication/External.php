@@ -50,16 +50,24 @@ class External extends Authentication {
 	function logIn($param) {
 
         	$key =  "";
+		
         	if(EXTERNAL_AUTH_REQUEST_TYPE == "cookie") 
         	{
 			$key = $_COOKIE[EXTERNAL_AUTH_REQUEST_KEY];
+			$param = preg_replace('[KEY]', $key, EXTERNAL_AUTH_PARAM);
         	}
         	else if(EXTERNAL_AUTH_REQUEST_TYPE == "get") 
         	{
 			$key = $_GET[EXTERNAL_AUTH_REQUEST_KEY];
+			$param = preg_replace('[KEY]', $key, EXTERNAL_AUTH_PARAM);
         	}
-        	
-        	$param = preg_replace('[KEY]', $key, EXTERNAL_AUTH_PARAM);        	
+		else if(EXTERNAL_AUTH_REQUEST_TYPE == "password") 
+        	{
+			$param = array_intersect_key($param, array_flip(array('username', 'password')));
+        	} else {
+			$param = "";
+		}
+        	       	
         	$ch = curl_init();
         	
         	if(EXTERNAL_AUTH_METHOD == "POST") 

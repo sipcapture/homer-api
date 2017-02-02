@@ -47,6 +47,7 @@ if (-e $rc) {
 }
 
 my $newtables = $CONFIG->{"PGSQL"}{"newtables"};
+my $tablespace = $CONFIG->{"PGSQL"}{"tablespace"};
 
 if($CONFIG->{"SYSTEM"}{"debug"} == 1) {
     #Debug only
@@ -94,6 +95,7 @@ CREATE TABLE IF NOT EXISTS [TRANSACTION]_[TIMESTAMP] (
   contact_port integer NOT NULL DEFAULT 0,
   originator_ip varchar(60) NOT NULL DEFAULT '',
   originator_port integer NOT NULL DEFAULT 0,
+  expires integer NOT NULL DEFAULT '-1',
   correlation_id varchar(256) NOT NULL DEFAULT '',
   custom_field1 varchar(120) NOT NULL DEFAULT '',
   custom_field2 varchar(120) NOT NULL DEFAULT '',
@@ -214,6 +216,7 @@ sub db_connect {
     my $db_name = shift;
 
     my $db = DBI->connect("dbi:Pg:dbname=".$CONFIG->{"PGSQL"}{$db_name}.";host=".$CONFIG->{"PGSQL"}{"host"}.";port=".$CONFIG->{"PGSQL"}{"port"}, $CONFIG->{"PGSQL"}{"user"}, $CONFIG->{"PGSQL"}{"password"});
+    $db->do("SET default_tablespace = ".$tablespace) or printf(STDERR "Failed to set default namespace with error: %s", $db->errstr) if($CONFIG->{"SYSTEM"}{"exec"} == 1);
     return $db;
 
 }
