@@ -258,7 +258,8 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
     #SIP Data tables
     my $is_isup = $table=~/^isup_/;
     my $is_webrtc = $table=~/^webrtc_/;
-    if($table=~/^sip_/ || $is_isup || $is_webrtc) {
+    my $is_rtcp = $table=~/^rtcp_/;
+    if($table=~/^sip_/ || $is_isup || $is_webrtc || $is_rtcp) {
         my $curtstamp;
         for(my $y=0; $y<($newtables+1); $y++) {
 	    my $data_table = $ORIGINAL_DATA_TABLE;
@@ -268,7 +269,9 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
 	    elsif($is_webrtc) {
 		$data_table =  $WEBRTC_DATA_TABLE;
 	    }
-	
+            elsif($is_rtcp) {
+                $data_table =  $RTCP_DATA_TABLE;
+            }
             $curtstamp = time()+(86400*$y);
             new_data_table($curtstamp, $mystep, $partstep, $data_table, $table);
         }
