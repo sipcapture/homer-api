@@ -217,6 +217,29 @@ CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
 PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
 END
 
+my $RTCP_DATA_TABLE=<<END;
+CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `micro_ts` bigint(18) NOT NULL DEFAULT '0',
+  `correlation_id` varchar(256) NOT NULL DEFAULT '',
+  `source_ip` varchar(60) NOT NULL DEFAULT '',
+  `source_port` int(10) NOT NULL DEFAULT 0,
+  `destination_ip` varchar(60) NOT NULL DEFAULT '',
+  `destination_port` int(10) NOT NULL DEFAULT 0,
+  `proto` int(5) NOT NULL DEFAULT 0,
+  `family` int(1) DEFAULT NULL,
+  `type` int(5) NOT NULL DEFAULT 0,
+  `node` varchar(125) NOT NULL DEFAULT '',
+  `msg` varchar([MSG_SIZE]) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`,`date`),
+  KEY `date` (`date`),
+  KEY `correlationid` (`correlation_id`(255))
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 COMMENT='[TIMESTAMP]'
+/*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`date`))
+([PARTITIONS]
+PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */ ;
+END
 
 #Check DATA tables
 my $db = db_connect($CONFIG, "db_data");
