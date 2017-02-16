@@ -22,6 +22,9 @@ define('BLEGTAIL', "_b2b-1"); /* session-ID correlation suffix, required for b2b
 /* Database: mysql. Moved to configuration.php */
 if(!defined('DATABASE_DRIVER')) define('DATABASE_DRIVER',"mysql");
 
+/* Partition rtcp_capture table */
+define('RTCP_TABLE_PARTITION', 0);
+
 /* AUTH: CLASS NAME. i.e. Internal  */
 define('AUTHENTICATION',"Internal");
 // define('AUTHENTICATION_TEXT',"Please login with your credentials");
