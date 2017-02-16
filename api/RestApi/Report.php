@@ -179,7 +179,8 @@ class Report {
         
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 	
-	$callwhere = generateWhere($search, $and_or, $db, 0);	
+	$callwhere = generateWhere($search, $and_or, $db, 0);
+
 	$layerHelper = array();
 	$layerHelper['table'] = array();
 	$layerHelper['order'] = array();
@@ -188,24 +189,31 @@ class Report {
 	$layerHelper['table']['base'] = "rtcp_capture";
 	$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 	$layerHelper['where']['param'] = $callwhere;
-	$layerHelper['time'] = $time;               
-	
-        foreach($nodes as $node)
-        {        
-                 
-            $db->dbconnect_node($node);
-            $limit = $limit_orig;
-            
-            $layerHelper['values'] = array();                    
-            $layerHelper['values'][] = "*";
-            $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+	$layerHelper['time'] = $time;
 
-            $query = $layer->querySearchData($layerHelper);
-            $noderows = $db->loadObjectArray($query);        
-            
-            $data = array_merge($data,$noderows);    
-            $limit -= count($noderows);            
-        }
+	foreach($nodes as $node) {
+
+		$db->dbconnect_node($node);
+		$limit = $limit_orig;
+
+		if (RTCP_TABLE_PARTITION) {
+			foreach($timearray as $tkey=>$tval) {
+				$layerHelper['table']['type'] = "all";
+				$layerHelper['table']['timestamp'] = $tkey;
+			}
+		}
+
+		$layerHelper['values'] = array();
+		$layerHelper['values'][] = "*";
+		$layerHelper['values'][] = "'".$node['name']."' as dbnode";
+
+		$query = $layer->querySearchData($layerHelper);
+		$noderows = $db->loadObjectArray($query);
+
+		$data = array_merge($data,$noderows);
+		$limit -= count($noderows);
+
+	}
 
        /* RTCP report fix */
         for($i=0; $i < count($data); $i++) {
@@ -488,45 +496,43 @@ class Report {
         }
          
 	$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
-        $search['correlation_id'] = implode(";", $callids);        
+        $search['correlation_id'] = implode(";", $callids);
         
         $callwhere = generateWhere($search, $and_or, $db, 0);
 
 	$layerHelper = array();
-        $layerHelper['table'] = array();
-        $layerHelper['order'] = array();
-        $layerHelper['where'] = array();
-        $layerHelper['fields'] = array();
-        $layerHelper['table']['base'] = "rtcp_capture";
-        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
-        $layerHelper['where']['param'] = $callwhere;
-        $layerHelper['time'] = $time;               
+	$layerHelper['table'] = array();
+	$layerHelper['order'] = array();
+	$layerHelper['where'] = array();
+	$layerHelper['fields'] = array();
+	$layerHelper['table']['base'] = "rtcp_capture";
+	$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+	$layerHelper['where']['param'] = $callwhere;
+	$layerHelper['time'] = $time;
 
-        foreach($nodes as $node)
-        {        
-                 
-            $db->dbconnect_node($node);
-            $limit = $limit_orig;
-            
-	    $layerHelper['order']['limit'] = $limit;    
-            $layerHelper['values'] = array();
+	foreach($nodes as $node) {
 
-	    $layerHelper['values'][] = "*";
-	    $layerHelper['values'][] = "'".$node['name']."' as dbnode";
+		$db->dbconnect_node($node);
+		$limit = $limit_orig;
 
-	    $query = $layer->querySearchData($layerHelper);
-            $noderows = $db->loadObjectArray($query);
-        
-            /*
-            openlog("myhomerapilog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
-            $access = date("Y/m/d H:i:s");
-            syslog(LOG_WARNING, "RTCP Query: $access : Query: $query");
-            closelog();
-            */
+		if (RTCP_TABLE_PARTITION){
+			foreach($timearray as $tkey=>$tval) {
+				$layerHelper['table']['type'] = "all";
+				$layerHelper['table']['timestamp'] = $tkey;
+			}
+		}
 
-            $data = array_merge($data,$noderows);    
-            $limit -= count($noderows);            
-        }
+		$layerHelper['order']['limit'] = $limit;
+		$layerHelper['values'] = array();
+		$layerHelper['values'][] = "*";
+		$layerHelper['values'][] = "'".$node['name']."' as dbnode";
+
+		$query = $layer->querySearchData($layerHelper);
+		$noderows = $db->loadObjectArray($query);
+		if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"RTCP Query: ".$query);
+		$data = array_merge($data,$noderows);
+		$limit -= count($noderows);
+	}
 	
 	/* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
@@ -700,34 +706,38 @@ class Report {
 	$callwhere = generateWhere($search, $and_or, $db, 0);
 	$callwhere[] = "type = 1";
 
-        $layerHelper = array();
-        $layerHelper['table'] = array();
-        $layerHelper['order'] = array();
-        $layerHelper['where'] = array();
-        $layerHelper['fields'] = array();
-        $layerHelper['table']['base'] = "rtcp_capture";
-        $layerHelper['where']['type'] = $and_or ? "OR" : "AND";
-        $layerHelper['where']['param'] = $callwhere;
-        $layerHelper['time'] = $time;     
-        
-        foreach($nodes as $node)
-        {        
-                 
-            $db->dbconnect_node($node);
-            $limit = $limit_orig;
+	$layerHelper = array();
+	$layerHelper['table'] = array();
+	$layerHelper['order'] = array();
+	$layerHelper['where'] = array();
+	$layerHelper['fields'] = array();
+	$layerHelper['table']['base'] = "rtcp_capture";
+	$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
+	$layerHelper['where']['param'] = $callwhere;
+	$layerHelper['time'] = $time;
 
-	    $layerHelper['order']['limit'] = $limit;
-            $layerHelper['values'] = array();
+	foreach($nodes as $node) {
 
-            $layerHelper['values'][] = "*";
-            $layerHelper['values'][] = "'".$node['name']."' as dbnode";
-	
-	    $query = $layer->querySearchData($layerHelper);
-            $noderows = $db->loadObjectArray($query);
+		$db->dbconnect_node($node);
+		$limit = $limit_orig;
 
-            $data = array_merge($data,$noderows);    
-            $limit -= count($noderows);            
-        }
+		if (RTCP_TABLE_PARTITION){
+			foreach($timearray as $tkey=>$tval) {
+				$layerHelper['table']['type'] = "all";
+				$layerHelper['table']['timestamp'] = $tkey;
+			}
+		}
+
+		$layerHelper['order']['limit'] = $limit;
+		$layerHelper['values'] = array();
+		$layerHelper['values'][] = "*";
+		$layerHelper['values'][] = "'".$node['name']."' as dbnode";
+
+		$query = $layer->querySearchData($layerHelper);
+		$noderows = $db->loadObjectArray($query);
+		$data = array_merge($data,$noderows);
+		$limit -= count($noderows);
+	}
 	
 	/* sorting */
         usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
