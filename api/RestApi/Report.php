@@ -66,7 +66,7 @@ class Report {
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
 
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
-		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
+		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
 		$time['to_ts'] = round($time['to']/1000);
 		
@@ -149,9 +149,8 @@ class Report {
 			//$callids = implode(";", $newcorrid);
 			$callids = $newcorrid;
 		}
-		 
+	
 		$search['correlation_id'] = implode(";", $callids);
-		
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
 		$callwhere = generateWhere($search, $and_or, $db, 0);
@@ -225,7 +224,7 @@ class Report {
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
 
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
-		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');        
+		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
 		$time['to_ts'] = round($time['to']/1000);
 		/* lets make a range */
@@ -255,7 +254,6 @@ class Report {
 					$k = $callids[$i].BLEGTAIL;
 					$mapsCallid[$k] = $k;
 				}
-									
 				$s = substr($k, 0, -1);
 				$mapsCallid[$s] =  $s;
 			}
@@ -392,7 +390,6 @@ class Report {
 	
 	public function doRTCPServerReport($timestamp, $param, $callids){
 		/* get our DB */
-		
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
@@ -426,7 +423,7 @@ class Report {
 		else {
 			foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
 		}
-		 
+
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 		$search['correlation_id'] = implode(";", $callids);
 		
@@ -603,7 +600,7 @@ class Report {
 		else {
 			foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
 		}
-		 
+	
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 		$search['correlation_id'] = implode(";", $callids);
 		
@@ -795,7 +792,7 @@ class Report {
 			$limit -= count($noderows);
 		}
 	
-	/* sorting */
+		/* sorting */
 		usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 		
 		$chartData = array();
@@ -838,7 +835,7 @@ class Report {
 				$statsData[$ipkey]["jitter_avg"] =  0;
 				$statsData[$ipkey]["delay"] =  0;
 			}
-	
+
 			$tmpMos = floatval($dataArray["MOS"]);
 			$tmpJitter = floatval($dataArray["JITTER"]);
 			$tmpPacketLost = floatval($dataArray["PACKET_LOSS"]);
@@ -870,35 +867,35 @@ class Report {
 			$chartData[$ipkey]["packets_lost"][] = array($msts, $tmpPacketLost);
 		}
 	
-	foreach($chartData as $key=>$value) {
+		foreach($chartData as $key=>$value) {
 	
 			$statsData[$key]["mos_average"] = round($statsData[$key]["mos_average"]/$statsData[$key]["mos_counter"],2);
 			$statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
 			$statsData[$key]["mos_counter"] = 1;
 			
 			$mainData["mos_counter"]  += 1;
-				$mainData["mos_average"]  += $statsData[$key]["mos_average"];
-				$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
-				$mainData["packets_lost"] += $statsData[$key]["packets_lost"];
-				$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
-				$mainData["total_pk"] += $statsData[$key]["packet_total"];
-				if(!array_key_exists("mos_worst", $mainData) || $statsData[$key]["mos_worst"] < $mainData["mos_worst"]) 
-						$mainData["mos_worst"] = $statsData[$key]["mos_worst"];
-				if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];
-	}	
+			$mainData["mos_average"]  += $statsData[$key]["mos_average"];
+			$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
+			$mainData["packets_lost"] += $statsData[$key]["packets_lost"];
+			$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
+			$mainData["total_pk"] += $statsData[$key]["packet_total"];
+			if(!array_key_exists("mos_worst", $mainData) || $statsData[$key]["mos_worst"] < $mainData["mos_worst"]) 
+					$mainData["mos_worst"] = $statsData[$key]["mos_worst"];
+			if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];
+		}
 
-	/* sum of report */
-	if(array_key_exists("mos_counter", $mainData) && $mainData["mos_counter"] != 0) {
-			 $mainData["mos_average"] = round($mainData["mos_average"]/$mainData["mos_counter"],2);
-			 $mainData["jitter_avg"] = round($mainData["jitter_avg"]/$mainData["mos_counter"],2);
-			 $mainData["mos_counter"] = 1;
-	}	
-	
-	//$mainData["jitter_max"] = $dataArray["MAX_JITTER"];
-	//$mainData["jitter_min"] = $dataArray["MIN_JITTER"];
-	//$mainData["total_pk"] = $dataArray["TOTAL_PK"];
-	//$mainData["tl_byte"] = $dataArray["TL_BYTE"];
-	//$mainData["type"] = $dataArray["TOTAL_PK"];
+		/* sum of report */
+		if(array_key_exists("mos_counter", $mainData) && $mainData["mos_counter"] != 0) {
+			$mainData["mos_average"] = round($mainData["mos_average"]/$mainData["mos_counter"],2);
+			$mainData["jitter_avg"] = round($mainData["jitter_avg"]/$mainData["mos_counter"],2);
+			$mainData["mos_counter"] = 1;
+		}
+
+		//$mainData["jitter_max"] = $dataArray["MAX_JITTER"];
+		//$mainData["jitter_min"] = $dataArray["MIN_JITTER"];
+		//$mainData["total_pk"] = $dataArray["TOTAL_PK"];
+		//$mainData["tl_byte"] = $dataArray["TL_BYTE"];
+		//$mainData["type"] = $dataArray["TOTAL_PK"];
 		return array($chartData, $statsData, $mainData);
 	}
 	
@@ -1139,13 +1136,13 @@ class Report {
 						else if(preg_match("/^a=rtpmap:/i", $d)) {
 							$t = explode(" ", $d);
 							if(preg_match("/telephone-event/i", $t[1])) {
-								 $audio["dtmf"]="rfc2833";   
+								$audio["dtmf"]="rfc2833";   
 							}
 							else if(preg_match("/^a=rtpmap:$apt /i", $d)) {
-								 $audio["description"]=$t[1];   
+								$audio["description"]=$t[1];   
 							}
 							else if(preg_match("/^a=rtpmap:$vpt /i", $d)) {
-								 $video["description"]=$t[1];   
+								$video["description"]=$t[1];   
 							}
 						}
 					}
@@ -1210,7 +1207,7 @@ class Report {
 						}
 					}
 				}
-			} 
+			}
 		}
 		$pt = -1;
 		//print_r($export);
