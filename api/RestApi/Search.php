@@ -1250,38 +1250,38 @@ class Search {
 			foreach($timearray as $tkey=>$tval) {
 				foreach($this->query_types as $query_type) {
 					if($trans[$query_type]) {
-					if($limit < 1) break;
-					
-					$layerHelper['values'] = array();
-					if($query_type == 'isup') {
-						$layerHelper['table']['base'] = "isup_capture";
-						$layerHelper['table']['type'] = "all";
-						$layerHelper['where']['param'] = $isup_callwhere;
-						$layerHelper['values'][] = ISUP_FIELDS_CAPTURE;
-					}
-					else if($query_type == 'webrtc') {
-						$layerHelper['table']['base'] = "webrtc_capture";
-						$layerHelper['table']['type'] = "all";
-						$layerHelper['where']['param'] = $webrtc_callwhere;
-						$layerHelper['values'][] = WEBRTC_FIELDS_CAPTURE;
-					}
-					else {
-						$layerHelper['table']['base'] = "sip_capture";
-						$layerHelper['table']['type'] = $query_type;
-						$layerHelper['where']['param'] = $callwhere;
-						$layerHelper['values'][] = FIELDS_CAPTURE;
-					}
-					$layerHelper['values'][] = "'".$query_type."' as trans";
-					$layerHelper['values'][] = "'".$node['name']."' as dbnode";
-					$layerHelper['table']['timestamp'] = $tkey;
-					$layerHelper['order']['limit'] = $limit;
-					$query = $layer->querySearchData($layerHelper);
-					$noderows = $db->loadObjectArray($query);
-					
-					if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get messages for transaction data: ".$query);
-					
-					$data = array_merge($data,$noderows);
-					$limit -= count($noderows);
+						if($limit < 1) break;
+						
+						$layerHelper['values'] = array();
+						if($query_type == 'isup') {
+							$layerHelper['table']['base'] = "isup_capture";
+							$layerHelper['table']['type'] = "all";
+							$layerHelper['where']['param'] = $isup_callwhere;
+							$layerHelper['values'][] = ISUP_FIELDS_CAPTURE;
+						}
+						else if($query_type == 'webrtc') {
+							$layerHelper['table']['base'] = "webrtc_capture";
+							$layerHelper['table']['type'] = "all";
+							$layerHelper['where']['param'] = $webrtc_callwhere;
+							$layerHelper['values'][] = WEBRTC_FIELDS_CAPTURE;
+						}
+						else {
+							$layerHelper['table']['base'] = "sip_capture";
+							$layerHelper['table']['type'] = $query_type;
+							$layerHelper['where']['param'] = $callwhere;
+							$layerHelper['values'][] = FIELDS_CAPTURE;
+						}
+						$layerHelper['values'][] = "'".$query_type."' as trans";
+						$layerHelper['values'][] = "'".$node['name']."' as dbnode";
+						$layerHelper['table']['timestamp'] = $tkey;
+						$layerHelper['order']['limit'] = $limit;
+						$query = $layer->querySearchData($layerHelper);
+						$noderows = $db->loadObjectArray($query);
+						
+						if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get messages for transaction data: ".$query);
+						
+						$data = array_merge($data,$noderows);
+						$limit -= count($noderows);
 					}
 				}
 			}
