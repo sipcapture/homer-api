@@ -26,7 +26,6 @@
 */
 namespace RestApi;
 class Report {
-	
 	protected $_instance = array();
 	private $authmodule = true;
 	function __construct()
@@ -37,6 +36,7 @@ class Report {
 	*
 	* @return boolean
 	*/
+
 	public function getLoggedIn() {
 		$answer = array();
 		if($this->authmodule == false) return $answer;
@@ -57,23 +57,20 @@ class Report {
 		$db->dbconnect();
 		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
-				
+		
 		$data = array();
 		$lnodes = array();
 		$newcorrid = array();
-	
+		
 		//if(array_key_exists('node', $param)) $lnodes = $param['node'];
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
 		$time['to_ts'] = round($time['to']/1000);
-		
 		/* lets make a range */
 		$time['from_ts']-=600;
 		$time['to_ts']+=60;
-				
 		/* search fields */
 		$node = getVar('node', NULL, $param['search'], 'string');
 		$type = getVar('type', -1, $param['search'], 'int');
@@ -88,7 +85,7 @@ class Report {
 		for($i=0; $i < $cn; $i++) $callids[] = substr($callids[$i], 0, -1);
 		$search['callid'] = implode(";", $callids);
 		//$callwhere[] = "`correlation_id` IN ('".implode("','", $callids)."')";
-		 
+	
 		$answer = array();
 		
 		if(empty($callids)) {
@@ -106,7 +103,6 @@ class Report {
 		else {
 			foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
 		}
-		 
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 		
 		if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
@@ -127,7 +123,6 @@ class Report {
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = 20;
-
 			foreach($timearray as $tkey=>$tval) {
 				if($limit < 1) break;
 				$layerHelper['table']['type'] = "call";
@@ -149,10 +144,9 @@ class Report {
 			//$callids = implode(";", $newcorrid);
 			$callids = $newcorrid;
 		}
-	
+		
 		$search['correlation_id'] = implode(";", $callids);
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
-
 		$callwhere = generateWhere($search, $and_or, $db, 0);
 		$layerHelper = array();
 		$layerHelper['table'] = array();
@@ -163,7 +157,6 @@ class Report {
 		$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 		$layerHelper['where']['param'] = $callwhere;
 		$layerHelper['time'] = $time;
-
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
@@ -206,7 +199,7 @@ class Report {
 		return $answer;
 	}
 	
-	public function doQOSReport($timestamp, $param){
+	public function doQOSReport($timestamp, $param) {
 		/* get our DB */
 		$bigReport = array();
 		/* get callid and correlation id ranges */
@@ -216,13 +209,11 @@ class Report {
 		
 		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
-
 		$data = array();
 		$lnodes = array();
 		$newcorrid = array();
 			
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -236,7 +227,7 @@ class Report {
 		$proto = getVar('proto', -1, $param['search'], 'int');
 		$family = getVar('family', -1, $param['search'], 'int');
 		$and_or = getVar('orand', NULL, $param['search'], 'string');
-		$limit_orig = getVar('limit', 100, $param, 'int');          
+		$limit_orig = getVar('limit', 100, $param, 'int');
 		$answer = array();
 		$callids = getVar('callid', array(), $param['search'], 'array');
 		$callwhere = array();
@@ -262,8 +253,7 @@ class Report {
 		}
 		$answer = array();
 		
-		if(empty($mapsCallid))
-		{
+		if(empty($mapsCallid)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
 			$answer['status'] = 200;
@@ -275,7 +265,7 @@ class Report {
 		
 		$search = array();
 		$search['callid'] = implode(";",  array_keys($mapsCallid));
-	
+		
 		$nodes = array();
 		if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
 		else {
@@ -283,11 +273,8 @@ class Report {
 		}
 	
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
-			
 		if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
-		
 		$callwhere[]="correlation_id != ''";
-
 		$layerHelper = array();
 		$layerHelper['table'] = array();
 		$layerHelper['order'] = array();
@@ -304,10 +291,8 @@ class Report {
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = 20;
-
 			foreach($timearray as $tkey=>$tval) {
 				if(count($mapsCallid) > $limit) break;
-				
 				$layerHelper['table']['type'] = "call";
 				$layerHelper['table']['timestamp'] = $tkey; 
 				$layerHelper['order']['limit'] = $limit;
@@ -321,7 +306,6 @@ class Report {
 				}
 			}
 		}
-
 		$search=array();
 		$callids = $mapsCallid;
 		
@@ -335,7 +319,7 @@ class Report {
 			$bigReport["reports"]["xrtpstats"] = array();
 			$bigReport["reports"]["xrtpstats"]["main"] = $xrtpreport;;
 		}
-		/* check RTCP-XR PUBLISH */        
+		/* check RTCP-XR PUBLISH */
 		list ($rtcpData, $statsData, $mainData) = $this->doRTCPXRServerReport($timestamp, $param, $callids);
 		if(count($rtcpData)) {
 			$bigReport["reports"]["rtcpxr"] = array();
@@ -359,7 +343,7 @@ class Report {
 				$mainData["duration"] = $duration;
 				$bigReport["global"]["main"] = &$mainData;
 			}
-		}		
+		}
 		/* check RTCP */
 		list ($rtcpData, $statsData, $mainData) = $this->doRTCPServerReport($timestamp, $param, $callids);
 		if(count($rtcpData)) {
@@ -373,7 +357,7 @@ class Report {
 			}
 		}
 		
-		if(!array_key_exists('main', $bigReport["global"])){
+		if(!array_key_exists('main', $bigReport["global"])) {
 			$mainData = array();
 			$mainData["duration"] = $duration;
 			$bigReport["global"]["main"] = &$mainData;
@@ -388,12 +372,11 @@ class Report {
 		return $answer;
 	}
 	
-	public function doRTCPServerReport($timestamp, $param, $callids){
+	public function doRTCPServerReport($timestamp, $param, $callids) {
 		/* get our DB */
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
-		
 		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
 				
@@ -423,7 +406,6 @@ class Report {
 		else {
 			foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
 		}
-
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 		$search['correlation_id'] = implode(";", $callids);
 		
@@ -479,7 +461,6 @@ class Report {
 				//$json = $data[$key]["msg"];
 				$data[$key]["msg"] = json_decode($json, true);
 			}
-
 			$ipkey= "RTCP[".$data[$key]["msg"]["sdes_ssrc"]."] ". $src_ip." -> ".$dst_ip;
 		
 			if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
@@ -499,13 +480,11 @@ class Report {
 				$statsData[$ipkey]["jitter_avg"] =  0;
 				$statsData[$ipkey]["delay"] =  0;
 			}
-							
-			if(array_key_exists('report_blocks', $data[$key]["msg"])) {
 			
+			if(array_key_exists('report_blocks', $data[$key]["msg"])) {
 				$blocks = $data[$key]["msg"]["report_blocks"];
-							
-				foreach($blocks as $r => $block) 
-				{
+				
+				foreach($blocks as $r => $block) {
 					$tmpMos = round($this->calculateJitterMos($block["dlsr"] < 1000 ? $block["dlsr"] : 0 ,$block["ia_jitter"],$block["packets_lost"]),2); 
 					$statsData[$ipkey]["mos_counter"] += 1;
 					$statsData[$ipkey]["mos_average"] += $tmpMos;
@@ -531,9 +510,7 @@ class Report {
 		}
 	
 		foreach($chartData as $key=>$value) {
-
-			if($statsData[$key]["mos_average"] > 0)
-			{
+			if($statsData[$key]["mos_average"] > 0) {
 				$statsData[$key]["mos_average"] = round($statsData[$key]["mos_average"]/$statsData[$key]["mos_counter"],2);
 				$mainData["mos_counter"]  += 1;
 				$mainData["mos_average"]  += $statsData[$key]["mos_average"];
@@ -542,13 +519,11 @@ class Report {
 					$mainData["mos_worst"] = $statsData[$key]["mos_worst"];
 			}
 			
-			if($statsData[$key]["jitter_avg"] > 0)
-			{
+			if($statsData[$key]["jitter_avg"] > 0) {
 				$statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
 				$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
 				if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];
 			}
-
 			$statsData[$key]["mos_counter"] = 1;
 			$mainData["packets_lost"] += $statsData[$key]["packets_lost"];
 			$mainData["packets_sent"] += $statsData[$key]["packets_sent"];
@@ -565,20 +540,18 @@ class Report {
 	
 	public function doRTCPXRServerReport($timestamp, $param, $callids) {
 		/* get our DB */
-		
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
-		
 		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
-				
+		
 		$data = array();
 		$lnodes = array();
 		$newcorrid = array();
-			
+		
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-								
+		
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -586,7 +559,6 @@ class Report {
 		/* lets make a range */
 		$time['from_ts']-=600; 
 		$time['to_ts']+=60;
-				
 		/* search fields */
 		$node = getVar('node', NULL, $param['search'], 'string');
 		$type = getVar('type', -1, $param['search'], 'int');
@@ -633,7 +605,6 @@ class Report {
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
 		}
-	
 		/* sorting */
 		usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 	
@@ -647,10 +618,9 @@ class Report {
 			list($head,$body) = explode("\r\n\r\n", $data[$key]["msg"]);
 			$params = explode("\r\n", $body);
 			$dataArray = array();
-
 			foreach($params as $rhead=>$rbody) {
 				list($m,$d) = explode(":",$rbody);
-				if(preg_match("/=/", $d)){
+				if(preg_match("/=/", $d)) {
 					$dataArray[$m] = array();
 					$restars = explode(" ", $d);
 					foreach($restars as $k1=>$v1) {
@@ -671,7 +641,7 @@ class Report {
 			$dst_ip =  $dataArray["RemoteAddr"];
 			
 			$ipkey= "RTCPXR ".$src_ip." -> ".$dst_ip;
-							
+			
 			if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
 			
 			if(!array_key_exists("mos",  $chartData[$ipkey])) {
@@ -690,12 +660,12 @@ class Report {
 			$tmpMos = floatval($dataArray["QualityEst"]["MOSCQ"]);
 			$tmpJitter = floatval($dataArray["Delay"]["IAJ"]);
 			$tmpPacketLost = floatval($dataArray["PacketLoss"]["NLR"]);
-					
+			
 			$statsData[$ipkey]["mos_counter"] += 1;
 			$statsData[$ipkey]["mos_average"] += $tmpMos;
 			$statsData[$ipkey]["jitter_avg"] += $tmpJitter;
 			$statsData[$ipkey]["packets_lost"] += $tmpPacketLost;
-					
+			
 			if($tmpJitter > $statsData[$ipkey]["jitter_max"]) $statsData[$ipkey]["jitter_max"] = $tmpJitter;
 			if(!array_key_exists("mos_worst", $statsData[$ipkey]) || $statsData[$ipkey]["mos_worst"] > $tmpMos) $statsData[$ipkey]["mos_worst"] = $tmpMos;
 			$chartData[$ipkey]["mos"][]= array($msts, $tmpMos);
@@ -704,7 +674,6 @@ class Report {
 		}
 	
 		foreach($chartData as $key=>$value) {
-	
 			$statsData[$key]["mos_average"] = round($statsData[$key]["mos_average"]/$statsData[$key]["mos_counter"],2);
 			$statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
 			$statsData[$key]["mos_counter"] = 1;
@@ -728,19 +697,17 @@ class Report {
 	
 	public function doRtpAgentReport($timestamp, $param, $callids) {
 		/* get our DB */
-		
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
-	 	/* get our DB Abstract Layer */
+		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
-				
+		
 		$data = array();
 		$lnodes = array();
 		$newcorrid = array();
-			
+		
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -777,7 +744,6 @@ class Report {
 		$layerHelper['where']['param'] = $callwhere;
 		$layerHelper['time'] = $time;
 		foreach($nodes as $node) {
-
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
 	
@@ -791,7 +757,6 @@ class Report {
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
 		}
-	
 		/* sorting */
 		usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 		
@@ -802,12 +767,11 @@ class Report {
 		foreach ($data as $key => $field) {
 			$ts = $data[$key]["micro_ts"];
 			$msts = intval($ts/1000);
-
 			if(!is_array($data[$key]["msg"])) {
-			$d = json_decode($data[$key]["msg"], true);
-			$data[$key]["msg"] = $d;
+				$d = json_decode($data[$key]["msg"], true);
+				$data[$key]["msg"] = $d;
 			}
-				
+			
 			$dataArray = $data[$key]["msg"];
 			$src_ip = $data[$key]["msg"]["SRC_IP"];
 			$dst_ip = $data[$key]["msg"]["DST_IP"];
@@ -835,7 +799,6 @@ class Report {
 				$statsData[$ipkey]["jitter_avg"] =  0;
 				$statsData[$ipkey]["delay"] =  0;
 			}
-
 			$tmpMos = floatval($dataArray["MOS"]);
 			$tmpJitter = floatval($dataArray["JITTER"]);
 			$tmpPacketLost = floatval($dataArray["PACKET_LOSS"]);
@@ -852,13 +815,12 @@ class Report {
 			else {
 				$minMos = floatval($dataArray["MOS"]);
 			}
-					
+			
 			$statsData[$ipkey]["mos_counter"] += 1;
 			$statsData[$ipkey]["packet_total"] += $dataArray["TOTAL_PK"];
 			$statsData[$ipkey]["mos_average"] += $tmpMos;
 			$statsData[$ipkey]["jitter_avg"] += $tmpJitter;
 			$statsData[$ipkey]["packets_lost"] += $tmpPacketLost;
-
 			if($maxJitter > $statsData[$ipkey]["jitter_max"]) $statsData[$ipkey]["jitter_max"] = $maxJitter;
 			if(!array_key_exists("mos_worst", $statsData[$ipkey]) || $statsData[$ipkey]["mos_worst"] > $minMos) $statsData[$ipkey]["mos_worst"] = $minMos;
 			$chartData[$ipkey]["mos"][]= array($msts, $tmpMos);
@@ -868,7 +830,6 @@ class Report {
 		}
 	
 		foreach($chartData as $key=>$value) {
-	
 			$statsData[$key]["mos_average"] = round($statsData[$key]["mos_average"]/$statsData[$key]["mos_counter"],2);
 			$statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
 			$statsData[$key]["mos_counter"] = 1;
@@ -880,17 +841,15 @@ class Report {
 			$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
 			$mainData["total_pk"] += $statsData[$key]["packet_total"];
 			if(!array_key_exists("mos_worst", $mainData) || $statsData[$key]["mos_worst"] < $mainData["mos_worst"]) 
-					$mainData["mos_worst"] = $statsData[$key]["mos_worst"];
+				$mainData["mos_worst"] = $statsData[$key]["mos_worst"];
 			if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];
 		}
-
 		/* sum of report */
 		if(array_key_exists("mos_counter", $mainData) && $mainData["mos_counter"] != 0) {
 			$mainData["mos_average"] = round($mainData["mos_average"]/$mainData["mos_counter"],2);
 			$mainData["jitter_avg"] = round($mainData["jitter_avg"]/$mainData["mos_counter"],2);
 			$mainData["mos_counter"] = 1;
 		}
-
 		//$mainData["jitter_max"] = $dataArray["MAX_JITTER"];
 		//$mainData["jitter_min"] = $dataArray["MIN_JITTER"];
 		//$mainData["total_pk"] = $dataArray["TOTAL_PK"];
@@ -900,7 +859,6 @@ class Report {
 	}
 	
 	public function calculateJitterMos($rtt, $jitter, $numpacketlost) {
-	
 		if($rtt == 0) $rtt = 10;
 		$effective_latency = $rtt + ($jitter * 2) + 10;
 		$mos_val = 0;
@@ -946,7 +904,6 @@ class Report {
 			$trans['registration'] = true;
 			$trans['call'] = true;
 		}
-
 		$location = $param['location'];
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
@@ -993,7 +950,6 @@ class Report {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
 			$ts = $time['from_ts'];
-
 			foreach($timearray as $tkey=>$tval) {
 				if($trans["call"]) {
 					if($limit < 1) break;
@@ -1020,19 +976,17 @@ class Report {
 		}
 		/* sorting */
 		usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
-
 		$startTime = intval($data[0]["micro_ts"]/1000);
 		$endTime = intval($data[count($data)-1]["micro_ts"]/1000); 
 		$duration = ($endTime - $startTime);
 		
 		if(count($data) > 0) $leg1Callid = $data[0]["callid"];
-								
+		
 		#print "Start: $startTime, EndTime: $endTime, Duration: $duration, Callid: ". $leg1Callid."\n";
 		$parseit = array();
 		$rtpstats = array(); 
 		$preset = array();
 		$cseq = array();
-
 		foreach($data as $k=>$d) {
 			$callid = $d["callid"];
 			
@@ -1061,7 +1015,7 @@ class Report {
 			# print "$key\n";
 			# print "MSG: ".$value["msg"]."\n";
 		}
-				
+		
 		$export = array();
 		$export["calls"] = array();
 		/*
@@ -1087,25 +1041,19 @@ class Report {
 		$apartyAudioIndex = array();
 		$apartyVideoIndex = array();
 		
-		foreach($preset as $cid=>$das)
-		{
+		foreach($preset as $cid=>$das) {
 			/* with callid */
-			foreach($das as $party=>$rec)
-			{
-				foreach($rec as $ks=>$kd) 
-				{
+			foreach($das as $party=>$rec) {
+				foreach($rec as $ks=>$kd) {
 					$src_ip = $kd["source_ip"];
 					$dst_ip = $kd["destination_ip"];
-
 					$sipheaders = explode("\r\n",$kd["msg"]);
-				
 					$audio  = array();
 					$video  = array();
 					$apt = -1;
 					$vpt = -1;
 					$branch = "";
 					foreach($sipheaders as $s=>$d) {
-										
 						if(preg_match("/^c=IN IP/i", $d)) {
 							$t = explode(" ", $d);
 							$audio["ip"]=$t[2];
@@ -1148,12 +1096,11 @@ class Report {
 					}
 				
 					if(count($audio) || count($video)) {
-				
 						if(!array_key_exists($cid,  $export["calls"])) {
 							$export["calls"][$cid] = array();
 							$export["calls"][$cid][$party] = array();
 							$export["calls"][$cid][$party]["audio"] = array();
-							$export["calls"][$cid][$party]["video"] = array();    
+							$export["calls"][$cid][$party]["video"] = array();
 							$export["calls"][$cid][$party]["metric"] = array();
 							$export["calls"][$cid][$party]["metric"]["start"] = $startTime;
 							$export["calls"][$cid][$party]["metric"]["end"] = $endTime;
@@ -1161,7 +1108,6 @@ class Report {
 							$globalAudioIndex[$cid] = 0;
 							$globalVideoIndex[$cid] = 0;
 						}
-
 						if(count($audio)) {
 							$akey = $cid.$party.$audio["ip"].":".$audio["port"]."_".$branch;
 							/* prevent duplication */
@@ -1171,7 +1117,7 @@ class Report {
 								if($party == "aparty") {
 									$aIndex = $globalAudioIndex[$cid];
 									$apartyAudioIndex[$cid][$ks] = $aIndex;
-									$globalAudioIndex[$cid]++;    
+									$globalAudioIndex[$cid]++;
 								}
 								else {
 									$aIndex = $globalAudioIndex[$cid];
@@ -1219,7 +1165,6 @@ class Report {
 		$answer = array();
 		$datas = explode(";", $report);
 		foreach ($datas as $a=>$d) {
-		
 			list($key, $value) = explode("=", $d);
 			switch($key) {
 				case 'CS':
@@ -1274,9 +1219,7 @@ class Report {
 						$res = '';
 						break;
 			}
-
 			if(strlen($res)) {
-		
 				if($res == 'jitter_avg' && preg_match("/,/i", $value)) {
 					list($val1, $val2) = explode(",", $value);
 					$answer[$res] = $val1;
@@ -1303,19 +1246,16 @@ class Report {
 			$answer['mos_avg'] = $mos;
 			$answer['mos_worst'] = $mos;
 		}
-
 		return $answer;
 	}
-		
-	public function doLogReport($timestamp, $param){
 	
+	public function doLogReport($timestamp, $param) {
 		/* get our DB */
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
 		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
-
 		$data = array();
 		$search = array();
 		$lnodes = array();
@@ -1324,7 +1264,6 @@ class Report {
 		
 		//if(array_key_exists('node', $param)) $lnodes = $param['node'];
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -1341,7 +1280,6 @@ class Report {
 		$and_or = getVar('orand', NULL, $param['search'], 'string');
 		$limit_orig = getVar('limit', 100, $param, 'int');
 		$callids = getVar('callid', array(), $param['search'], 'array');
-		
 		$mapsCallid = array();
 		$cn = count($callids);
 		for($i=0; $i < $cn; $i++) {
@@ -1363,8 +1301,7 @@ class Report {
 			$mapsCallid[$k] =  $k;
 		}
 		$answer = array();
-		if(empty($mapsCallid))
-		{
+		if(empty($mapsCallid)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
 			$answer['status'] = 200;
@@ -1373,7 +1310,6 @@ class Report {
 			$answer['count'] = count($data);
 			return $answer;
 		}
-						
 		$search['correlation_id'] = implode(";",  array_keys($mapsCallid));
 		$nodes = array();
 		if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
@@ -1392,7 +1328,6 @@ class Report {
 		$layerHelper['where']['param'] = $callwhere;
 		$layerHelper['time'] = $time;
 		foreach($nodes as $node) {
-			
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
 			$layerHelper['order']['limit'] = $limit;
@@ -1406,7 +1341,6 @@ class Report {
 		}
 		/* sorting */
 		usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
-				
 		if(empty($data)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -1427,7 +1361,6 @@ class Report {
 	}
 	
 	public function doRtcReport($timestamp, $param) {
-	
 		/* get our DB */
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
@@ -1443,7 +1376,6 @@ class Report {
 		
 		//if(array_key_exists('node', $param)) $lnodes = $param['node'];
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -1460,7 +1392,6 @@ class Report {
 		$and_or = getVar('orand', NULL, $param['search'], 'string');
 		$limit_orig = getVar('limit', 100, $param, 'int');
 		$callids = getVar('callid', array(), $param['search'], 'array');
-		
 		$mapsCallid = array();
 		$cn = count($callids);
 		for($i=0; $i < $cn; $i++) {
@@ -1475,7 +1406,6 @@ class Report {
 					$k = $callids[$i].BLEGTAIL;
 					$mapsCallid[$k] = $k;
 				}
-				 
 				$s = substr($k, 0, -1);
 				$mapsCallid[$s] =  $s; 
 			}
@@ -1483,8 +1413,7 @@ class Report {
 			$mapsCallid[$k] =  $k;
 		}
 		$answer = array();
-		if(empty($mapsCallid))
-		{
+		if(empty($mapsCallid)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
 			$answer['status'] = 200;
@@ -1511,7 +1440,6 @@ class Report {
 		$layerHelper['where']['param'] = $callwhere;
 		$layerHelper['time'] = $time;
 		foreach($nodes as $node) {
-			
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
 			$layerHelper['order']['limit'] = $limit;
@@ -1544,6 +1472,7 @@ class Report {
 		}
 		return $answer;
 	}
+
 	public function doRemoteLog($timestamp, $param) {
 		$data = array();
 		$search = array();
@@ -1563,7 +1492,6 @@ class Report {
 		
 		//if(array_key_exists('node', $param)) $lnodes = $param['node'];
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -1580,7 +1508,6 @@ class Report {
 		$and_or = getVar('orand', NULL, $param['search'], 'string');
 		$limit_orig = getVar('limit', 100, $param, 'int');
 		$callids = getVar('callid', array(), $param['search'], 'array');
-		
 		$mapsCallid = array();
 		$cn = count($callids);
 		for($i=0; $i < $cn; $i++) {
@@ -1602,8 +1529,7 @@ class Report {
 			$mapsCallid[$k] =  $k;
 		}
 		$answer = array();
-		if(empty($mapsCallid))
-		{
+		if(empty($mapsCallid)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
 			$answer['status'] = 200;
@@ -1612,7 +1538,6 @@ class Report {
 			$answer['count'] = count($data);
 			return $answer;
 		}
-						
 		$search['correlation_id'] = implode(";",  array_keys($mapsCallid));
 		/* remote log */
 		
@@ -1620,7 +1545,7 @@ class Report {
 		$queryData = array('q' => 'other','from' => 0,'size'=> 100, 'sort' => 'postDate:desc' ) ;
 		//$url = REMOTE_LOG_URL.'/'.REMOTE_LOG_INDEX.'/'.REMOTE_LOG_DOC_TYPE.'/_search?'.http_build_query($queryData) ;
 		$url = REMOTE_LOG_URL.'/'.REMOTE_LOG_INDEX.'/_search';
-		$ch = curl_init();                    
+		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_PORT, 9200);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -1650,8 +1575,8 @@ class Report {
 		}
 		return $answer;
 	}
-	public function doQualityReport($id, $timestamp, $param){
-	
+
+	public function doQualityReport($id, $timestamp, $param) {
 		/* get our DB */
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
@@ -1674,7 +1599,7 @@ class Report {
 		$time['from_ts']-=600;
 		$time['to_ts']+=60;
 		
-		/* search fields */        
+		/* search fields */
 		$node = getVar('node', NULL, $param['search'], 'string');
 		$type = getVar('type', -1, $param['search'], 'int');
 		$proto = getVar('proto', -1, $param['search'], 'int');
@@ -1686,8 +1611,7 @@ class Report {
 		$search['correlation_id'] = implode(";", $callids);
 		$answer = array();  
 		
-		if(empty($callids))
-		{
+		if(empty($callids)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
 			$answer['status'] = 200;
@@ -1713,7 +1637,6 @@ class Report {
 		$layerHelper['where']['param'] = $callwhere;
 		$layerHelper['time'] = $time;
 		foreach($nodes as $node) {
-			
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
 			if(empty($callwhere)) $callwhere = generateWhere($search, $and_or, $db, 0);
@@ -1728,18 +1651,14 @@ class Report {
 		}
 		/* sorting */
 		usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
-		
 		$allowreport = array("LocalAddr", "RemoteAddr", "PacketLoss", "Delay", "QualityEst");
 		foreach($data as $key=>$row) {
-			
-			if($row['type'] == 1 && $id != "raw")  
-			{
+			if($row['type'] == 1 && $id != "raw") {
 				$ldata = array();
 				$mas = preg_split("/\r\n\r\n/", $row['msg']);
 				$data[$key]['msg'] = $mas[1];
 				$drs = preg_split("/\r\n/", $mas[1]);
-				foreach($drs as $k=>$d)
-				{
+				foreach($drs as $k=>$d) {
 					$v = preg_split("/:/", $d);
 					$a = explode(' ', $v[1]);
 					/* short report */
@@ -1755,7 +1674,6 @@ class Report {
 					}
 					if(!empty($v[0])) $ldata[$v[0]] = $dval;
 				}
-				
 				$data[$key]['msg'] = $ldata;
 			}
 		}
@@ -1775,26 +1693,25 @@ class Report {
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
 		}
-		
 		return $answer;
 	}
 	
-	public function getRtpAgentReport($raw_get_data){
-	
+	public function getRtpAgentReport($raw_get_data) {
 		$id = $raw_get_data['id'];
 		$timestamp = $raw_get_data['timestamp'];
 		$param = $raw_get_data['param'];
 		return doRtpAgentReport($id, $timestamp, $param);
 	}
+
 	/*share */
-	public function doLogReportById($param){
+	public function doLogReportById($param) {
 		$data = array();
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
 		$uuid = getVar('transaction_id', "", $param, 'string');
 		$query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
-		$query  = $db->makeQuery($query, $uuid );
+		$query = $db->makeQuery($query, $uuid );
 		$json = $db->loadObjectArray($query);
 		if(!empty($json)) {
 			$djson = json_decode($json[0]['data'], true);
@@ -1810,20 +1727,21 @@ class Report {
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
 			return $answer;
-		} else {
-				return $data;
+		}
+		else {
+			return $data;
 		}
 	}
-	
+
 	/*share */
-	public function doRtcReportById($param){
+	public function doRtcReportById($param) {
 		$data = array();
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
 		$uuid = getVar('transaction_id', "", $param, 'string');
 		$query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
-		$query  = $db->makeQuery($query, $uuid );
+		$query = $db->makeQuery($query, $uuid );
 		$json = $db->loadObjectArray($query);
 		if(!empty($json)) {
 			$djson = json_decode($json[0]['data'], true);
@@ -1839,20 +1757,21 @@ class Report {
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
 			return $answer;
-		} else {
-				return $data;
+		}
+		else {
+			return $data;
 		}
 	}
-	
+
 	/*share */
-	public function doRTCPReportById($param){
+	public function doRTCPReportById($param) {
 		$data = array();
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
 		$uuid = getVar('transaction_id', "", $param, 'string');
 		$query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
-		$query  = $db->makeQuery($query, $uuid );
+		$query = $db->makeQuery($query, $uuid );
 		$json = $db->loadObjectArray($query);
 		if(!empty($json)) {
 			$djson = json_decode($json[0]['data'], true);
@@ -1868,19 +1787,20 @@ class Report {
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
 			return $answer;
-		} else {
-				return $data;
+		}
+		else {
+			return $data;
 		}
 	}
 	
-	public function doQOSReportById($param){
+	public function doQOSReportById($param) {
 		$data = array();
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
 		$uuid = getVar('transaction_id', "", $param, 'string');
 		$query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
-		$query  = $db->makeQuery($query, $uuid );
+		$query = $db->makeQuery($query, $uuid );
 		$json = $db->loadObjectArray($query);
 		if(!empty($json)) {
 			$djson = json_decode($json[0]['data'], true);
@@ -1896,19 +1816,21 @@ class Report {
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
 			return $answer;
-		} else {
-				return $data;
+		}
+		else {
+			return $data;
 		}
 	}
+
 	/*share */
-	public function doQualityReportById($param){
+	public function doQualityReportById($param) {
 		$data = array();
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
 		$uuid = getVar('transaction_id', "", $param, 'string');
 		$query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
-		$query  = $db->makeQuery($query, $uuid );
+		$query = $db->makeQuery($query, $uuid );
 		$json = $db->loadObjectArray($query);
 		if(!empty($json)) {
 			$djson = json_decode($json[0]['data'], true);
@@ -1925,19 +1847,20 @@ class Report {
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
 			return $answer;
-		} else {
-				return $data;
+		}
+		else {
+			return $data;
 		}
 	}
 	/*share */
-	public function doRtpAgentReportById($param){
+	public function doRtpAgentReportById($param) {
 		$data = array();
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
 		$db->dbconnect();
 		$uuid = getVar('transaction_id', "", $param, 'string');
 		$query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
-		$query  = $db->makeQuery($query, $uuid );
+		$query = $db->makeQuery($query, $uuid );
 		$json = $db->loadObjectArray($query);
 		if(!empty($json)) {
 			$djson = json_decode($json[0]['data'], true);
@@ -1954,7 +1877,8 @@ class Report {
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
 			return $answer;
-		} else {
+		}
+		else {
 			return $data;
 		}
 	}
