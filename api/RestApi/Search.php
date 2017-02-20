@@ -41,8 +41,8 @@ class Search {
 	*/
 
 	public function getLoggedIn() {
-	$answer = array();
-	if($this->authmodule == false) return $answer;
+		$answer = array();
+		if($this->authmodule == false) return $answer;
 		if(!$this->getContainer('auth')->checkSession()) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'false';
@@ -50,7 +50,7 @@ class Search {
 			$answer['message'] = 'bad session';
 			$answer['data'] = array();
 		}
-	return $answer;
+		return $answer;
 	}
 
 	public function doSearchData($timestamp, $param) {
@@ -84,7 +84,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -126,7 +127,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -168,7 +170,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -178,6 +181,7 @@ class Search {
 		}
 		return $answer;
 	}
+
 	public function getSearchData($raw_get_data) {
 	/* auth */
 		if(count(($adata = $this->getLoggedIn()))) return $adata;
@@ -216,10 +220,10 @@ class Search {
 		$and_or = getVar('orand', NULL, $param, 'string');
 		$b2b = getVar('b2b', false, $param, 'bool');
 		$uniq = getVar('uniq', false, $param, 'bool');
-				
+		
 		$limit_orig = getVar('limit', 100, $param, 'int');
 		if($limit_orig <= 0) $limit_orig = 100;
-	
+		
 		$callwhere = array();
 		if(count($callwhere)) $query .= " AND ( " .implode(" AND ", $callwhere). ")";
 		$nodes = array();
@@ -236,7 +240,6 @@ class Search {
 		$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 		$layerHelper['where']['param'] = $callwhere;
 		$layerHelper['fields']['msg'] = false;
-
 		if($uniq) $layerHelper['fields']['md5msg'] = true;
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
@@ -268,7 +271,6 @@ class Search {
 						$layerHelper['values'][] = "'".$node['name']."' as dbnode";
 						$layerHelper['table']['timestamp'] = $tkey;
 						$layerHelper['order']['limit'] = $limit;
-
 						$query = $layer->querySearchData($layerHelper);
 						$noderows = $db->loadObjectArray($query);
 						if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get search data: ".$query);
@@ -298,7 +300,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -309,6 +312,7 @@ class Search {
 		closelog();
 		return $answer;
 	}
+
 	public function doSearchMessagesData($timestamp, $param, $full = false, $count = false) {
 		/* get our DB */
 		$db = $this->getContainer('db');
@@ -316,7 +320,6 @@ class Search {
 		$db->dbconnect();
 		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
-
 		$data = array();
 		$lnodes = array();
 		$trans['call'] = getVar('call', false, $param['transaction'], 'bool');
@@ -336,7 +339,7 @@ class Search {
 			$full = getVar('body', false, $param['receive'], 'bool');
 		}
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-				
+		
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -401,7 +404,7 @@ class Search {
 		#$limit_orig = getVar('limit', 100, $param, 'int');
 		$limit_orig = getVar('limit', 100, $param['search'], 'int');
 		if($limit_orig <= 0) $limit_orig = 100;
-	
+		
 		$mapsCheck = array('from_user', 'to_user', 'ruri_user', 'pid_user');
 		if(NORMALIZE_NUMBER == 1) {
 			foreach($mapsCheck as $mpc=>$val) {
@@ -450,7 +453,6 @@ class Search {
 		$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 		$layerHelper['time'] = $time;
 		$layerHelper['fields']['msg'] = $full;
-
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 	
 		foreach($nodes as $node) {
@@ -479,7 +481,6 @@ class Search {
 						}
 						$layerHelper['table']['timestamp'] = $tkey;
 						$layerHelper['values'] = array();
-
 						if(!$count) {
 							$layerHelper['values'][] = $fields;
 							$layerHelper['values'][] = "'".$query_type."' as trans";
@@ -490,7 +491,6 @@ class Search {
 							$layerHelper['values'][] = "count(*) as cnt";
 							$layerHelper['group']['by'] = "msg";
 						}
-
 						$layerHelper['order']['limit'] = $limit;
 						$query = $layer->querySearchData($layerHelper);
 						$noderows = $db->loadObjectArray($query);
@@ -536,7 +536,6 @@ class Search {
 		$db->dbconnect();
 		/* get our DB Abstract Layer */
 		$layer = $this->getContainer('layer');
-
 		$data = array();
 		$lnodes = array();
 		$trans['call'] = getVar('call', false, $param['transaction'], 'bool');
@@ -617,7 +616,6 @@ class Search {
 		$uniq = getVar('uniq', false, $param['search'], 'bool');
 		#$limit_orig = getVar('limit', 100, $param, 'int');
 		$limit_orig = getVar('limit', 100, $param['search'], 'int');
-
 		if($limit_orig <= 0) $limit_orig = 100;
 	
 		/* callid correlation */
@@ -643,8 +641,8 @@ class Search {
 		$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 		$layerHelper['table']['destination'] = array();
 		$layerHelper['table']['destination']['db'] = ARCHIVE_DATABASE;
-
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
+
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
@@ -657,13 +655,13 @@ class Search {
 							$layerHelper['table']['type'] = "all";
 							$layerHelper['where']['param'] = $isup_callwhere;
 							$fields = ISUP_FIELDS_CAPTURE;
-						} 
+						}
 						else if($query_type == 'webrtc') {
 							$layerHelper['table']['base'] = "webrtc_capture";
 							$layerHelper['table']['type'] = "all";
 							$layerHelper['where']['param'] = $webrtc_callwhere;
 							$fields = WEBRTC_FIELDS_CAPTURE;
-						} 
+						}
 						else {
 							$fields = FIELDS_CAPTURE;
 							$layerHelper['table']['base'] = "sip_capture";
@@ -757,7 +755,6 @@ class Search {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
 			$ts = $time['from_ts'];
-
 			foreach($timearray as $tkey=>$tval) {
 				foreach($this->query_types as $query_type) {
 					if($trans[$query_type]) {
@@ -793,7 +790,6 @@ class Search {
 			$offset *=60;
 		}
 		else $offset = date('Z');
-
 		list($pcapfile, $fsize, $buf) = $this->generateHomerTextPCAP($data, 1, $offset);
 		sendFile(200, "OK", $pcapfile, $fsize, $buf);
 		return;
@@ -893,12 +889,10 @@ class Search {
 				if(TSHARK_ENABLED == "1"){
 					$isup_part = $this->decodeIsupData($part['body'],'isup_decode');
 					$new_message .= "\n\npcap file: ".$isup_part['file']."\n\n".$isup_part['content'];
-				}
-				
-			} else {
-				
+				}	
+			}
+			else {
 				$new_message = $message['msg'];
-				
 			}
 			$data[$i]['msg'] = $new_message;
 		}
@@ -910,7 +904,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -975,6 +970,7 @@ class Search {
 		if($uniq) $layerHelper['fields']['md5msg'] = true;
 		$layerHelper['where']['type'] = "AND";
 		$layerHelper['where']['param'] = $callwhere;
+
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			foreach($timearray as $tkey=>$tval) {
@@ -1017,6 +1013,7 @@ class Search {
 		$this->applyAliases($data);
 		return $data;
 	}
+
 	/* old method */
 	public function getMessagesRTCByMethod($timestamp, $param) {
 		if(count(($adata = $this->getLoggedIn()))) return $adata;
@@ -1078,6 +1075,7 @@ class Search {
 		$this->applyAliases($data);
 		return $data;
 	}
+
 	public function doSearchMessage($timestamp, $param) {
 		if(count(($adata = $this->getLoggedIn()))) return $adata;
 		/* get our DB */
@@ -1131,7 +1129,7 @@ class Search {
 		$layerHelper['fields']['msg'] = true;
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 
-		 foreach($timearray as $tkey=>$tval) {
+		foreach($timearray as $tkey=>$tval) {
 			foreach($this->query_types as $query_type) {
 				if($trans[$query_type]) {
 					if($limit < 1) break;
@@ -1162,7 +1160,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $data;
 			$answer['count'] = count($data);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -1183,6 +1182,10 @@ class Search {
 		$trans = array();
 		$data = array();
 		$lnodes = array();
+		$search = array();
+		$callwhere = array();
+		$answer = array();
+		$nodes = array();
 		
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
 				
@@ -1217,21 +1220,48 @@ class Search {
 		$uniq = getVar('uniq', false, $param['search'], 'bool');
 		$utils['logic_or'] = getVar('logic', false, array_key_exists('query', $param) ? $param['query'] : array(), 'bool');
 		$and_or = $utils['logic_or'] ? " OR " : " AND ";
-		$search = array();
-		/* make array */
-		$search['callid'] = implode(";", $callids);
 		$isup_search['correlation_id'] = implode(";", $correlations);
 		$webrtc_search['session_id'] = implode(";", $correlations);
-		$callwhere = array();
-		$callwhere = generateWhere($search, $and_or, $db, $b2b);
 		$isup_callwhere = generateWhere($isup_search, $and_or, $db, $b2b);
 		$webrtc_callwhere = generateWhere($webrtc_search, $and_or, $db, $b2b);
-		$nodes = array();
+		
+		if(BLEGTAIL!= "0" && CLEGTAIL!= "0"){
+			$mapsCallid = array();
+			$cn = count($callids);
+
+			for($i=0; $i < $cn; $i++) {
+				$mapsCallid[$callids[$i]] =  $callids[$i];
+				$length = strlen(BLEGTAIL);
+				if(substr($callids[$i], -$length) == BLEGTAIL) {
+					$k = substr($callids[$i], 0, -$length);
+					$mapsCallid[$k] = $k;
+				}
+				$k = $callids[$i].CLEGTAIL;
+				$mapsCallid[$k] = $k;
+			}
+			$answer = array();
+			if(empty($mapsCallid)) {
+				$answer['sid'] = session_id();
+				$answer['auth'] = 'true';
+				$answer['status'] = 200;
+				$answer['message'] = 'no data';
+				$answer['data'] = $data;
+				$answer['count'] = count($data);
+				return $answer;
+			}
+			$search['callid'] = implode(";", $mapsCallid);
+		}
+		else{
+			$search['callid'] = implode(";", $callids);
+		}
+		
 		if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
 		else {
 			foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
 		}
-	
+
+		$callwhere = generateWhere($search, $and_or, $db, $b2b);
+
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 		$layerHelper = array();
 		$layerHelper['table'] = array();
@@ -1242,16 +1272,15 @@ class Search {
 		$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 		$layerHelper['fields']['msg'] = true;
 		if($uniq) $layerHelper['fields']['md5msg'] = true;
-											
+		
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
-			$ts = $time['from_ts']; 
+			$ts = $time['from_ts'];
 			foreach($timearray as $tkey=>$tval) {
 				foreach($this->query_types as $query_type) {
 					if($trans[$query_type]) {
 						if($limit < 1) break;
-						
 						$layerHelper['values'] = array();
 						if($query_type == 'isup') {
 							$layerHelper['table']['base'] = "isup_capture";
@@ -1316,7 +1345,6 @@ class Search {
 		$layer = $this->getContainer('layer');
 		//if(array_key_exists('node', $param)) $lnodes = $param['node'];
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-
 		$time['from'] = getVar('from', round((microtime(true) - 300) * 1000), $timestamp, 'long');
 		$time['to'] = getVar('to', round(microtime(true) * 1000), $timestamp, 'long');
 		$time['from_ts'] = floor($time['from']/1000);
@@ -1334,6 +1362,7 @@ class Search {
 		
 		$mapsCallid = array();
 		$cn = count($callids);
+
 		for($i=0; $i < $cn; $i++) {
 			$mapsCallid[$callids[$i]] =  $callids[$i];
 			if(BLEGCID == "b2b") {
@@ -1352,6 +1381,7 @@ class Search {
 			$k = substr($callids[$i], 0, -1);
 			$mapsCallid[$k] =  $k;
 		}
+
 		$answer = array();
 		if(empty($mapsCallid)) {
 			$answer['sid'] = session_id();
@@ -1440,6 +1470,7 @@ class Search {
 		$localdata = array();
 		/* RTC call */
 		$data =  $this->getRTCForTransaction($timestamp, $param);
+
 		foreach($data as $row) {
 			$localdata[] = $this->getRTCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, true);
 			//if(!$min_ts) $min_ts = $row['micro_ts'];
@@ -1481,7 +1512,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $reply;
 			$answer['count'] = count($reply);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -1593,7 +1625,8 @@ class Search {
 			$dst_id_complete = $data->destination_ip.":".$data->destination_port."-".$data->node;
 			if(!isset($hosts[$src_id_complete])) { $hosts[$src_id_complete] = $hostcount; $hostcount+=$host_step; }
 			if(!isset($hosts[$dst_id_complete])) { $hosts[$dst_id_complete] = $hostcount; $hostcount+=$host_step; }
-		} else {
+		}
+		else {
 			$src_id = $data->source_ip;
 			$dst_id = $data->destination_ip;
 			if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step;}
@@ -1667,6 +1700,7 @@ class Search {
 			$start_correlation_id = null;
 			$start_micro_ts = null;
 			$start_key = null;
+
 			foreach($timearray as $tkey=>$tval) {
 				$layerHelper['table']['timestamp'] = $tkey;
 				$layerHelper['fields']['md5msg'] = false;
@@ -1737,19 +1771,23 @@ class Search {
 										'correlation_id = '.$db->quote($start_correlation_id),
 										'id >= '.$db->quote($start_id),
 										'id <= '.$db->quote($end_id));
-				} else if ($tkey > $start_key && $tkey < $end_key) {
+				}
+				else if ($tkey > $start_key && $tkey < $end_key) {
 					/* multi day call? */
 					$layerHelper['where']['param'] = array(
 										'correlation_id = '.$db->quote($start_correlation_id));
-				} else if ($tkey == $start_key) {
+				}
+				else if ($tkey == $start_key) {
 					$layerHelper['where']['param'] = array(
 										'correlation_id = '.$db->quote($start_correlation_id),
 										'id >= '.$db->quote($start_id));
-				} else if ($tkey == $end_key) {
+				}
+				else if ($tkey == $end_key) {
 					$layerHelper['where']['param'] = array(
 										'correlation_id = '.$db->quote($start_correlation_id),
 										'id <= '.$db->quote($end_id));
-				} else {
+				}
+				else {
 					error_log("Start key/end key combination unexpected: ".$start_key." ".$end_key." ".$tkey);
 				}
 				$query = $layer->querySearchData($layerHelper);
@@ -1783,7 +1821,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $reply;
 			$answer['count'] = count($reply);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -1814,12 +1853,12 @@ class Search {
 		$query = "SELECT data FROM link_share WHERE uuid='?' limit 1";
 		$query  = $db->makeQuery($query, $uuid );
 		$json = $db->loadObjectArray($query);
-
 		if(!empty($json)) {
 			$djson = json_decode($json[0]['data'], true);
 			$timestamp = $djson['timestamp'];
 			$param = $djson['param'];
 			$data =  $this->getMessagesForTransaction($timestamp, $param);
+
 			foreach($data as $row) {
 				$localdata[] = $this->getSIPCflow((object) $row, $hosts, $info, $uac, $hostcount, $rtpinfo, SHARE_MESSAGES);
 				if(!$min_ts) $min_ts = $row['micro_ts'];
@@ -1841,7 +1880,6 @@ class Search {
 		$reply['rtpinfo']=$rtpinfo;
 		$reply['calldata'] = $localdata;
 		$reply['count'] = count($localdata);
-
 		if(empty($localdata)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -1849,7 +1887,8 @@ class Search {
 			$answer['message'] = 'no data';
 			$answer['data'] = $reply;
 			$answer['count'] = count($reply);
-		} else {
+		}
+		else {
 			$answer['status'] = 200;
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
@@ -1906,7 +1945,8 @@ class Search {
 			if(!isset($hosts[$src_id_complete])) { $hosts[$src_id_complete] = $hostcount; $hostcount+=$host_step; }
 			if(!isset($hosts[$dst_id_complete])) { $hosts[$dst_id_complete] = $hostcount; $hostcount+=$host_step; }
 			$ssrc = ":".$data->source_port;
-		} else {
+		}
+		else {
 			$src_id = $data->source_ip;
 			$dst_id = $data->destination_ip;
 			if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step;}
@@ -2095,7 +2135,8 @@ class Search {
 			if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step; }
 			if(!isset($hosts[$dst_id])) { $hosts[$dst_id] = $hostcount; $hostcount+=$host_step; }
 			$ssrc = ":".$data->source_port;
-		} else {
+		}
+		else {
 			$src_id = $data->source_ip;
 			$dst_id = $data->destination_ip;
 			if(!isset($hosts[$src_id])) { $hosts[$src_id] = $hostcount; $hostcount+=$host_step;}
@@ -2207,11 +2248,10 @@ class Search {
 		else {
 			$data["exceptions"] = "unknown error";
 		}
-		
 		curl_close($ch);
 		return $data;
 	}
-	
+
 	public function doPcapExportById($param) {
 		$db = $this->getContainer('db');
 		$db->select_db(DB_CONFIGURATION);
@@ -2241,7 +2281,6 @@ class Search {
 		$timestamp = $djson['timestamp'];
 		$param = $djson['param'];
 		$data =  $this->getMessagesForTransaction($timestamp, $param);
-
 		if(isset($param['timezone']) && isset($param['timezone']['value'])) {
 			$val = getVar('value', 0, $param['timezone'], 'long');
 			$offset = $val < -1 ? abs($val) : -$val;
@@ -2260,7 +2299,6 @@ class Search {
 			if($tz === false) date_default_timezone_set(HOMER_TIMEZONE);
 			else date_default_timezone_set($tz);
 		}
-
 		if(!count($results)) return array();
 		/* GENERATE PCAP */
 		$size = array(
@@ -2296,7 +2334,6 @@ class Search {
 			$data=$result['msg'];
 			$size['data'] = strlen($data);
 			$ptk = '';
-
 			if($text) {
 				$sec = intval($result['micro_ts'] / 1000000);
 				$usec = $result['micro_ts'] - ($sec*1000000);
@@ -2379,7 +2416,7 @@ class Search {
 		$expire = $layer->getExpire("CURDATE()","+", "14","DAY");
 		
 		$query = "INSERT INTO link_share (uid, uuid, data, expire) values ('?','?','?',".$expire.");";
-		$query  = $db->makeQuery($query, $uid, $uuid, $json );
+		$query = $db->makeQuery($query, $uid, $uuid, $json );
 		$db->executeQuery($query);
 		$reply[0] = PUBLIC_SHARE_HOST."#".$uuid;
 		$answer['status'] = 200;
@@ -2419,7 +2456,8 @@ class Search {
 	 * @url stats
 	 * @return string
 	 */
-	public function getStats($server = '1'){
+
+	public function getStats($server = '1') {
 		return $this->getServerStats($server);
 	}
 
@@ -2441,11 +2479,10 @@ class Search {
 		$query = "SELECT ip, port, capture_id, alias FROM alias";
 		$aliases = $db->loadObjectArray($query);
 		foreach($aliases as $alias) {
-			if($alias['capture_id'] == "*" || $alias['capture_id'] == "0" || $alias['capture_id'] == "") 
-			{            
+			if($alias['capture_id'] == "*" || $alias['capture_id'] == "0" || $alias['capture_id'] == "") {
 				if($alias['port'] == "0") $alias_cache[$alias['ip']] = $alias['alias'];
 				else $alias_cache[$alias['ip'].':'.$alias['port']] = $alias['alias'];
-			}            
+			}
 			else if($alias['port'] == "0") $alias_cache[$alias['ip'].'-'.$alias['capture_id']] = $alias['alias'];
 			else $alias_cache[$alias['ip'].':'.$alias['port'].'-'.$alias['capture_id']] = $alias['alias'];
 		}
@@ -2454,7 +2491,8 @@ class Search {
 			// Apply source_alias
 			if (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].'-'.$data[$i]['node']])) {
 				$data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port'].'-'.$data[$i]['node']];
-			} elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']])) {
+			}
+			elseif (isset($alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']])) {
 				$data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip'].':'.$data[$i]['source_port']];
 			}
 			elseif (isset($alias_cache[$data[$i]['source_ip'].'-'.$data[$i]['node']])) {
@@ -2462,7 +2500,7 @@ class Search {
 			} 
 			elseif (isset($alias_cache[$data[$i]['source_ip']])) {
 				$data[$i]['source_alias'] = $alias_cache[$data[$i]['source_ip']];
-			}           
+			}
 			else {
 				$data[$i]['source_alias'] = $data[$i]['source_ip'];
 			}
@@ -2470,7 +2508,8 @@ class Search {
 			// Apply destination_alias
 			if (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].'-'.$data[$i]['node']])) {
 				$data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port'].'-'.$data[$i]['node']];
-			} elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']])) {
+			}
+			elseif (isset($alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']])) {
 				$data[$i]['destination_alias'] = $alias_cache[$data[$i]['destination_ip'].':'.$data[$i]['destination_port']];
 			}
 			elseif (isset($alias_cache[$data[$i]['destination_ip'].'-'.$data[$i]['node']])) {
@@ -2580,14 +2619,13 @@ class Search {
 			if(!isset($newhosts[$alias])) {
 				$newhosts[$alias]['position'] = $i++;
 			}
-			
 			$newhosts[$alias]['is_stp'] = (int) $is_stp;
 			$newhosts[$alias]['hosts'][] = array($key => $value);
 		}
 		
 		return $newhosts;
 	}
-	
+
 	// Helper function courtesy of https://github.com/guzzle/guzzle/blob/3a0787217e6c0246b457e637ddd33332efea1d2a/src/Guzzle/Http/Message/PostFile.php#L90
 	function getCurlValue($filename, $contentType, $postname) {
 		// PHP 5.5 introduced a CurlFile object that deprecates the old @filename syntax
@@ -2613,7 +2651,7 @@ class Search {
 		}
 	return $timearray;
 	}
-	
+
 	function decodeIsupPart($body) {
 		$len = strlen ( $body );
 		$isup_readable = '';
