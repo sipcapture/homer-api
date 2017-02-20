@@ -14,10 +14,12 @@ define('RESULTS_ORDER', "asc");
 define('AUTOCOMPLETE', 0);  /* Enables autocomplete in FROM & TO fiels- WARNING: db intensive */
 define('FORMAT_DATE_RESULT', "H:i:s"); /* Controls the Date/Time output in search results, ie: "m-d H:i:s"  */
 
-/* BLEG DETECTION */
+/* BLEG & CLEG DETECTION */
 define('BLEGDETECT', 1); /* always detect BLEG leg in CFLOW/PCAP*/
 define('BLEGCID', "b2b"); /* options: x-cid, b2b */
 define('BLEGTAIL', "_b2b-1"); /* session-ID correlation suffix, required for b2b mode */
+define('CLEGTAIL', "0"); /* correlation suffix, for multiple b2b ua's */
+//define('CLEGTAIL', "_b2b-1_b2b-1"); /* correlation suffix, for multiple b2b ua's */
 
 /* Database: mysql. Moved to configuration.php */
 if(!defined('DATABASE_DRIVER')) define('DATABASE_DRIVER',"mysql");
