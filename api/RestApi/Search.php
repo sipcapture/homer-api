@@ -97,7 +97,7 @@ class Search {
 	}
 
 	public function doArchiveExportData($timestamp, $param) {
-	/* auth */
+		/* auth */
 		if(count(($adata = $this->getLoggedIn()))) return $adata;
 		$data = array();
 		$return = $this->doExportMessagesData($timestamp, $param, false);
@@ -140,7 +140,7 @@ class Search {
 	}
 	
 	public function doTransactionArchiveExportData($timestamp, $param) {
-	/* auth */
+		/* auth */
 		if(count(($adata = $this->getLoggedIn()))) return $adata;
 		$data = array();
 		$return = $this->doExportTransactionMessagesData($timestamp, $param, false);
@@ -183,9 +183,8 @@ class Search {
 	}
 
 	public function getSearchData($raw_get_data) {
-	/* auth */
+		/* auth */
 		if(count(($adata = $this->getLoggedIn()))) return $adata;
-		
 		/* get our DB */
 		$db = $this->getContainer('db');
 		
@@ -637,7 +636,6 @@ class Search {
 		$layerHelper['fields'] = array();
 		$layerHelper['values'] = array();
 		$layerHelper['time'] = $time;
-		
 		$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 		$layerHelper['table']['destination'] = array();
 		$layerHelper['table']['destination']['db'] = ARCHIVE_DATABASE;
@@ -872,7 +870,6 @@ class Search {
 					}
 					$new_message .= "\n\n";
 				}
-				
 				$new_message .= "--".$d_message['boundary']."--\n\n";
 				
 				if($isup_part)
@@ -1188,7 +1185,7 @@ class Search {
 		$nodes = array();
 		
 		if(isset($param['location'])) $lnodes = $param['location']['node'];
-				
+		
 		$trans['call'] = getVar('call', false, $param['transaction'], 'bool');
 		$trans['registration'] = getVar('registration', false, $param['transaction'], 'bool');
 		$trans['isup'] = getVar('isup', false, $param['transaction'], 'bool');
@@ -1230,14 +1227,35 @@ class Search {
 			$cn = count($callids);
 
 			for($i=0; $i < $cn; $i++) {
-				$mapsCallid[$callids[$i]] =  $callids[$i];
-				$length = strlen(BLEGTAIL);
-				if(substr($callids[$i], -$length) == BLEGTAIL) {
-					$k = substr($callids[$i], 0, -$length);
+				$mapsCallid[$callids[$i]] = $callids[$i];
+				$blength = strlen(BLEGTAIL);
+				$clength = strlen(CLEGTAIL);
+
+				if(substr($callids[$i], -$blength) == BLEGTAIL) {
+					$k = substr($callids[$i], 0, -$blength);
+					$mapsCallid[$k] = $k;
+
+					$s = $k.CLEGTAIL;
+					$mapsCallid[$s] = $s;
+
+					$r = $callids[$i].CLEGTAIL;
+					$mapsCallid[$r] = $r;
+				}
+				else {
+					$k = $callids[$i].BLEGTAIL;
+					$mapsCallid[$k] = $k;
+
+					$s = $callids[$i].CLEGTAIL;
+					$mapsCallid[$s] = $s;
+				}
+				if(substr($callids[$i], -$clength) == CLEGTAIL) {
+					$k = substr($callids[$i], 0, -$clength);
 					$mapsCallid[$k] = $k;
 				}
-				$k = $callids[$i].CLEGTAIL;
-				$mapsCallid[$k] = $k;
+				if(substr($callids[$i], -($blength+$clength)) == (BLEGTAIL.CLEGTAIL)) {
+					$k = substr($callids[$i], 0, -($blength+$clength));
+					$mapsCallid[$k] = $k;
+				}
 			}
 			$answer = array();
 			if(empty($mapsCallid)) {
@@ -1250,17 +1268,17 @@ class Search {
 				return $answer;
 			}
 			$search['callid'] = implode(";", $mapsCallid);
+			$callwhere = generateWhere($search, $and_or, $db, 0);
 		}
 		else{
 			$search['callid'] = implode(";", $callids);
+			$callwhere = generateWhere($search, $and_or, $db, $b2b);
 		}
 		
 		if(SINGLE_NODE == 1) $nodes[] = array( "dbname" =>  DB_HOMER, "name" => "single");
 		else {
 			foreach($lnodes as $lnd) $nodes[] = $this->getNode($lnd['name']);
 		}
-
-		$callwhere = generateWhere($search, $and_or, $db, $b2b);
 
 		$timearray = $this->getTimeArray($time['from_ts'], $time['to_ts']);
 		$layerHelper = array();
@@ -1306,9 +1324,7 @@ class Search {
 						$layerHelper['order']['limit'] = $limit;
 						$query = $layer->querySearchData($layerHelper);
 						$noderows = $db->loadObjectArray($query);
-						
 						if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"get messages for transaction data: ".$query);
-						
 						$data = array_merge($data,$noderows);
 						$limit -= count($noderows);
 					}
@@ -1320,8 +1336,7 @@ class Search {
 		
 		if($uniq) {
 			$message = array();
-			foreach($data as $key=>$row)
-			{
+			foreach($data as $key=>$row) {
 				if(isset($message[$row['md5sum']])) unset($data[$key]);
 				else $message[$row['md5sum']] = $row['node'];
 			}
@@ -2649,7 +2664,7 @@ class Search {
 			$tkey = gmdate("Ymd", $ts);
 			$timearray[$tkey]=$tkey;
 		}
-	return $timearray;
+		return $timearray;
 	}
 
 	function decodeIsupPart($body) {
