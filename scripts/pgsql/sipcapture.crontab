@@ -2,7 +2,7 @@
 # Running rotation script to cron once a day (scripts/homer_rotate)
 # at low traffic time
 
-30 4 * * * root /usr/bin/homer_rotate > /dev/null 2>&1
+30 4 * * * root /usr/bin/homer_pgsql_rotate > /dev/null 2>&1
 #Please uncomment if you need drop partition functionality for daily tables. 
 #Don't activate it if you are not sure!
-#2 * * * *  root /usr/bin/homer_partremove > /dev/null 2>&1
+#2 * * * *  root /usr/bin/homer_pgsql_partremove > /dev/null 2>&1

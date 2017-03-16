@@ -55,6 +55,24 @@ Summary:        nginx config for HTTP based API for HOMER
 %description nginx
 HOMER API nginx configuration
 
+%package mysql
+Requires:       %name = %version
+Requires:       mysql-community-server, mysql-community-client
+Conflicts:      %name-postgres
+Summary:        mysql config for HTTP based API for HOMER
+
+%description mysql
+HOMER API mysql configuration
+
+%package postgres
+Requires:       %name = %version
+Requires:       postgresql-server, postgresql
+Conflicts:      %name-mysql
+Summary:        Postgres config for HTTP based API for HOMER
+
+%description postgres
+HOMER API Postgres configuration
+
 %files
 %defattr(0664,%{webuser},%{webgroup},0775)
 %dir %{webroot}
@@ -62,19 +80,12 @@ HOMER API nginx configuration
 %{webroot}/api/*
 %{webroot}/apidoc/*
 %dir %{DBDIR}
-%attr(0664,root,root)%{_datadir}/sipcapture/sql/*
-%attr(0664,root,root)%{_sysconfdir}/my.cnf.d/sipcapture.cnf
 %attr(0664,root,root)%{_sysconfdir}/kamailio/kamailio-sipcapture.cfg
 %attr(0664,root,root)%{_sysconfdir}/sysconfig/sipcapture
 %{?el6:%attr(0775,root,root)%{_sysconfdir}/init.d/sipcapture}
 %{?el7:%attr(0664,root,root)/usr/lib/systemd/system/sipcapture.service}
-%{?el7:%attr(0664,root,root)%{_sysconfdir}/systemd/system/mysqld.service}
 %attr(0664,root,root)%{_sysconfdir}/rsyslog.d/sipcapture.conf
 %attr(0664,root,root)%{_sysconfdir}/logrotate.d/sipcapture
-%attr(0644,root,root)%{_sysconfdir}/cron.d/sipcapture
-%attr(0775,root,root)%{_bindir}/homer_rotate
-%attr(0775,root,root)%{_bindir}/homer_mysql_new_table.pl
-%attr(0775,root,root)%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
 
 %files httpd
 %defattr(0664,root,root,0775)
@@ -89,6 +100,19 @@ HOMER API nginx configuration
 %{_datadir}/selinux/*/nginx.pp
 %{_datadir}/selinux/*/php-fpm.pp
 %{_datadir}/selinux/*/sipcapture-dashboards.pp
+
+%files mysql
+%{?el7:%attr(0664,root,root)%{_sysconfdir}/systemd/system/mysqld.service}
+%{_datadir}/sipcapture/sql/mysql/*
+%{_sysconfdir}/cron.d/sipcapture_mysql
+%{_sysconfdir}/my.cnf.d/sipcapture.cnf
+%{_sysconfdir}/systemd/system/mysqld.service
+%{_bindir}/homer_mysql_*
+
+%files postgres
+%{_datadir}/sipcapture/sql/postgres/*
+%{_sysconfdir}/cron.d/sipcapture_pgsql
+%{_bindir}/homer_pgsql_*
 
 %prep
 %setup -b0 -q
@@ -113,6 +137,10 @@ do
 	if [ -f examples/web/php-fpm.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/php-fpm.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/php-fpm.pp; fi;
 	if [ -f examples/web/sipcapture-dashboards.pp.${selinuxvariant} ]; then install -p -m 644 examples/web/sipcapture-dashboards.pp.${selinuxvariant} %{buildroot}%{_datadir}/selinux/${selinuxvariant}/sipcapture-dashboards.pp; fi;
 done
+# Common dirs
+install -d %{buildroot}%{_sysconfdir}/cron.d
+install -d %{buildroot}%{_sysconfdir}/sysconfig
+install -d %{buildroot}%{_bindir}
 # Configuration templates
 # kamailio configuration
 install -d %{buildroot}%{_sysconfdir}/sysconfig
@@ -130,12 +158,24 @@ install -p -m 644 examples/web/homer5.nginx %{buildroot}%{_sysconfdir}/nginx/con
 install -p -m 644 examples/web/homer5.php-fpm %{buildroot}%{_sysconfdir}/php-fpm.d/sipcapture.conf
 # MySQL configuration
 install -d %{buildroot}%{DBDIR}
-install -d %{buildroot}%{_datadir}/sipcapture/sql/
-install -p -m 644 sql/* %{buildroot}%{_datadir}/sipcapture/sql/
+install -d %{buildroot}%{_datadir}/sipcapture/sql/mysql
+install -p -m 644 sql/mysql/* %{buildroot}%{_datadir}/sipcapture/sql/mysql
 install -d %{buildroot}%{_sysconfdir}/my.cnf.d
 install -d %{buildroot}%{_sysconfdir}/systemd/system
 install -p -m 644 examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
 install -p -m 644 examples/mysql/mysqld.service %{buildroot}%{_sysconfdir}/systemd/system/mysqld.service
+install -p -m 644 scripts/mysql/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture_mysql
+for s in homer_mysql_remove_partitions.pl homer_mysql_rotate.pl homer_mysql_partremove homer_mysql_rotate; do install -p -m 644 scripts/mysql/$s %{buildroot}%{_bindir}/$s; done;
+# Postgres configuration
+install -d %{buildroot}%{DBDIR}
+install -d %{buildroot}%{_datadir}/sipcapture/sql/postgres
+install -p -m 644 sql/pgsql/* %{buildroot}%{_datadir}/sipcapture/sql/postgres
+#install -d %{buildroot}%{_sysconfdir}/my.cnf.d
+#install -d %{buildroot}%{_sysconfdir}/systemd/system
+#install -p -m 644 examples/mysql/sipcapture.cnf %{buildroot}%{_sysconfdir}/my.cnf.d/sipcapture.cnf
+#install -p -m 644 examples/mysql/mysqld.service %{buildroot}%{_sysconfdir}/systemd/system/mysqld.service
+install -p -m 644 scripts/pgsql/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture_pgsql
+for s in homer_pgsql_rotate.pl homer_pgsql_rotate homer_pgsql_setup_db.sh; do install -p -m 644 scripts/pgsql/$s %{buildroot}%{_bindir}/$s; done;
 # UI and API directories and files
 install -d %{buildroot}%{webroot}
 install -d %{buildroot}%{webroot}/api
@@ -146,31 +186,7 @@ install -d %{buildroot}%{webroot}/api
 %{__cp} -r api/Statistic %{buildroot}%{webroot}/api
 %{__cp} -r api/*.php %{buildroot}%{webroot}/api
 install -p -m 644 api/.htaccess %{buildroot}%{webroot}/api
-install -d %{buildroot}%{_sysconfdir}/cron.d
-install -d %{buildroot}%{_sysconfdir}/sysconfig
-install -d %{buildroot}%{_bindir}
-install -p -m 644 scripts/sipcapture.crontab %{buildroot}%{_sysconfdir}/cron.d/sipcapture
-install -p -m 644 scripts/homer_rotate %{buildroot}%{_bindir}/homer_rotate
-install -p -m 644 scripts/homer_mysql_new_table.pl %{buildroot}%{_bindir}/homer_mysql_new_table.pl
-install -p -m 644 scripts/homer_mysql_partrotate_unixtimestamp.pl %{buildroot}%{_bindir}/homer_mysql_partrotate_unixtimestamp.pl
-
 %post
-# MySQL stuff
-/usr/bin/logger -t "INSTALLER" "=========== Initializing local MySQL server data directory in %{DBDIR}"
-#/bin/echo "MYSQLD_OPTS=\"--explicit_defaults_for_timestamp\"" > %{_sysconfdir}/sysconfig/mysql | /usr/bin/logger -t "INSTALLER"
-/usr/bin/mysql_install_db --user=mysql --datadir=%{DBDIR} | /usr/bin/logger -t "INSTALLER"
-#if [ -e /bin/systemctl ]; then /usr/bin/logger -t "INSTALLER" "=========== Reloading systemd"; /bin/systemctl daemon-reload; fi | /usr/bin/logger -t "INSTALLER"
-/usr/bin/logger -t "INSTALLER" "=========== Installing HOMER DB: users and permissions";
-(cat %{_datadir}/sipcapture/sql/homer_user_bootstrap.sql | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER";
-/usr/bin/logger -t "INSTALLER" "=========== Enable MySQL server";
-if [ -e /bin/systemctl ]; then /bin/systemctl enable mysqld; else /sbin/chkconfig mysqld on; fi | /usr/bin/logger -t "INSTALLER"
-/usr/bin/logger -t "INSTALLER" "=========== Installing HOMER DB: databases";
-(cat %{_datadir}/sipcapture/sql/homer_databases.sql | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER";
-for s in configuration data statistic; do ((echo "use homer_$s;" ; cat %{_datadir}/sipcapture/sql/schema_$s.sql) | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER"; done;
-if [ "$(stat -c %d:%i /)" == "$(stat -c %d:%i /proc/1/root/.)" ]; then
-    /usr/bin/logger -t "INSTALLER" "=========== Starting local MySQL server"
-    %{?el6:/sbin/service mysqld start}%{?el7:/bin/systemctl start mysqld} | /usr/bin/logger -t "INSTALLER"
-fi
 # Kamailio stuff
 /usr/bin/logger -t "INSTALLER" "=========== Disable native Kamailio server";
 if [ -e /sbin/chkconfig ]; then /sbin/chkconfig kamailio off; else /usr/bin/logger -t "INSTALLER" "WARNING: Please, manually diable kamailio service!!!"; fi 2>&1 | /usr/bin/logger -t "INSTALLER"
@@ -218,6 +234,24 @@ if [ -e /bin/systemctl ]; then /bin/systemctl enable php-fpm; else /sbin/chkconf
 /usr/bin/logger -t "INSTALLER" "=========== Starting local HTTP server"
 /sbin/service nginx start
 /sbin/service php-fpm start
+
+%post mysql
+# MySQL stuff
+/usr/bin/logger -t "INSTALLER" "=========== Initializing local MySQL server data directory in %{DBDIR}"
+#/bin/echo "MYSQLD_OPTS=\"--explicit_defaults_for_timestamp\"" > %{_sysconfdir}/sysconfig/mysql | /usr/bin/logger -t "INSTALLER"
+/usr/bin/mysql_install_db --user=mysql --datadir=%{DBDIR} | /usr/bin/logger -t "INSTALLER"
+#if [ -e /bin/systemctl ]; then /usr/bin/logger -t "INSTALLER" "=========== Reloading systemd"; /bin/systemctl daemon-reload; fi | /usr/bin/logger -t "INSTALLER"
+/usr/bin/logger -t "INSTALLER" "=========== Installing HOMER DB: users and permissions";
+(cat %{_datadir}/sipcapture/sql/mysql/homer_user_bootstrap.sql | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER";
+/usr/bin/logger -t "INSTALLER" "=========== Installing HOMER DB: databases";
+(cat %{_datadir}/sipcapture/sql/mysql/homer_databases.sql | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER";
+for s in configuration data statistic; do ((echo "use homer_$s;" ; cat %{_datadir}/sipcapture/sql/mysql/schema_$s.sql) | %{?el7:/usr}/sbin/mysqld --user=mysql --datadir=%{DBDIR} --bootstrap) 2>&1 | /usr/bin/logger -t "INSTALLER"; done;
+/usr/bin/logger -t "INSTALLER" "=========== Enable MySQL server";
+if [ -e /bin/systemctl ]; then /bin/systemctl enable mysqld; else /sbin/chkconfig mysqld on; fi | /usr/bin/logger -t "INSTALLER"
+if [ "$(stat -c %d:%i /)" == "$(stat -c %d:%i /proc/1/root/.)" ]; then
+    /usr/bin/logger -t "INSTALLER" "=========== Starting local MySQL server"
+    %{?el6:/sbin/service mysqld start}%{?el7:/bin/systemctl start mysqld} | /usr/bin/logger -t "INSTALLER"
+fi
 
 %postun nginx
 if [ $1 -eq 0 ] ; then
