@@ -288,6 +288,9 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
         while(my @ref = $sth->fetchrow_array()) {
            my $table_name = $ref[0];
            my($proto, $cap, $type, $ts) = split(/_/, $table_name, 4);
+	   # RTCP has only 3 underscores 
+	   $ts = $type if($table eq "rtcp_capture");
+
            $ts+=0;
            if($ts < $oldest) {
                say "Removing table: $table_name" if($CONFIG->{"SYSTEM"}{"debug"} == 1);
