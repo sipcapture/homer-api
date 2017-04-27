@@ -588,7 +588,7 @@ class Report {
 		$layerHelper['order'] = array();
 		$layerHelper['where'] = array();
 		$layerHelper['fields'] = array();
-		$layerHelper['table']['base'] = "rtcp_capture";
+		$layerHelper['table']['base'] = "report_capture";
 		$layerHelper['where']['type'] = $and_or ? "OR" : "AND";
 		$layerHelper['where']['param'] = $callwhere;
 		$layerHelper['time'] = $time;
