@@ -140,6 +140,8 @@ class PDOConnector extends DefaultConnector {
 	    $query = str_replace("?", "%s", $query);
 	    if(DATABASE_DRIVER == 'pgsql') $query = $this->toPgSql($query);
 	    if (property_exists($this->connection, 'quote')) $args  = array_map($this->connection->quote, $args);
+	    /* lets do escape by self */
+	    $args  = $this->custom_sql_escape($args);
 
 	    array_unshift($args,$query);
 	    $query = call_user_func_array('sprintf',$args);
