@@ -160,7 +160,7 @@ class Report {
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
-			if (RTCP_TABLE_PARTITION) {
+			if (defined('RTCP_TABLE_PARTITION') && RTCP_TABLE_PARTITION == 1){
 				foreach($timearray as $tkey=>$tval) {
 					$layerHelper['table']['type'] = "all";
 					$layerHelper['table']['timestamp'] = $tkey;
@@ -427,7 +427,7 @@ class Report {
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
-			if (RTCP_TABLE_PARTITION){
+			if (defined('RTCP_TABLE_PARTITION') && RTCP_TABLE_PARTITION == 1){
 				foreach($timearray as $tkey=>$tval) {
 					$layerHelper['table']['type'] = "all";
 					$layerHelper['table']['timestamp'] = $tkey;
@@ -595,7 +595,7 @@ class Report {
 		foreach($nodes as $node) {
 			$db->dbconnect_node($node);
 			$limit = $limit_orig;
-			if (RTCP_TABLE_PARTITION){
+			if (defined('RTCP_TABLE_PARTITION') && RTCP_TABLE_PARTITION == 1){
 				foreach($timearray as $tkey=>$tval) {
 					$layerHelper['table']['type'] = "all";
 					$layerHelper['table']['timestamp'] = $tkey;
