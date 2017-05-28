@@ -480,6 +480,8 @@ class Admin {
         $exten = "";
 	$insertkey = array();
         $insertvalue = array();
+	
+	//$layer = $this->getContainer('layer');
 
         $callwhere = generateWhere($update, 1, $db, 0);
         if(count($callwhere)) {
@@ -494,7 +496,7 @@ class Admin {
 
         $table = "node";            
         
-        $query = "INSERT INTO ".$layer->getTableName($table)." (".implode(",",$insertkey).") VALUES (".implode(",",$insertvalue).")";
+        $query = "INSERT INTO ".$table." (".implode(",",$insertkey).") VALUES (".implode(",",$insertvalue).")";
         if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"create node: ".$query);
                   
         $db->executeQuery($query);        
