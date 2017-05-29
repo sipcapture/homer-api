@@ -258,7 +258,7 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
     #SIP Data tables
     my $is_isup = $table=~/^isup_/;
     my $is_webrtc = $table=~/^webrtc_/;
-    my $is_rtcp = $table=~/^rtcp_/;
+    my $is_rtcp = $table=~/^rtcp_capture_all/;
     if($table=~/^sip_/ || $is_isup || $is_webrtc || $is_rtcp) {
         my $curtstamp;
         for(my $y=0; $y<($newtables+1); $y++) {
@@ -288,6 +288,9 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
         while(my @ref = $sth->fetchrow_array()) {
            my $table_name = $ref[0];
            my($proto, $cap, $type, $ts) = split(/_/, $table_name, 4);
+	   # RTCP has only 3 underscores 
+	   $ts = $type if($table eq "rtcp_capture");
+
            $ts+=0;
            if($ts < $oldest) {
                say "Removing table: $table_name" if($CONFIG->{"SYSTEM"}{"debug"} == 1);

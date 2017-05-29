@@ -7,10 +7,12 @@ include config/project.am
 	examples/web \
 	examples/mysql \
 	examples/sipcapture \
-	sql \
+	sql/mysql \
+	sql/pgsql \
 	pkg \
 	README.md \
-	scripts
+	scripts/mysql \
+	scripts/pgsql
 
 @PACKAGE@datadir = /var/www/sipcapture/htdocs
 
