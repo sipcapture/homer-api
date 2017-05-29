@@ -335,7 +335,7 @@ class Client
     public function setContentLength($pMessage)
     {
         if (php_sapi_name() !== 'cli' )
-            header('Content-Length: '.strlen($pMessage));
+            header('Content-Length: '.strlen($pMessage)+2);
     }
 
     /**
