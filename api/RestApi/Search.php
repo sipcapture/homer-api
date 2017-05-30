@@ -367,6 +367,8 @@ class Search {
 		$search['source_port'] = getVar('source_port', NULL, $param['search'], 'string');
 		$search['destination_ip'] = getVar('destination_ip', NULL, $param['search'], 'string');
 		$search['destination_port'] = getVar('destination_port', NULL, $param['search'], 'string');
+		$search['originator_ip'] = getVar('originator_ip', NULL, $param['search'], 'string');
+		$search['originator_port'] = getVar('originator_port', NULL, $param['search'], 'string');
 		$search['node'] = getVar('node', NULL, $param['search'], 'string');
 		$search['proto'] = getVar('proto', NULL, $param['search'], 'string');
 		$search['family'] = getVar('family', NULL, $param['search'], 'string');
