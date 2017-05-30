@@ -945,6 +945,8 @@ class Statistic {
         }
 
         $query = $layer->querySearchData($layerHelper);
+	/* extra SYSLOG output for test */
+        if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"Stats useragent query: ".$query); 
         $data = $db->loadObjectArray($query);
 
         /* sorting */
