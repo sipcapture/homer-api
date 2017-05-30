@@ -53,7 +53,7 @@ foreach my $table (keys %{ $CONFIG->{"DROP_OLD_PARTITIONS"} }) {
 	my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = gmtime();
 	my $tablesuffix = sprintf("%04d%02d%02d",($year+=1900),(++$mon),$mday);
 	my $todaytable = sprintf("%s_%s", $table, $tablesuffix);
-	if ($table=~/^rtcp_/) {
+	if ($table=~/^rtcp_capture_all/) {
         $todaytable = sprintf("%s", $table);
     }
 	if (is_table_partitioned($db, $CONFIG->{"MYSQL"}{"db_data"}, $todaytable)) {
