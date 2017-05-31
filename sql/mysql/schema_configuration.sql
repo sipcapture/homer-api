@@ -203,3 +203,44 @@ CREATE TABLE IF NOT EXISTS `api_auth_key` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `authkey` (`authkey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for table `version`
+--
+
+CREATE TABLE `version` (
+  `table_name` varchar(32) NOT NULL,
+  `table_version` int(10) unsigned NOT NULL DEFAULT '0',
+  UNIQUE KEY `table_name_idx` (`table_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `version`
+--
+
+INSERT INTO `version` VALUES ('version',1),('address',6),('trusted',6)
+
+-- Create view got dispatcher_homer
+
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `dispatcher_homer` AS
+    Select 
+        `alias`.`id` AS `id`,
+        `alias`.`ip` AS `src_ip`,
+        'any' AS `proto`,
+        '' AS `from_pattern`,
+        '' AS `ruri_pattern`,
+        `alias`.`alias` AS `tag`,
+        10 AS `priority` 
+    from `alias`;
+
+CREATE TABLE `address` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `grp` int(11) unsigned NOT NULL DEFAULT '1',
+  `ip_addr` varchar(50) NOT NULL,
+  `mask` int(11) NOT NULL DEFAULT '32',
+  `port` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `tag` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+

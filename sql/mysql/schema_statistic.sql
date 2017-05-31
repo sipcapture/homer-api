@@ -324,3 +324,49 @@ CREATE TABLE IF NOT EXISTS `stats_generic` (
 /*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`from_date`))
 (PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */;
 
+--
+-- Table structure for table `stats_asracd_mem`
+--
+
+CREATE TABLE `stats_asracd_mem` (
+      `datetime_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `method` varchar(16) NOT NULL DEFAULT '',
+      `from_tag` varchar(64) NOT NULL DEFAULT '',
+      `to_tag` varchar(64) NOT NULL DEFAULT '',
+      `callid` varchar(255) NOT NULL DEFAULT '',
+      `sip_code` varchar(3) NOT NULL DEFAULT '',
+      `sip_reason` varchar(128) NOT NULL DEFAULT '',
+      `datetime_answer` datetime DEFAULT '0000-00-00 00:00:00',
+      `src_user` varchar(50) DEFAULT NULL,
+      `src_ip` varchar(50) DEFAULT NULL,
+      `dst_user` varchar(50) DEFAULT NULL,
+      `dst_ip` varchar(50) DEFAULT NULL,
+      `bye` datetime NOT NULL,
+      `datetime_end` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+      UNIQUE KEY `callid` (`callid`),
+      KEY `callid_idx` (`callid`)
+
+) ENGINE=MEMORY DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `stats_asracd`
+--
+
+DROP TABLE IF EXISTS `stats_asracd`;
+CREATE TABLE `stats_asracd` (
+      `from_date` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+      `to_date` timestamp NULL DEFAULT NULL,
+      `src_ip` varchar(50) DEFAULT NULL,
+      `dst_ip` varchar(50) DEFAULT NULL,
+      `answered` decimal(23,0) DEFAULT NULL,
+      `total` bigint(21) NOT NULL DEFAULT '0',
+      `asr` decimal(30,4) DEFAULT NULL,
+      `acd_minutes` decimal(35,4) DEFAULT NULL,
+      `total_minutes` decimal(30,2) NOT NULL,
+      KEY `by_date` (`from_date`,`src_ip`,`dst_ip`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+/*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`from_date`) )
+(PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */;
+
