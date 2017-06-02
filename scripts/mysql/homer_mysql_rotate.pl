@@ -255,23 +255,18 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
     $partstep = 0 if(!defined $stepsvalues[$partstep]);
     my $mystep = $stepsvalues[$partstep];
 
-    #SIP Data tables
-    my $is_isup = $table=~/^isup_/;
-    my $is_webrtc = $table=~/^webrtc_/;
-    my $is_rtcp = $table=~/^rtcp_capture_all/;
-    if($table=~/^sip_/ || $is_isup || $is_webrtc || $is_rtcp) {
+    if(defined $CONFIG->{'DATA_TABLE_TYPE_TIMESTAMP'}{$table})
+    {
+        my $table_type = $CONFIG->{'DATA_TABLE_TYPE_TIMESTAMP'}{$table};
+        
         my $curtstamp;
         for(my $y=0; $y<($newtables+1); $y++) {
+
 	    my $data_table = $ORIGINAL_DATA_TABLE;
-	    if($is_isup) {
-		$data_table =  $ISUP_DATA_TABLE;
-	    }
-	    elsif($is_webrtc) {
-		$data_table =  $WEBRTC_DATA_TABLE;
-	    }
-            elsif($is_rtcp) {
-                $data_table =  $RTCP_DATA_TABLE;
-            }
+            if($table_type=~/^isup/) { $data_table =  $ISUP_DATA_TABLE;}
+	    elsif($table_type=~/^webrtc/) { $data_table =  $WEBRTC_DATA_TABLE;}
+	    elsif($table_type=~/^rtcp/) { $data_table =  $RTCP_DATA_TABLE;};
+
             $curtstamp = time()+(86400*$y);
             new_data_table($curtstamp, $mystep, $partstep, $data_table, $table);
         }
@@ -290,7 +285,7 @@ foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
            my($proto, $cap, $type, $ts) = split(/_/, $table_name, 4);
 	   # RTCP has only 3 underscores 
 	   $ts = $type if($table eq "rtcp_capture");
-
+	   	   
            $ts+=0;
            if($ts < $oldest) {
                say "Removing table: $table_name" if($CONFIG->{"SYSTEM"}{"debug"} == 1);
