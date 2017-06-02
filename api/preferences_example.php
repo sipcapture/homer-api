@@ -24,7 +24,7 @@ define('CLEGTAIL', "0"); /* correlation suffix, for multiple b2b ua's */
 /* Database: mysql. Moved to configuration.php */
 if(!defined('DATABASE_DRIVER')) define('DATABASE_DRIVER',"mysql");
 
-/* Partition rtcp_capture table */
+/* Partition rtcp_capture table. Set to 1 if you use rtcp_capture_all_YYYYMMDDD */
 define('RTCP_TABLE_PARTITION', 0);
 
 /* AUTH: CLASS NAME. i.e. Internal  */
