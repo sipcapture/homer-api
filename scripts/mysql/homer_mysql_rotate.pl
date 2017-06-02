@@ -26,7 +26,7 @@ use warnings;
 use DBI;
 use POSIX;
 
-my $version = "1.0.0";
+my $version = "1.0.2";
 $| =1;
 
 # Determine path and set default rotation.ini location
