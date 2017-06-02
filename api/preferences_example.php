@@ -1,6 +1,6 @@
 <?php
 
-define('CONFIG_VERSION', "2.0.1"); /* Please ALWAYS include CONFIGVERSION */
+define('CONFIG_VERSION', "2.1.2"); /* Please ALWAYS include CONFIGVERSION */
 define('WEBHOMER_VERSION', "5.1.3"); /* WEBHOMER VERSION */
 define('HOMER_TIMEZONE', "Europe/Amsterdam"); /* Set a global application default timezone */
 
