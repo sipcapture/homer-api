@@ -118,7 +118,10 @@ class Alarm {
         $db = $this->getContainer('db');
         $db->select_db(DB_STATISTIC);
         $db->dbconnect();
-                         
+
+        /* get our DB Abstract Layer */
+        $layer = $this->getContainer('layer');
+    	    
         $data = array();
 
         $search = array();
