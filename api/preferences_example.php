@@ -94,7 +94,6 @@ define('LDAP_ENCRYPTION',"none");
 define('LDAP_BIND_USER',"cn=HOMER,ou=Apps,dc=example,dc=com");
 define('LDAP_BIND_PASSWORD',"secret");
 define('LDAP_BASEDN',"dc=example,dc=com");
-define('LDAP_REALM',"My Realm");
 define('LDAP_USERNAME_ATTRIBUTE_OPEN',"uid=");
 define('LDAP_USERNAME_ATTRIBUTE_CLOSE',"");
 define('LDAP_USERLEVEL',3);
