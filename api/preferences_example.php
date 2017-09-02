@@ -89,6 +89,10 @@ define('PUBLIC_SHARE_HOST',"");
 /*
 define('LDAP_HOST',"localhost");
 define('LDAP_PORT',389);
+define('LDAP_VERSION',3);
+define('LDAP_ENCRYPTION',"none");
+define('LDAP_BIND_USER',"cn=HOMER,ou=Apps,dc=example,dc=com");
+define('LDAP_BIND_PASSWORD',"secret");
 define('LDAP_BASEDN',"dc=example,dc=com");
 define('LDAP_REALM',"My Realm");
 define('LDAP_USERNAME_ATTRIBUTE_OPEN',"uid=");
