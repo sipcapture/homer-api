@@ -100,10 +100,10 @@ define('LDAP_GID',"gidnumber");
 define('LDAP_FIRSTNAME',"givenname");
 define('LDAP_LASTNAME',"sn");
 define('LDAP_EMAIL',"mail");
-define('LDAP_GROUPDN',true)
-define('LDAP_GROUP_USER','uid')
-define('LDAP_GROUP_ARRAY',false)
-define('LDAP_GROUP_ATTRIBUTE','memberUid')
+define('LDAP_GROUPDN',true);
+define('LDAP_GROUP_USER','uid');
+define('LDAP_GROUP_ARRAY',false);
+define('LDAP_GROUP_ATTRIBUTE','memberUid');
 */
 
 /* external pcap storage. I.e can be cloudshark, dropbox or google drive */
