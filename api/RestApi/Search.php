@@ -374,7 +374,7 @@ class Search {
 		$search['family'] = getVar('family', NULL, $param['search'], 'string');
 		$search['custom_field1'] = getVar('custom_field1', NULL, $param['search'], 'string');
 		$search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
-		$search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
+		$search['custom_field3'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
 		/*isup*/
 		$isup_search['calling_number'] = getVar('from_user', NULL, $param['search'], 'string');
 		$isup_search['called_number'] = getVar('to_user', NULL, $param['search'], 'string');
@@ -587,7 +587,7 @@ class Search {
 		$search['family'] = getVar('family', NULL, $param['search'], 'string');
 		$search['custom_field1'] = getVar('custom_field1', NULL, $param['search'], 'string');
 		$search['custom_field2'] = getVar('custom_field2', NULL, $param['search'], 'string'); 
-		$search['custom_field2'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
+		$search['custom_field3'] = getVar('custom_field3', NULL, $param['search'], 'string'); 
 		/* ISUP */
 		$isup_search['calling_number'] = getVar('from_user', NULL, $param['search'], 'string');
 		$isup_search['called_number'] = getVar('to_user', NULL, $param['search'], 'string');
