@@ -66,7 +66,7 @@ define('DATABASE_CONNECTOR', "PDOConnector");
 /* fields */
 define('FIELDS_CAPTURE', "id, date, floor(micro_ts /1000) as milli_ts, micro_ts,method,reply_reason,ruri,ruri_user,ruri_domain,from_user,from_domain,from_tag,
 to_user,to_domain,to_tag,pid_user,contact_user,auth_user,callid,callid_aleg,via_1,via_1_branch,cseq,diversion,reason,content_type,auth,
-user_agent,source_ip,source_port,destination_ip,destination_port,contact_ip,contact_port,originator_ip,originator_port,correlation_id,proto,family,rtp_stat,type,node");
+user_agent,source_ip,source_port,destination_ip,destination_port,contact_ip,contact_port,originator_ip,originator_port,correlation_id,proto,family,rtp_stat,type,node,custom_field1,custom_field2,custom_field3");
 
 define('ISUP_FIELDS_CAPTURE', "id, date, floor(micro_ts /1000) as milli_ts, micro_ts,correlation_id as callid, '' as callid_aleg, opc,dpc,cic,method,called_number,called_ton,called_npi,called_inn,calling_number,calling_ton,calling_npi,calling_ni,calling_restrict,calling_screened,calling_category,cause_standard,cause_itu_class,cause_itu_cause,event_num,source_ip,source_port,destination_ip,destination_port,correlation_id,proto,family,type,node");
 
