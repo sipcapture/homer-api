@@ -486,11 +486,14 @@ class Report {
 				$statsData[$ipkey]["delay"] =  0;
 			}
 
+			$lastlost = array();
 			if(array_key_exists('report_blocks', $data[$key]["msg"])) {
 				$blocks = $data[$key]["msg"]["report_blocks"];
 
 				foreach($blocks as $r => $block) {
-					$tmpMos = round($this->calculateJitterMos($block["dlsr"] < 1000 ? $block["dlsr"] : 0 ,$block["ia_jitter"],$block["packets_lost"]),2);
+					if(!isset($lastlost[$block['source_ssrc']])) $lastlost[$block['source_ssrc']] = 0;
+					$tmpMos = round($this->calculateJitterMos($block["dlsr"] < 1000 ? $block["dlsr"] : 0 ,$block["ia_jitter"],($lastlost[$block['source_ssrc']] - $block["packets_lost"])),2);
+					$lastlost[$block['source_ssrc']] = $block["packets_lost"];
 					$statsData[$ipkey]["mos_counter"] += 1;
 					$statsData[$ipkey]["mos_average"] += $tmpMos;
 					$statsData[$ipkey]["jitter_avg"] += $block["ia_jitter"];
