@@ -2321,7 +2321,7 @@ class Search {
 		$size = array(
 			ethernet=>14,
 			ip => 20,
-			ip6 => 20,
+			ip6 => 40,
 			udp => 8,
 			tcp => 20,
 			data => 0,
@@ -2360,49 +2360,101 @@ class Search {
 				$buf.=$data."\r\n";
 			}
 			else {
-				//Ethernet + IP + UDP
-				$size['total'] = $size['ethernet'] + $size['ip'] + $size['udp'] + $size['data'];
-				//Pcap record
-				$pcaprec_hdr = array();
-				$pcaprec_hdr['ts_sec'] = intval($result['micro_ts'] / 1000000);  //4
-				$pcaprec_hdr['ts_usec'] = $result['micro_ts'] - ($pcaprec_hdr['ts_sec']*1000000); //4
-				$pcaprec_hdr['incl_len'] = $size['total']; //4
-				$pcaprec_hdr['orig_len'] = $size['total']; //4
-				$pcaprec_packet = pack("llll", $pcaprec_hdr['ts_sec'], $pcaprec_hdr['ts_usec'], $pcaprec_hdr['incl_len'], $pcaprec_hdr['orig_len']);
-				$buf.=$pcaprec_packet;
-				//ethernet header
-				$buf.=$ethernet;
-				//UDP
-				$udp_hdr = array();
-				$udp_hdr['src_port'] = $result['source_port'];
-				$udp_hdr['dst_port'] = $result['destination_port'];
-				$udp_hdr['length'] = $size['udp'] + $size['data'];
-				$udp_hdr['checksum'] = 0;
-				//Calculate UDP checksum
-				$pseudo = pack("nnnna*", $udp_hdr['src_port'],$udp_hdr['dst_port'], $udp_hdr['length'], $udp_hdr['checksum'], $data);
-				$udp_hdr['checksum'] = $this->pcapCheckSum($pseudo);
-				//IPHEADER
-				$ipv4_hdr = array();
-				$ip_ver = 4;
-				$ip_len = 5;
-				$ip_frag_flag = "010";
-				$ip_frag_oset = "0000000000000";
-				$ipv4_hdr['ver_len'] = $ip_ver . $ip_len;
-				$ipv4_hdr['tos'] = "00";
-				$ipv4_hdr['total_len'] = $size['ip'] + $size['udp'] + $size['data'];
-				$ipv4_hdr['ident'] = 19245;
-				$ipv4_hdr['fl_fr'] = 4000;
-				$ipv4_hdr['ttl'] = 30;
-				$ipv4_hdr['proto'] = 17;
-				$ipv4_hdr['checksum'] = 0;
-				$ipv4_hdr['src_ip'] = ip2long($result['source_ip']);
-				$ipv4_hdr['dst_ip'] = ip2long($result['destination_ip']);
-				$pseudo = pack('H2H2nnH4C2nNN', $ipv4_hdr['ver_len'],$ipv4_hdr['tos'],$ipv4_hdr['total_len'], $ipv4_hdr['ident'],
-					$ipv4_hdr['fl_fr'], $ipv4_hdr['ttl'],$ipv4_hdr['proto'],$ipv4_hdr['checksum'], $ipv4_hdr['src_ip'], $ipv4_hdr['dst_ip']);
-				$ipv4_hdr['checksum'] = $this->pcapCheckSum($pseudo);
-				$pkt = pack('H2H2nnH4C2nNNnnnna*', $ipv4_hdr['ver_len'],$ipv4_hdr['tos'],$ipv4_hdr['total_len'], $ipv4_hdr['ident'],
-					$ipv4_hdr['fl_fr'], $ipv4_hdr['ttl'],$ipv4_hdr['proto'],$ipv4_hdr['checksum'], $ipv4_hdr['src_ip'], $ipv4_hdr['dst_ip'],
-					$udp_hdr['src_port'],$udp_hdr['dst_port'], $udp_hdr['length'], $udp_hdr['checksum'], $data);
+				if (filter_var($result['source_ip'], FILTER_VALIDATE_IP,FILTER_FLAG_IPV6) || filter_var($result['destination_ip'], FILTER_VALIDATE_IP,FILTER_FLAG_IPV6)) {
+
+					//Ethernet + IP + UDP
+					$size['total']=$size['ethernet'] + $size['ip6'] + $size['udp'];
+					//+Data
+					$size['total']+=$size['data'];
+
+					//Pcap record
+					$pcaprec_hdr = array();
+					$pcaprec_hdr['ts_sec'] = intval($result['micro_ts'] / 1000000);	 //4
+					$pcaprec_hdr['ts_usec'] = $result['micro_ts'] - ($pcaprec_hdr['ts_sec']*1000000);	//4	  
+					$pcaprec_hdr['incl_len'] = $size['total']; //4
+					$pcaprec_hdr['orig_len'] = $size['total']; //4
+
+					$pcaprec_packet = pack("llll", $pcaprec_hdr['ts_sec'], $pcaprec_hdr['ts_usec'], 
+					$pcaprec_hdr['incl_len'], $pcaprec_hdr['orig_len']);
+
+					$buf.=$pcaprec_packet;
+
+					//ethernet header
+					$buf.=$ethernet;
+
+					//UDP
+					$udp_hdr = array();
+					$udp_hdr['src_port'] = $result['source_port'];
+					$udp_hdr['dst_port'] = $result['destination_port'];
+					$udp_hdr['length'] = $size['udp'] + $size['data'];	
+					$udp_hdr['checksum'] = 0;
+
+					//Calculate UDP checksum
+					$pseudo = pack("nnnna*", $udp_hdr['src_port'],$udp_hdr['dst_port'], $udp_hdr['length'], $udp_hdr['checksum'], $data);
+					$udp_hdr['checksum'] = $this->pcapCheckSum($pseudo);
+					
+					$ipv6_hdr = array();
+					$ipv6_hdr['version'] = 6;		//4	bits
+					$ipv6_hdr['traffic_class'] = "00000000";		//	8 bits
+					$ipv6_hdr['flow_label'] = "00000000000000000000";			// 20	bits
+					$ipv6_hdr['payload_length'] = $size['ip6'] + $size['udp'] + $size['data'];		// 16	bits
+					$ipv6_hdr['next_header'] = 17;		//	8 bits
+					$ipv6_hdr['hop_limit ']= 30;		// 8	bits
+					$ipv6_hdr['src_ip'] = inet_pton($result['source_ip']);
+					$ipv6_hdr['dst_ip'] = inet_pton($result['destination_ip']);
+
+					$pkt = pack('HH2H5nCC', $ipv6_hdr['version'], $ipv6_hdr['traffic_class'], $ipv6_hdr['flow_label'], $ipv6_hdr['payload_length'],
+					$ipv6_hdr['next_header'], $ipv6_hdr['hop_limit']);
+					$pkt.= $ipv6_hdr['src_ip'];
+					$pkt.= $ipv6_hdr['dst_ip'];
+					$payload_pack = pack('nnnna*', $udp_hdr['src_port'],$udp_hdr['dst_port'], $udp_hdr['length'], $udp_hdr['checksum'], $data);
+					$pkt.= $payload_pack;
+					
+				} else {
+					//Ethernet + IP + UDP
+					$size['total'] = $size['ethernet'] + $size['ip'] + $size['udp'] + $size['data'];
+					//Pcap record
+					$pcaprec_hdr = array();
+					$pcaprec_hdr['ts_sec'] = intval($result['micro_ts'] / 1000000);  //4
+					$pcaprec_hdr['ts_usec'] = $result['micro_ts'] - ($pcaprec_hdr['ts_sec']*1000000); //4
+					$pcaprec_hdr['incl_len'] = $size['total']; //4
+					$pcaprec_hdr['orig_len'] = $size['total']; //4
+					$pcaprec_packet = pack("llll", $pcaprec_hdr['ts_sec'], $pcaprec_hdr['ts_usec'], $pcaprec_hdr['incl_len'], $pcaprec_hdr['orig_len']);
+					$buf.=$pcaprec_packet;
+					//ethernet header
+					$buf.=$ethernet;
+					//UDP
+					$udp_hdr = array();
+					$udp_hdr['src_port'] = $result['source_port'];
+					$udp_hdr['dst_port'] = $result['destination_port'];
+					$udp_hdr['length'] = $size['udp'] + $size['data'];
+					$udp_hdr['checksum'] = 0;
+					//Calculate UDP checksum
+					$pseudo = pack("nnnna*", $udp_hdr['src_port'],$udp_hdr['dst_port'], $udp_hdr['length'], $udp_hdr['checksum'], $data);
+					$udp_hdr['checksum'] = $this->pcapCheckSum($pseudo);
+					//IPHEADER
+					$ipv4_hdr = array();
+					$ip_ver = 4;
+					$ip_len = 5;
+					$ip_frag_flag = "010";
+					$ip_frag_oset = "0000000000000";
+					$ipv4_hdr['ver_len'] = $ip_ver . $ip_len;
+					$ipv4_hdr['tos'] = "00";
+					$ipv4_hdr['total_len'] = $size['ip'] + $size['udp'] + $size['data'];
+					$ipv4_hdr['ident'] = 19245;
+					$ipv4_hdr['fl_fr'] = 4000;
+					$ipv4_hdr['ttl'] = 30;
+					$ipv4_hdr['proto'] = 17;
+					$ipv4_hdr['checksum'] = 0;
+					$ipv4_hdr['src_ip'] = ip2long($result['source_ip']);
+					$ipv4_hdr['dst_ip'] = ip2long($result['destination_ip']);
+					$pseudo = pack('H2H2nnH4C2nNN', $ipv4_hdr['ver_len'],$ipv4_hdr['tos'],$ipv4_hdr['total_len'], $ipv4_hdr['ident'],
+						$ipv4_hdr['fl_fr'], $ipv4_hdr['ttl'],$ipv4_hdr['proto'],$ipv4_hdr['checksum'], $ipv4_hdr['src_ip'], $ipv4_hdr['dst_ip']);
+					$ipv4_hdr['checksum'] = $this->pcapCheckSum($pseudo);
+					$pkt = pack('H2H2nnH4C2nNNnnnna*', $ipv4_hdr['ver_len'],$ipv4_hdr['tos'],$ipv4_hdr['total_len'], $ipv4_hdr['ident'],
+						$ipv4_hdr['fl_fr'], $ipv4_hdr['ttl'],$ipv4_hdr['proto'],$ipv4_hdr['checksum'], $ipv4_hdr['src_ip'], $ipv4_hdr['dst_ip'],
+						$udp_hdr['src_port'],$udp_hdr['dst_port'], $udp_hdr['length'], $udp_hdr['checksum'], $data);
+				}
 			}
 			$buf.=$pkt;
 		}
