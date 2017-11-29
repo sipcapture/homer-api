@@ -524,6 +524,13 @@ class Search {
 			/* sorting */
 			usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 		}
+		
+		/* workaround for umlauts */
+        	foreach($data as $key=>$row) {
+            		$row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
+            		$data[$key]['msg'] = utf8_decode($row["msg"]);
+        	}
+
 		if(SYSLOG_ENABLE == 1) closelog();
 		
 		return $data;
@@ -1008,6 +1015,12 @@ class Search {
 				}
 			}
 		}
+
+		/* workaround for umlauts */
+        	foreach($data as $key=>$row) {
+            		$row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
+            		$data[$key]['msg'] = utf8_decode($row["msg"]);
+        	}		
 		/* apply aliases */
 		$this->applyAliases($data);
 		return $data;
@@ -1147,6 +1160,13 @@ class Search {
 				}
 			}
 		}
+		
+		 /* workaround for umlauts */
+        	foreach($data as $key=>$row) {
+            		$row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
+            		$data[$key]['msg'] = utf8_decode($row["msg"]);
+        	}
+
 		/* apply aliases */
 		$this->applyAliases($data);
 		/* sorting */
@@ -1343,6 +1363,13 @@ class Search {
 				else $message[$row['md5sum']] = $row['node'];
 			}
 		}
+		
+		/* workaround for umlauts */
+	        foreach($data as $key=>$row) {
+        	    $row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
+            	    $data[$key]['msg'] = utf8_decode($row["msg"]);
+        	}
+		
 		/* sorting */
 		usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 		return $data;
