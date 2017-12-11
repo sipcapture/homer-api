@@ -743,7 +743,7 @@ class Report {
 		$search['correlation_id'] = implode(";", $callids);
 
 		$callwhere = generateWhere($search, $and_or, $db, 0);
-		$callwhere[] = "(type = 2 OR type = 4)";
+		$callwhere[] = "(type = 2 OR type = 4 OR type = 32 OR type = 37)";
 		$layerHelper = array();
 		$layerHelper['table'] = array();
 		$layerHelper['order'] = array();
@@ -763,6 +763,7 @@ class Report {
 			$layerHelper['values'][] = "'".$node['name']."' as dbnode";
 
 			$query = $layer->querySearchData($layerHelper);
+			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"RTPAGENGT Query: ".$query);		
 			$noderows = $db->loadObjectArray($query);
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
