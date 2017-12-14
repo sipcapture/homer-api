@@ -72,8 +72,7 @@ class LDAP extends Authentication {
                 return array();
             }
         }
-
-        $r=@ldap_search( $ds, LDAP_BASEDN, LDAP_USERNAME_ATTRIBUTE_OPEN .$param['username'].LDAP_USERNAME_ATTRIBUTE_CLOSE);
+        $r=@ldap_search( $ds, LDAP_BASEDN, LDAP_USERNAME_ATTRIBUTE_OPEN.@ldap_escape($param['username']).LDAP_USERNAME_ATTRIBUTE_CLOSE);
         if ($r) {
             $result = @ldap_get_entries( $ds, $r);
 
