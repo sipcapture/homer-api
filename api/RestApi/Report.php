@@ -464,7 +464,7 @@ class Report {
 				$left_length = ($whole_length - $right_length - 1);
 				$json = substr($json, 0, ($left_length + 1));
 				//$json = $data[$key]["msg"];
-				$data[$key]["msg"] = json_decode($json, true);
+				$data[$key]["msg"] = json_decode(preg_replace( '/[^[:print:]]/', '',$json), true);
 			}
 			$ipkey= "RTCP[".$data[$key]["msg"]["sdes_ssrc"]."] ". $src_ip." -> ".$dst_ip;
 
