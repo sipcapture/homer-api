@@ -247,10 +247,10 @@ my $newparts = 1;
 
 foreach my $table (keys %{ $CONFIG->{"DATA_TABLE_ROTATION"} }) {
 
-    my $rotate = $CONFIG->{'DATA_TABLE_ROTATION'}{$table};
-    my $partstep = $CONFIG->{'DATA_TABLE_STEP'}{$table};
-    $newparts = $CONFIG->{'MYSQL'}{'newtables'};
-    $maxparts = $CONFIG->{'DATA_TABLE_ROTATION'}{$table} + $newparts;
+    my $rotate = $CONFIG->{'DATA_TABLE_ROTATION'}{$table} // 10;
+    my $partstep = $CONFIG->{'DATA_TABLE_STEP'}{$table} // 0;
+    $newparts = $CONFIG->{'MYSQL'}{'newtables'} // 2;
+    $maxparts = $rotate + $newparts;
 
     $partstep = 0 if(!defined $stepsvalues[$partstep]);
     my $mystep = $stepsvalues[$partstep];
