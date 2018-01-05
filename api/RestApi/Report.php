@@ -1351,11 +1351,7 @@ class Report {
 		/* old sorting */
 		//usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 		/* new sorting with date && id */
-		foreach ($data as $key => $row){
-			$sort_date[$key] = $row['date'];
-			$sort_id[$key] = $row['id'];
-		}
-		array_multisort($sort_date, SORT_ASC, $sort_id, SORT_ASC, $data);
+		array_multisort(array_column($data, 'date'), SORT_ASC, array_column($data, 'id'), SORT_ASC, $data);
 		
 		if(empty($data)) {
 			$answer['sid'] = session_id();
