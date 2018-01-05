@@ -114,7 +114,8 @@ CREATE TABLE IF NOT EXISTS `[TRANSACTION]_[TIMESTAMP]` (
   KEY `callid_aleg` (`callid_aleg`),
   KEY `date` (`date`),
   KEY `callid` (`callid`),
-  KEY `method` (`method`)
+  KEY `method` (`method`),
+  KEY `source_ip` (`source_ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 COMMENT='[TIMESTAMP]'
 /*!50100 PARTITION BY RANGE ( UNIX_TIMESTAMP(`date`))
 ([PARTITIONS]
