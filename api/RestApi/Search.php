@@ -529,6 +529,9 @@ class Search {
         	foreach($data as $key=>$row) {
             		$row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
             		$data[$key]['msg'] = utf8_decode($row["msg"]);
+			
+			$row['reply_reason'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['reply_reason']);
+			$data[$key]['reply_reason'] = utf8_decode($row["reply_reason"]);
         	}
 
 		if(SYSLOG_ENABLE == 1) closelog();
@@ -1020,6 +1023,9 @@ class Search {
         	foreach($data as $key=>$row) {
             		$row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
             		$data[$key]['msg'] = utf8_decode($row["msg"]);
+			
+			$row['reply_reason'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['reply_reason']);
+			$data[$key]['reply_reason'] = utf8_decode($row["reply_reason"]);
         	}		
 		/* apply aliases */
 		$this->applyAliases($data);
@@ -1165,6 +1171,9 @@ class Search {
         	foreach($data as $key=>$row) {
             		$row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
             		$data[$key]['msg'] = utf8_decode($row["msg"]);
+			
+			$row['reply_reason'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['reply_reason']);
+			$data[$key]['reply_reason'] = utf8_decode($row["reply_reason"]);
         	}
 
 		/* apply aliases */
@@ -1366,8 +1375,11 @@ class Search {
 		
 		/* workaround for umlauts */
 	        foreach($data as $key=>$row) {
-        	    $row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
-            	    $data[$key]['msg'] = utf8_decode($row["msg"]);
+			$row['msg'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['msg']);
+			$data[$key]['msg'] = utf8_decode($row["msg"]);
+			
+			$row['reply_reason'] = preg_replace('/[öüäÖÄÜß]/i', '', $row['reply_reason']);
+			$data[$key]['reply_reason'] = utf8_decode($row["reply_reason"]);
         	}
 		
 		/* sorting */
