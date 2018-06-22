@@ -79,7 +79,7 @@ modparam("sipcapture", "hep_route", "my_hep_route")
 modparam("avpops","db_url","mysql://homer_user:homer_password@127.0.0.1/homer_statistic")
 
 
-modparam("mmgeoip", "mmgeoip_city_db_path", "/usr/share/GeoIP/GeoIP.dat")
+modparam("mmgeoip", "mmgeoip_city_db_path", "/usr/share/GeoIP/GeoIPCity.dat")
 
 
 route{
@@ -109,8 +109,8 @@ route{
 		avp_db_query("INSERT INTO stats_ip_mem ( method, source_ip, total) VALUES('$rm', '$si', 1) ON DUPLICATE KEY UPDATE total=total+1");
 
 		#GEO
-		if(mmg_lookup("lon:lat","$si","$avp(lat_lon)")) {
-			avp_db_query("INSERT INTO stats_geo_mem ( method, country, lat, lon, total) VALUES('$rm', '$(avp(lat_lon)[3])', '$(avp(lat_lon)[0])', '$(avp(lat_lon)[1])', 1) ON DUPLICATE KEY UPDATE total=total+1");
+		if(mmg_lookup("lon:lat:cc","$si","$avp(lat_lon)")) {
+			avp_db_query("INSERT INTO stats_geo_mem ( method, country, lat, lon, total) VALUES('$rm', '$(avp(lat_lon)[0])', '$(avp(lat_lon)[1])', '$(avp(lat_lon)[2])', 1) ON DUPLICATE KEY UPDATE total=total+1");
 		};
 
 
