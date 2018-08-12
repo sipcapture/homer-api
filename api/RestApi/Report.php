@@ -585,7 +585,7 @@ class Report {
 		$search['correlation_id'] = implode(";", $callids);
 
 		$callwhere = generateWhere($search, $and_or, $db, 0);
-		$callwhere[] = "(type = 1 OR type = 38)";
+		$callwhere[] = "(type = 1 OR type = 35)";
 		$layerHelper = array();
 		$layerHelper['table'] = array();
 		$layerHelper['order'] = array();
