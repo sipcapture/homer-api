@@ -137,7 +137,6 @@ class LDAP extends Authentication {
 	    foreach (LDAP_GROUPS as $ldap_group){
 		$dn = "cn=".$ldap_group.",".LDAP_GROUP_BASE;
 		$attr = LDAP_GROUP_ATTRIBUTE;
-		error_log("GRRRRRR".$dn);
 		foreach ($uid as $ldap_user){
 			$result = ldap_compare($ds, $dn, $attr, $ldap_user);
 		}
