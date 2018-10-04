@@ -79,11 +79,11 @@ class LDAP extends Authentication {
 
             if ($result[0]) {
                 if (ldap_bind( $ds, $result[0]['dn'], $param['password']) ) {
-                    if($result[0] != NULL) {
-                         if (!$this->check_filegroup_membership($ds, (defined("LDAP_GROUP_ARRAY") && LDAP_GROUP_ARRAY) ? $result[0][LDAP_GROUP_USER][0] : $result[0][LDAP_USERNAME_ATTRIBUTE])) {
+                    if($result[0] != NULL) { 
+                       	    error_log("PPOOPOPOPO".print_r($result[0][LDAP_GROUP_USER][0],true)); 
+			    if (!$this->check_filegroup_membership($ds, (defined("LDAP_GROUP_ARRAY") && LDAP_GROUP_ARRAY) ? $result[0][LDAP_GROUP_USER][0] : $result[0][LDAP_USERNAME_ATTRIBUTE])) {
                                 return false;
                             }
-                        
                         if(array_key_exists(LDAP_UID, $result[0])) $user['uid'] =  $result[0][LDAP_UID][0];
                         else $user['uid'] =  base_convert($param['username'], 16, 10);                        
                         
@@ -98,7 +98,7 @@ class LDAP extends Authentication {
                         
                         if(array_key_exists(LDAP_EMAIL, $result[0])) $user['email']      = $result[0][LDAP_EMAIL][0];
                         else $user['email'] = "no@exist.com";
-                        
+
                         $user['username'] = $param['username'];
                         $user['grp']      = "users";
                         $user['lastvisit']  = date('c');                        
@@ -137,10 +137,9 @@ class LDAP extends Authentication {
 	    foreach (LDAP_GROUPS as $ldap_group){
 		$dn = "cn=".$ldap_group.",".LDAP_GROUP_BASE;
 		$attr = LDAP_GROUP_ATTRIBUTE;
-		error_log("GRRRRRR".$dn);
 		foreach ($uid as $ldap_user){
 			$result = ldap_compare($ds, $dn, $attr, $ldap_user);
-		}
+			}
 	       	if ($result === true) return true;
 		else return false;
 		
