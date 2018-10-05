@@ -79,14 +79,12 @@ class LDAP extends Authentication {
 
             if ($result[0]) {
                 if (ldap_bind( $ds, $result[0]['dn'], $param['password']) ) {
-                    if($result[0] != NULL) {
-                         if (!$this->check_filegroup_membership($ds, (defined("LDAP_GROUP_ARRAY") && LDAP_GROUP_ARRAY) ? $result[0][LDAP_GROUP_USER][0] : $result[0][LDAP_USERNAME_ATTRIBUTE])) {
+                    if($result[0] != NULL) { 
+			    if (!$this->check_filegroup_membership($ds, $result[0][LDAP_USERNAME_ATTRIBUTE])) {
                                 return false;
                             }
-                        
                         if(array_key_exists(LDAP_UID, $result[0])) $user['uid'] =  $result[0][LDAP_UID][0];
                         else $user['uid'] =  base_convert($param['username'], 16, 10);                        
-                        
                         if(array_key_exists(LDAP_GID, $result[0])) $user['gid'] = $result[0][LDAP_GID][0];
                         else $user['gid'] = 10;
                                                 
@@ -98,37 +96,33 @@ class LDAP extends Authentication {
                         
                         if(array_key_exists(LDAP_EMAIL, $result[0])) $user['email']      = $result[0][LDAP_EMAIL][0];
                         else $user['email'] = "no@exist.com";
-                        
+
                         $user['username'] = $param['username'];
                         $user['grp']      = "users";
                         $user['lastvisit']  = date('c');                        
                         $_SESSION['uid'] = $user['uid'];
                         $_SESSION['loggedin'] = $user['username'];
-                        $_SESSION['userlevel'] = LDAP_USERLEVEL;
+                        $_SESSION['userlevel'] = "users";
                         $_SESSION['username'] = $user['username'];
                         $_SESSION['gid'] = $user['gid'];
-                        $_SESSION['grp'] = "users";
-                        
+			$_SESSION['grp'] = "users";
                         $_SESSION['data'] = $user;
-                        
-                        
 
                         // Assigne Admin Privs, should be read from the LDAP Directory in the future
-                        #$ADMIN_USER = split(",", LDAP_ADMIN_USER);
+                        $ADMIN_USER = LDAP_ADMIN_USERS;
                         foreach($ADMIN_USER as &$value) {
-
-                            if ($value == $param['username']) {
-                                $_SESSION['userlevel'] = 1; # LDAP_ADMINLEVEL;
-				$user['grp'] = "users,admins";
-				$_SESSION["grp"] = "users,admins";
-                            }
-                        }
-                        return $user;
+				if ($value == $param['username']) {
+                                	$_SESSION['userlevel'] = LDAP_ADMINLEVEL;
+					$user['grp'] = "users,admins";
+					$_SESSION['grp'] = "users,admins";
+                            	}
+			}
+			return $_SESSION;
+			return $user;
                     }
                 }
             }
-        }
-
+	}
         return array();
     }
 
@@ -139,7 +133,7 @@ class LDAP extends Authentication {
 		$attr = LDAP_GROUP_ATTRIBUTE;
 		foreach ($uid as $ldap_user){
 			$result = ldap_compare($ds, $dn, $attr, $ldap_user);
-		}
+			}
 	       	if ($result === true) return true;
 		else return false;
 		
