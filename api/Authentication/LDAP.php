@@ -50,46 +50,41 @@ class LDAP extends Authentication {
 
     function logIn($param) {
 
-        $ds=@ldap_connect(LDAP_HOST,LDAP_PORT);
+        $ds=ldap_connect(LDAP_HOST,LDAP_PORT);
 
         $_SESSION['loggedin'] = "-1";
 
         // Set LDAP Version, Default is Version 2
-        @ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, ( LDAP_VERSION) ? LDAP_VERSION : 2);
+        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, ( LDAP_VERSION) ? LDAP_VERSION : 2);
         // Referrals are disabled
-        @ldap_set_option($ds, LDAP_OPT_REFERRALS, 0 );
+        ldap_set_option($ds, LDAP_OPT_REFERRALS, 0 );
 
         // Enable TLS Encryption
         if(LDAP_ENCRYPTION == "tls") {
 
             // Documentation says - set to never
             putenv('LDAPTLS_REQCERT=never') or die('Failed to setup the env');
-            @ldap_start_tls($ds);
+            ldap_start_tls($ds);
         }
 
         if (defined('LDAP_BIND_USER') && defined('LDAP_BIND_PASSWORD')) {
-            if (!@ldap_bind( $ds, LDAP_BIND_USER, LDAP_BIND_PASSWORD)) {
+            if (!ldap_bind( $ds, LDAP_BIND_USER, LDAP_BIND_PASSWORD)) {
                 return array();
             }
         }
-        $r=@ldap_search( $ds, LDAP_BASEDN, LDAP_USERNAME_ATTRIBUTE_OPEN.@ldap_escape($param['username']).LDAP_USERNAME_ATTRIBUTE_CLOSE);
+
+        $r=ldap_search( $ds, LDAP_BASEDN, LDAP_USERNAME_ATTRIBUTE."=".$param['username']);
         if ($r) {
-            $result = @ldap_get_entries( $ds, $r);
+            $result = ldap_get_entries( $ds, $r);
 
             if ($result[0]) {
-                if (@ldap_bind( $ds, $result[0]['dn'], $param['password']) ) {
-                    if($result[0] != NULL) {
-
-
-                        if (defined("LDAP_GROUPDN")) {
-                            if (!$this->check_filegroup_membership($ds, (defined("LDAP_GROUP_ARRAY") && LDAP_GROUP_ARRAY) ? $result[0][LDAP_GROUP_USER][0] : $result[0][LDAP_GROUP_USER])) {
+                if (ldap_bind( $ds, $result[0]['dn'], $param['password']) ) {
+                    if($result[0] != NULL) { 
+			    if (!$this->check_filegroup_membership($ds, $result[0][LDAP_USERNAME_ATTRIBUTE])) {
                                 return false;
                             }
-                        }
-
                         if(array_key_exists(LDAP_UID, $result[0])) $user['uid'] =  $result[0][LDAP_UID][0];
                         else $user['uid'] =  base_convert($param['username'], 16, 10);                        
-                        
                         if(array_key_exists(LDAP_GID, $result[0])) $user['gid'] = $result[0][LDAP_GID][0];
                         else $user['gid'] = 10;
                                                 
@@ -101,43 +96,48 @@ class LDAP extends Authentication {
                         
                         if(array_key_exists(LDAP_EMAIL, $result[0])) $user['email']      = $result[0][LDAP_EMAIL][0];
                         else $user['email'] = "no@exist.com";
-                        
+
                         $user['username'] = $param['username'];
                         $user['grp']      = "users";
                         $user['lastvisit']  = date('c');                        
                         $_SESSION['uid'] = $user['uid'];
                         $_SESSION['loggedin'] = $user['username'];
-                        $_SESSION['userlevel'] = LDAP_USERLEVEL;
+                        $_SESSION['userlevel'] = "users";
                         $_SESSION['username'] = $user['username'];
                         $_SESSION['gid'] = $user['gid'];
-                        $_SESSION['grp'] = "users";
+			$_SESSION['grp'] = "users";
                         $_SESSION['data'] = $user;
 
-                        // Assign Admin Privs, should be read from the LDAP Directory in the future
-                        $ADMIN_USER = explode(",", LDAP_ADMIN_USER);
+                        // Assigne Admin Privs, should be read from the LDAP Directory in the future
+                        $ADMIN_USER = LDAP_ADMIN_USERS;
                         foreach($ADMIN_USER as &$value) {
-
-                            if ($value == $param['username']) {
-                                $_SESSION['userlevel'] = 1; # LDAP_ADMINLEVEL;
-				$user['grp'] = "users,admins";
-				$_SESSION["grp"] = "users,admins";
-                            }
-                        }
-                        return $user;
+				if ($value == $param['username']) {
+                                	$_SESSION['userlevel'] = LDAP_ADMINLEVEL;
+					$user['grp'] = "users,admins";
+					$_SESSION['grp'] = "users,admins";
+                            	}
+			}
+			return $_SESSION;
+			return $user;
                     }
                 }
             }
-        }
+	}
         return array();
     }
 
     /* posixGroup schema, rfc2307 */
     function check_filegroup_membership($ds, $uid) {
-        $dn = LDAP_GROUPDN;
-        $attr = LDAP_GROUP_ATTRIBUTE;
-        $result = @ldap_compare($ds, $dn, $attr, $uid);
-        if ($result === true) return true;
-        else return false;
+	    foreach (LDAP_GROUPS as $ldap_group){
+		$dn = "cn=".$ldap_group.",".LDAP_GROUP_BASE;
+		$attr = LDAP_GROUP_ATTRIBUTE;
+		foreach ($uid as $ldap_user){
+			$result = ldap_compare($ds, $dn, $attr, $ldap_user);
+			}
+	       	if ($result === true) return true;
+		else return false;
+		
+	    }
     }
 
     //logout function
@@ -170,6 +170,7 @@ class LDAP extends Authentication {
 
         return $_SESSION['data'];
     }
+
 
     //create random password with 8 alphanumerical characters
 
