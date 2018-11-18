@@ -466,7 +466,7 @@ class Report {
 				//$json = $data[$key]["msg"];
 				$data[$key]["msg"] = json_decode(preg_replace( '/[^[:print:]]/', '',$json), true);
 			}
-			$ipkey= "RTCP[".$data[$key]["msg"]["sdes_ssrc"]."] ". $src_ip." -> ".$dst_ip;
+			$ipkey= "RTCP[".sprintf("0x%'08X", $data[$key]["msg"]["sdes_ssrc"])."] ". $src_ip." -> ".$dst_ip;
 
 			if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
 
