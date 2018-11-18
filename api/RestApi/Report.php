@@ -492,7 +492,7 @@ class Report {
 
 				foreach($blocks as $r => $block) {
 					if(!isset($lastlost[$block['source_ssrc']])) $lastlost[$block['source_ssrc']] = 0;
-					$tmpMos = round($this->calculateJitterMos($block["dlsr"] < 1000 ? $block["dlsr"] : 0 ,$block["ia_jitter"],($lastlost[$block['source_ssrc']] - $block["packets_lost"])),2);
+					$tmpMos = round($this->calculateJitterMos($block["dlsr"] < 1000 ? $block["dlsr"] : 0, $block["ia_jitter"], ($lastlost[$block['source_ssrc']] - $block["packets_lost"])), 2);
 					$lastlost[$block['source_ssrc']] = $block["packets_lost"];
 					$statsData[$ipkey]["mos_counter"] += 1;
 					$statsData[$ipkey]["mos_average"] += $tmpMos;
@@ -529,8 +529,8 @@ class Report {
 
 			if($statsData[$key]["jitter_avg"] > 0) {
 				$statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
-				$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
-				if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];
+				$mainData["jitter_avg"] += $statsData[$key]["jitter_avg"];
+				if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"] = $statsData[$key]["jitter_max"];
 			}
 			$statsData[$key]["mos_counter"] = 1;
 			$mainData["packets_lost"] += $statsData[$key]["packets_lost"];
@@ -652,7 +652,7 @@ class Report {
 
 			if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
 
-			if(!array_key_exists("mos",  $chartData[$ipkey])) {
+			if(!array_key_exists("mos", $chartData[$ipkey])) {
 				$chartData[$ipkey]["mos"] = array();
 				$chartData[$ipkey]["jitter"] = array();
 				$chartData[$ipkey]["packets_lost"] = array();
@@ -763,7 +763,7 @@ class Report {
 			$layerHelper['values'][] = "'".$node['name']."' as dbnode";
 
 			$query = $layer->querySearchData($layerHelper);
-			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"RTPAGENGT Query: ".$query);		
+			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"RTPAGENGT Query: ".$query);
 			$noderows = $db->loadObjectArray($query);
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
@@ -1352,7 +1352,7 @@ class Report {
 		//usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 		/* new sorting with date && id */
 		array_multisort(array_column($data, 'date'), SORT_ASC, array_column($data, 'id'), SORT_ASC, $data);
-		
+
 		if(empty($data)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
