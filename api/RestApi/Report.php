@@ -626,29 +626,38 @@ class Report {
 			list($head,$body) = explode("\r\n\r\n", $data[$key]["msg"]);
 			$params = explode("\r\n", $body);
 			$dataArray = array();
-			foreach($params as $rhead=>$rbody) {
-				list($m,$d) = explode(":",$rbody);
-				if(preg_match("/=/", $d)) {
-					$dataArray[$m] = array();
-					$restars = explode(" ", $d);
-					foreach($restars as $k1=>$v1) {
-						list($k2,$v2) = explode("=",$v1);
-						$dataArray[$m][$k2] = $v2;
-					}
+			$remote_metrics_block = FALSE;
+			foreach($params as $rbody) {
+				if(strpos($rbody, ":") === FALSE) continue;
+				list($m,$d) = explode(":", $rbody, 2);
+				if($m === "RemoteMetrics") {
+					$remote_metrics_block = TRUE;
+					continue;
 				}
-				else $dataArray[$m] = $d;
+				else {
+					if($m === "LocalMetrics") $remote_metrics_block = FALSE;
+					if($remote_metrics_block) continue;
+					if(preg_match("/=/", $d)) {
+						$dataArray[$m] = array();
+						$restars = explode(" ", $d);
+						foreach($restars as $v1) {
+							list($k2,$v2) = explode("=",$v1);
+							$dataArray[$m][$k2] = $v2;
+						}
+					}
+					else $dataArray[$m] = $d;
+				}
 			}
-			//$src_ip = $data[$key]["source_ip"];
-			//$dst_ip = $data[$key]["destination_ip"];
+
 			/* exit */
 			if(!array_key_exists("LocalAddr", $dataArray) && !array_key_exists("RemoteAddr", $dataArray)) {
 				break;
 			}
 
-			$src_ip = $dataArray["LocalAddr"];
-			$dst_ip =  $dataArray["RemoteAddr"];
+			$src_ip = $dataArray["LocalAddr"]["IP"];
+			$dst_ip = $dataArray["RemoteAddr"]["IP"];
 
-			$ipkey= "RTCPXR ".$src_ip." -> ".$dst_ip;
+			$ipkey= "RTCPXR[".$dataArray["RemoteAddr"]["SSRC"]."] ".$src_ip." -> ".$dst_ip;
 
 			if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
 
