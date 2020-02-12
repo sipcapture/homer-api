@@ -87,24 +87,22 @@ define('PUBLIC_SHARE_HOST',"");
 /* LDAP SETTINGS */
 
 /*
-define('LDAP_HOST',"localhost");
+define('LDAP_HOST',"localhost"); # Example value "ldap://ldap.example.com" or SSL "ldaps://ldap.example.com"
 define('LDAP_PORT',389);
 define('LDAP_VERSION',3);
-define('LDAP_ENCRYPTION',"none");
+define('LDAP_ENCRYPTION',"none"); #If you use starttls, set "tls"
 define('LDAP_BIND_USER',"cn=HOMER,ou=Apps,dc=example,dc=com");
 define('LDAP_BIND_PASSWORD',"secret");
 define('LDAP_BASEDN',"dc=example,dc=com");
-define('LDAP_USERNAME_ATTRIBUTE_OPEN',"uid=");
-define('LDAP_USERNAME_ATTRIBUTE_CLOSE',"");
+define('LDAP_USERNAME_ATTRIBUTE',"uid");
 define('LDAP_USERLEVEL',3);
-define('LDAP_UID',"uidnumber");
-define('LDAP_USERNAME',"uid");
-define('LDAP_GID',"gidnumber");
+define('LDAP_UID',"uid");
+define('LDAP_GID',"gid");
 define('LDAP_FIRSTNAME',"givenname");
 define('LDAP_LASTNAME',"sn");
 define('LDAP_EMAIL',"mail");
-define('LDAP_GROUPDN',true);
-define('LDAP_GROUP_USER','uid');
+define('LDAP_GROUP_BASE',"ou=Groups,dc=example,dc=gr"); # Where ldap should search for ldap groups
+define('LDAP_GROUPS',array("developers", "sysadmins", "voice-engineers")); # Which LDAP groups have login access
 define('LDAP_GROUP_ARRAY',false);
 define('LDAP_GROUP_ATTRIBUTE','memberUid');
 */
