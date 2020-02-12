@@ -1,4 +1,11 @@
 
+*This project is obsolete. Please use Homer 7.7 https://github.com/sipcapture/homer 
+http://github.com/sipcapture/homer-app
+http://github.com/sipcapture/homer-ui
+
+
+
+
 [![Logo](http://sipcapture.org/data/images/sipcapture_header.png)](http://sipcapture.org)
 
 <a href="https://cla-assistant.io/sipcapture/homer-api"><img src="https://cla-assistant.io/readme/badge/sipcapture/homer-api" alt="CLA assistant" /></a>
