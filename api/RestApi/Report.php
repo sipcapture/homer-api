@@ -1027,6 +1027,10 @@ class Report {
 				/* check if this is our reply */
 				if(in_array($d["cseq"], $cseq[$callid]["invcseq"]) || empty($cseq[$callid])) $preset[$callid]["bparty"][] = $d;
 			}
+			else if($d["method"] == "183" && preg_match("/INVITE/i", $d["cseq"]) && $d["content_type"] == "application/sdp") {
+				/* Its possible SDP to be contain in a 183 Session Progress message too */
+				if(in_array($d["cseq"], $cseq[$callid]["invcseq"]) || empty($cseq[$callid])) $preset[$callid]["bparty"][] = $d;
+			}
 			else if(preg_match("/BYE/i", $d["cseq"]) && strlen($d["rtp_stat"]) != 0) {
 				$rtpstats = $this->doXRTPReport($d["rtp_stat"]);
 			}
