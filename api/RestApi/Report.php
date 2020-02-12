@@ -466,7 +466,7 @@ class Report {
 				//$json = $data[$key]["msg"];
 				$data[$key]["msg"] = json_decode(preg_replace( '/[^[:print:]]/', '',$json), true);
 			}
-			$ipkey= "RTCP[".$data[$key]["msg"]["sdes_ssrc"]."] ". $src_ip." -> ".$dst_ip;
+			$ipkey= "RTCP[".sprintf("0x%'08X", $data[$key]["msg"]["sdes_ssrc"])."] ". $src_ip." -> ".$dst_ip;
 
 			if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
 
@@ -492,7 +492,7 @@ class Report {
 
 				foreach($blocks as $r => $block) {
 					if(!isset($lastlost[$block['source_ssrc']])) $lastlost[$block['source_ssrc']] = 0;
-					$tmpMos = round($this->calculateJitterMos($block["dlsr"] < 1000 ? $block["dlsr"] : 0 ,$block["ia_jitter"],($lastlost[$block['source_ssrc']] - $block["packets_lost"])),2);
+					$tmpMos = round($this->calculateJitterMos($block["dlsr"] < 1000 ? $block["dlsr"] : 0, $block["ia_jitter"], ($lastlost[$block['source_ssrc']] - $block["packets_lost"])), 2);
 					$lastlost[$block['source_ssrc']] = $block["packets_lost"];
 					$statsData[$ipkey]["mos_counter"] += 1;
 					$statsData[$ipkey]["mos_average"] += $tmpMos;
@@ -529,8 +529,8 @@ class Report {
 
 			if($statsData[$key]["jitter_avg"] > 0) {
 				$statsData[$key]["jitter_avg"] = round($statsData[$key]["jitter_avg"]/$statsData[$key]["mos_counter"],2);
-				$mainData["jitter_avg"]   += $statsData[$key]["jitter_avg"];
-				if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"]= $statsData[$key]["jitter_max"];
+				$mainData["jitter_avg"] += $statsData[$key]["jitter_avg"];
+				if($statsData[$key]["jitter_max"] > $mainData["jitter_max"]) $mainData["jitter_max"] = $statsData[$key]["jitter_max"];
 			}
 			$statsData[$key]["mos_counter"] = 1;
 			$mainData["packets_lost"] += $statsData[$key]["packets_lost"];
@@ -626,33 +626,42 @@ class Report {
 			list($head,$body) = explode("\r\n\r\n", $data[$key]["msg"]);
 			$params = explode("\r\n", $body);
 			$dataArray = array();
-			foreach($params as $rhead=>$rbody) {
-				list($m,$d) = explode(":",$rbody);
-				if(preg_match("/=/", $d)) {
-					$dataArray[$m] = array();
-					$restars = explode(" ", $d);
-					foreach($restars as $k1=>$v1) {
-						list($k2,$v2) = explode("=",$v1);
-						$dataArray[$m][$k2] = $v2;
-					}
+			$remote_metrics_block = FALSE;
+			foreach($params as $rbody) {
+				if(strpos($rbody, ":") === FALSE) continue;
+				list($m,$d) = explode(":", $rbody, 2);
+				if($m === "RemoteMetrics") {
+					$remote_metrics_block = TRUE;
+					continue;
 				}
-				else $dataArray[$m] = $d;
+				else {
+					if($m === "LocalMetrics") $remote_metrics_block = FALSE;
+					if($remote_metrics_block) continue;
+					if(preg_match("/=/", $d)) {
+						$dataArray[$m] = array();
+						$restars = explode(" ", $d);
+						foreach($restars as $v1) {
+							list($k2,$v2) = explode("=",$v1);
+							$dataArray[$m][$k2] = $v2;
+						}
+					}
+					else $dataArray[$m] = $d;
+				}
 			}
-			//$src_ip = $data[$key]["source_ip"];
-			//$dst_ip = $data[$key]["destination_ip"];
+
 			/* exit */
 			if(!array_key_exists("LocalAddr", $dataArray) && !array_key_exists("RemoteAddr", $dataArray)) {
 				break;
 			}
 
-			$src_ip = $dataArray["LocalAddr"];
-			$dst_ip =  $dataArray["RemoteAddr"];
+			$src_ip = $dataArray["LocalAddr"]["IP"];
+			$dst_ip = $dataArray["RemoteAddr"]["IP"];
 
-			$ipkey= "RTCPXR ".$src_ip." -> ".$dst_ip;
+			$ipkey= "RTCPXR[".$dataArray["RemoteAddr"]["SSRC"]."] ".$src_ip." -> ".$dst_ip;
 
 			if(!array_key_exists($ipkey,  $chartData)) $chartData[$ipkey] = array();
 
-			if(!array_key_exists("mos",  $chartData[$ipkey])) {
+			if(!array_key_exists("mos", $chartData[$ipkey])) {
 				$chartData[$ipkey]["mos"] = array();
 				$chartData[$ipkey]["jitter"] = array();
 				$chartData[$ipkey]["packets_lost"] = array();
@@ -763,7 +772,7 @@ class Report {
 			$layerHelper['values'][] = "'".$node['name']."' as dbnode";
 
 			$query = $layer->querySearchData($layerHelper);
-			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"RTPAGENGT Query: ".$query);		
+			if(SYSLOG_ENABLE == 1) syslog(LOG_WARNING,"RTPAGENGT Query: ".$query);
 			$noderows = $db->loadObjectArray($query);
 			$data = array_merge($data,$noderows);
 			$limit -= count($noderows);
@@ -1352,7 +1361,7 @@ class Report {
 		//usort($data, create_function('$a, $b', 'return $a["micro_ts"] > $b["micro_ts"] ? 1 : -1;'));
 		/* new sorting with date && id */
 		array_multisort(array_column($data, 'date'), SORT_ASC, array_column($data, 'id'), SORT_ASC, $data);
-		
+
 		if(empty($data)) {
 			$answer['sid'] = session_id();
 			$answer['auth'] = 'true';
